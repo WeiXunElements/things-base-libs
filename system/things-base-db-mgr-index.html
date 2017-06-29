@@ -1,0 +1,175 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+
+<!--
+	테이블 인덱스 조회 화면
+-->
+
+<dom-module id="things-base-db-mgr-index">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<!-- 테이블 인덱스 조회를 위한 ajax -->
+		<things-ajax
+			id="index-list-ajax"
+			resource-url="ddl/indexes/table/:id"
+			resource-action="index"
+			last-response="{{indexList}}">
+		</things-ajax>
+
+		<!-- 테이블 인덱스 그리드 -->
+		<things-resource-grid
+			top
+			id="index-list-grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]"
+			columns="[[gridColumns]]"
+			data="[[indexList]]"
+			buttons="[[buttons]]"
+			fixed-column-count="0">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-base-db-mgr-index',
+
+			behaviors: [
+				Things.MsgBoxBehavior
+			],
+
+			properties: {
+				/**
+				 * 메인 화면에서 전달받는 테이블 정보
+				 */
+				resource: {
+					type: Object
+				},
+
+				/**
+				 * Grid Config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									exclusive: true
+								}
+							}
+						}
+					}
+				},
+
+				/**
+				 * Grid Model
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'index_name'
+						}, {
+							fieldName: 'index_fields'
+						}, {
+							fieldName: 'unique', dataType: 'boolean'
+						} ];
+					}
+				},
+
+				/**
+				 * Grid Columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [{
+							name: 'index_name',
+							fieldName: 'index_name',
+							width: 250,
+							header: {
+								text: Things.DataGlobal.t('label.index')
+							}
+						}, {
+							name: 'unique',
+							fieldName: 'unique',
+							width: 80,
+							editable: false,
+							header: {
+								text: Things.DataGlobal.t('label.unique')
+							},
+							renderer: {
+								type: 'check',
+								editable: true,
+								threeStates: false
+							}
+						}, {
+							name: 'index_fields',
+							fieldName: 'index_fields',
+							width: 350,
+							header: {
+								text: Things.DataGlobal.t('label.columns')
+							}
+						} ];
+					}
+				},
+
+				/**
+				 * Table Index List
+				 */
+				indexList: {
+					type: Array
+				},
+
+				/**
+				 * Buttons
+				 */
+				buttons: {
+					type: Array,
+					value: function() {
+						return [ {
+							id: 'refresh-btn',
+							text: 'refresh'
+						} ];
+					}
+				}
+			},
+
+			listeners: {
+				'refresh-btn-tap': 'refreshIndexes'
+			},
+
+			observers: [
+				'refreshIndexes(resource)'
+			],
+
+			/**
+			 * Refresh Indexes
+			 *********
+			 * @param {Object} event
+			 */
+			refreshIndexes: function(event) {
+				if(this.resource) {
+					var indexListAjax = this.$['index-list-ajax'];
+					indexListAjax.resourceId = this.resource.id;
+					indexListAjax.generateRequest();
+				} else {
+					this.indexList = [];
+				}
+			}
+		});
+	</script>
+</dom-module>

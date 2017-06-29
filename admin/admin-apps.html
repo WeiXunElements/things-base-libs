@@ -1,0 +1,324 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-form/things-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<link rel="import" href="./admin-app-jvm.html">
+<link rel="import" href="./admin-app-detail.html">
+<link rel="import" href="./admin-app-trx.html">
+<link rel="import" href="./admin-app-error.html">
+<link rel="import" href="./admin-app-metrics.html">
+<link rel="import" href="./admin-app-environment.html">
+<link rel="import" href="./admin-app-control.html">
+<link rel="import" href="./admin-app-logging.html">
+<link rel="import" href="./admin-app-jmx.html">
+<link rel="import" href="./admin-app-thread.html">
+<link rel="import" href="./admin-app-trace.html">
+
+<!--
+	모니터링 상세 화면
+-->
+
+<dom-module id="admin-apps">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-layout-hades {
+				@apply(--layout-flex);
+			}
+			.container {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			.subtitle:before {
+				content:"";
+				@apply(--things-subtitle-icon);
+			}
+			.subtitle {
+				@apply(--things-default-padding);
+				padding-bottom:7px;
+				@apply(--things-subtitle);
+			}
+		</style>
+
+		<things-ajax
+			auto
+			id="resource-meta"
+			method="GET"
+			resource-url="[[menuMetaUrl]]"
+			last-response="{{metaData}}">
+		</things-ajax>
+
+		<things-ajax
+			id="app-info-url"
+			method="GET"
+			resource-url="[[appInfoUrl]]"
+			last-response="{{appInfo}}">
+		</things-ajax>
+
+		<span class="subtitle">[[appTitle]]</span>
+
+		<things-layout-hades
+			id="right-tab-layout"
+			sections="[[sections]]">
+
+			<!-- 1. Details -->
+			<div tab-content-1>
+				<admin-app-detail id="detail-detail"
+													resource="{{resource}}"
+													admin-base-url="{{adminBaseUrl}}"
+													app-agent-port="{{appAgentPort}}"
+													ctl-agent-port="{{ctlAgentPort}}"
+													my-ctl-agent-id="{{myCtlAgentId}}">
+				</admin-app-detail>
+			</div>
+
+			<!-- 2. JVM -->
+			<div tab-content-2 class="container">
+				<admin-app-jvm id="detail-jvm"
+											 resource="{{resource}}"
+											 admin-base-url="{{adminBaseUrl}}"
+											 app-agent-port="{{appAgentPort}}">
+				</admin-app-jvm>
+			</div>
+
+			<!-- 3. Transaction -->
+			<div tab-content-3 class="container">
+				<admin-app-trx id="detail-trx"
+											 resource="{{resource}}"
+											 admin-base-url="{{adminBaseUrl}}"
+											 app-agent-port="{{appAgentPort}}">
+				</admin-app-trx>
+			</div>
+
+			<!-- 4. Error -->
+			<div tab-content-4 class="container">
+				<admin-app-error id="detail-err"
+												 resource="{{resource}}"
+												 admin-base-url="{{adminBaseUrl}}"
+												 app-agent-port="{{appAgentPort}}">
+				</admin-app-error>
+			</div>
+
+			<!-- 5. Metrics -->
+			<!--div tab-content-5 class="container">
+				<admin-app-metrics id="detail-metrics"
+													 resource="{{resource}}"
+													 admin-base-url="{{adminBaseUrl}}">
+				</admin-app-metrics>
+			</div-->
+
+			<!-- 5. Control -->
+			<div tab-content-5 class="container">
+				<admin-app-control id="detail-control"
+													 resource="{{resource}}"
+													 admin-base-url="{{adminBaseUrl}}"
+													 ctl-agent-port="{{ctlAgentPort}}"
+													 my-ctl-agent-id="{{myCtlAgentId}}">
+				</admin-app-control>
+			</div>
+
+			<!-- 6. Logging -->
+			<div tab-content-6 class="container">
+				<admin-app-logging id="detail-logging"
+													 resource="{{resource}}"
+													 admin-base-url="{{adminBaseUrl}}">
+				</admin-app-logging>
+			</div>
+
+			<!-- 7. Threads -->
+			<div tab-content-7 class="container">
+				<admin-app-thread id="detail-threads"
+													resource="{{resource}}"
+													admin-base-url="{{adminBaseUrl}}">
+				</admin-app-thread>
+			</div>
+
+			<!-- 8. Trace -->
+			<div tab-content-8 class="container">
+				<admin-app-trace id="detail-trace"
+												 resource="{{resource}}"
+												 admin-base-url="{{adminBaseUrl}}">
+				</admin-app-trace>
+			</div>
+
+			<!-- 9. Environment -->
+			<div tab-content-9 class="container">
+				<admin-app-environment id="detail-environment"
+															 resource="{{resource}}"
+															 admin-base-url="{{adminBaseUrl}}">
+				</admin-app-environment>
+			</div>
+		</things-layout-hades>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-apps',
+
+			behaviors: [
+				Things.ResourceMenuContentBehavior
+			],
+
+			properties: {
+				/**
+				 * 애플리케이션 명
+				 */
+				appTitle: {
+					type: String,
+					value: 'Applications'
+				},
+
+				/**
+				 * Tab sections
+				 */
+				sections: {
+					type: Array,
+					value: function() {
+						return [ {
+							title: 'Detail',
+							tabId: 'detail',
+							isTab: true
+						}, {
+							title: 'JVM',
+							tabId: 'jvm',
+							isTab: true
+						}, {
+							title: 'Transaction',
+							tabId: 'trx',
+							isTab: true
+						}, {
+							title: 'Error',
+							tabId: 'error',
+							isTab: true
+						}, {
+							title: 'Control',
+							tabId: 'control',
+							isTab: true
+						}, {
+							title: 'Logging',
+							tabId: 'logging',
+							isTab: true
+						}, {
+							title: 'Threads',
+							tabId: 'threads',
+							isTab: true
+						}, {
+							title: 'Trace',
+							tabId: 'trace',
+							isTab: true
+						}, {
+							title: 'Environment',
+							tabId: 'environment',
+							isTab: true
+						} ];
+					}
+				},
+
+				/**
+				 * 선택된 Application
+				 */
+				resource: {
+					type: Object,
+					notify: true
+				},
+
+				/**
+				 * 선택된 Application ID
+				 */
+				resourceId: {
+					type: String
+				},
+
+				/**
+				 * Admin Management URL
+				 */
+				adminBaseUrl: {
+					type: String,
+					notify: true,
+					computed: '_computeAdminBaseUrl(globals.baseUrl)'
+				},
+
+				/**
+				 * APM Agent Port
+				 */
+				appAgentPort: {
+					type: String
+				},
+
+				/**
+				 * Control Agent Port
+				 */
+				ctlAgentPort: {
+					type: String
+				},
+
+
+				/**
+				 * Control Agent가 관리하는 Application ID 정보
+				 **/
+				myCtlAgentId: {
+					type: String
+				}
+			},
+
+			listeners: {
+				'right-tab-layout.things-layout-tab-changed': 'detailTabChanged'
+			},
+
+			/**
+			 * 초기 검색 파라미터 설정
+			 */
+			_initialSearchParamsChanged: function(initialSearchParams) {
+				this.appSelectionChanged(initialSearchParams);
+			},
+
+			/**
+			 * baseUrl이 변경된 이후 Admin Base URL 설정
+			 *
+			 * @param {String} baseUrl
+			 */
+			_computeAdminBaseUrl: function(baseUrl) {
+				return baseUrl.replace('/rest', '/admin/api/applications');
+			},
+
+			/**
+			 * 상세 탭 선택 변경시 : 각 탭에 Refresh 명령을 내린다.
+			 *
+			 * @param {Object} event
+			 */
+			detailTabChanged: function(event) {
+				var tabId = event.detail.srcElement.parentElement.id;
+				if(tabId) {
+					var tabConent = this.$['detail-' + tabId];
+					if(tabConent) {
+						tabConent.refresh();
+					}
+
+					if(tabId != 'control') {
+						var controlContent = this.$['detail-control'];
+						controlContent.offRefreshLog();
+					}
+				}
+			},
+
+			/**
+			 * 애플리케이션 선택 변경시 ...
+			 *
+			 * @param {Object} resource
+			 */
+			appSelectionChanged: function(resource) {
+				this.appTitle = resource.name;
+				this.resource = resource;
+				this.resourceId = resource.id;
+			}
+		})
+	</script>
+</dom-module>

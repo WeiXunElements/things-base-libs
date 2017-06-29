@@ -1,0 +1,69 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-code-editor/things-code-editor.html">
+  
+<!--
+  모니터링 대상 탭에서 상세 버튼 클릭시 텍스트 정보를 보여주는 상세 화면
+-->
+
+<dom-module id="admin-app-detail-text">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      things-code-editor {
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <things-code-editor
+      id="text-viewer"
+      theme="ace/theme/monokai"
+      resource="[[resource]]"
+      code-field="content"
+      mode="ace/mode/json"
+      buttons='[]'>
+    </things-code-editor>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'admin-app-detail-text',
+
+      properties: {
+        /**
+         * 타이틀
+         */
+        title: {
+          type: String,
+          value: 'Detail'
+        },
+
+        /**
+         * 상세 내용
+         */
+        content: {
+          type: String,
+          observer: '_contentChagned'
+        },
+
+        /**
+         * 로그 리소스
+         */
+        resource: {
+          type: Object
+        }
+      },
+
+      /**
+       * 상세 내용 변경 시
+       */
+      _contentChagned: function(content) {
+        this.resource = { id : 1, content : content };
+      }
+    })
+  </script>
+</dom-module>

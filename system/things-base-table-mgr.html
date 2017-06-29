@@ -1,0 +1,321 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-form/things-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<link rel="import" href="./things-base-table-mgr-table.html">
+<link rel="import" href="./things-base-table-mgr-index.html">
+
+<!--
+	테이블 관리 화면
+-->
+
+<dom-module id="things-base-table-mgr">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-layout-hera {
+				@apply(--layout-flex);
+			}
+			things-layout-hades {
+				@apply(--layout-flex);
+			}
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+			.container {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-ajax
+			auto
+			id="resource-meta"
+			resource-url="[[menuMetaUrl]]"
+			resource-action="index"
+			last-response="{{metaData}}">
+		</things-ajax>
+
+		<!-- 엔티티 클래스와 테이블, 엔티티, 메뉴의 컬럼 정보를 동기화를 위한 ajax -->
+		<things-ajax
+			id="entity-sync-ajax"
+			resource-url="entities/sync_managed_columns"
+			resource-action="update">
+		</things-ajax>
+
+		<!-- 폼에 초기화시킬 entity의 상세 정보를 조회하기 위한 ajax -->
+		<things-ajax
+			id="entity-info-ajax"
+			resource-url="entities/:id"
+			resource-action="find">
+		</things-ajax>
+
+		<!-- 폼에서 변경한 entity의 상세 정보를 저장하기 위한 ajax -->
+		<things-ajax
+			id="entity-save-ajax"
+			resource-url="entities/:id"
+			resource-action="update">
+		</things-ajax>
+
+		<!-- 테이블 텝에 초기화 시킬 table과 entity의 컬럼을 조회를 위한 ajax -->
+		<things-ajax
+			id="diff-columns-ajax"
+			resource-url="ddl/table/diff_columns/:id"
+			resource-action="index"
+			last-response="{{diffColumns}}">
+		</things-ajax>
+
+		<things-search-form
+			id="search-form"
+			title="[[menuInfo.title]]"
+			form-fields="[[searchFormFields]]"
+			select-fields="[[selectFields]]"
+			sort-fields="[[sortFields]]"
+			action-url="[[menuInfo.resource_url]]"
+			page="{{page}}"
+			limit="{{limit}}"
+			last-response="{{lastResponse}}">
+		</things-search-form>
+
+		<things-layout-hera
+			left-content-title=[[leftContentTitle]]
+			hide-right-subtitle
+			right-ratio="[[rightRatio]]">
+
+			<!-- 레이아웃 좌측의 entity 리스트 그리드 -->
+			<things-resource-grid
+				left
+				id="grid"
+				config="[[gridConfig]]"
+				model="[[gridModel]]"
+				columns="[[gridColumns]]"
+				current-page="{{page}}"
+				limit="{{limit}}"
+				total-count="[[lastResponse.total]]"
+				data="[[lastResponse.items]]"
+				fixed-column-count="[[menuInfo.fixed_columns]]"
+				buttons="[[buttons]]">
+			</things-resource-grid>
+
+			<things-layout-hades
+				right
+				id="right-tab-layout"
+				sections="[[sections]]">
+
+				<!-- 첫번째 탭의 entity 정보 폼 -->
+				<div tab-content-1 class="container">
+					<things-form
+						id="resource-form"
+						form-fields="[[resourceFormFields]]"
+						fixed-column-count="2"
+						buttons="[[formButtons]]">
+					</things-form>
+				</div>
+
+				<!-- 두번째 탭의 table 설정 화면 -->
+				<div tab-content-2 class="container">
+					<things-base-table-mgr-table
+						resource="[[resource]]"
+						diff-columns="[[diffColumns]]">
+					</things-base-table-mgr-table>
+				</div>
+
+				<!-- 세번째 탭의 index 설정 화면 -->
+				<div tab-content-3 class="container">
+					<things-base-table-mgr-index
+						resource="[[resource]]">
+					</things-base-table-mgr-index>
+				</div>
+			</things-layout-hades>
+		</things-layout-hera>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-base-table-mgr',
+
+			behaviors: [
+				Things.ResourceMenuContentBehavior
+			],
+
+			properties: {
+				/**
+				 * left content title
+				 */
+				leftContentTitle: {
+					type: String,
+					value: function() {
+						return Things.DataGlobal.t('label.entity');
+					}
+				},
+
+				/**
+				 * things-layout-hera의 비율을 결정하는 property
+				 */
+				rightRatio: {
+					type: String,
+					value: function() {
+						return 'ratio2'
+					}
+				},
+
+				/**
+				 * grid config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							/*options: {
+								checkBar: {
+									visible: false
+								}
+							}*/
+						}
+					}
+				},
+
+				/**
+				 * tab sections
+				 */
+				sections: {
+					type: Array,
+					value: function() {
+						return [{
+							title: Things.DataGlobal.t('title.basic_info'),
+							tabId: 'basic-info',
+							isTab: true
+						}, {
+							title: Things.DataGlobal.t('label.table'),
+							tabId: 'table',
+							isTab: true
+						}, {
+							title: Things.DataGlobal.t('label.index'),
+							tabId: 'index',
+							isTab: true
+						}]
+					}
+				},
+
+				/**
+				 * info form의 buttons
+				 */
+				formButtons: {
+					type: Array,
+					value: function() {
+						return [/*{
+							id: 'save-btn',
+							text: 'save'
+						}*/]
+					}
+				}
+			},
+
+			listeners: {
+				'grid.things-grid-row-data-select': 'gridRowSelected',
+				'entity-info-ajax.things-ajax-response': 'entityResponsed',
+				'entity-save-ajax.things-ajax-response': 'saveResponsed',
+				'save-btn-tap': 'saveBtnTapped',
+				'sync-btn-tap': 'synchAll'
+			},
+
+			/**
+			 * entity list 그리드의 로우가 클릭되면
+			 * 선택한 entity의 아이디를 resourceId에 초기화 하고
+			 * entity의 상세 정보와 컬럼 정보를 조회하는 ajax를 호출
+			 *******
+			 * @param {Object} event
+			 */
+			gridRowSelected: function(event) {
+				this.resourceId = event.detail.id;
+				var entityInfoAjax = this.$['entity-info-ajax'];
+				entityInfoAjax.resourceId = this.resourceId;
+				entityInfoAjax.generateRequest();
+
+				var diffColumnsAjax = this.$['diff-columns-ajax'];
+				diffColumnsAjax.resourceId = this.resourceId;
+				// entityColumnsAjax.sortFields = [{ field: 'rank', ascending: true }];
+				diffColumnsAjax.generateRequest();
+			},
+
+			/**
+			 * entity-info-ajax 호출이 성공하면 조회한 데이터를 form에 셋팅
+			 *******
+			 * @param {Object} event
+			 */
+			entityResponsed: function(event) {
+				this.resource = event.detail;
+				this.$['resource-form'].setFormData(this.resource);
+			},
+
+			/**
+			 * form의 save 버튼 클릭시 폼에서 데이터를 추출하여 해당 entity의 디테일 정보룰 업데이트
+			 *******
+			 * @param {Object} event
+			 */
+			saveBtnTapped: function(event) {
+				var formData = this.$['resource-form'].serializeMyForm();
+				var entitySaveAjax = this.$['entity-save-ajax'];
+				entitySaveAjax.resourceId = this.resourceId;
+				entitySaveAjax.body = formData;
+				entitySaveAjax.generateRequest();
+			},
+
+			/**
+			 * save ajax 호출이 성공하면 search-form을 통해 데이터를 다시 조회
+			 *******
+			 * @param {Object} event
+			 */
+			saveResponsed: function(event) {
+				this.$['search-form']._onSearchFormTap();
+			},
+
+			/**
+			 * 선택한 엔티티 정보들을 서버에 있는 EntityClass 기준으로 데이터베이스 테이블 컬럼, 엔티티 컬럼, 메뉴 컬럼 등을 동기화한다.
+			 *******
+			 * @param {Object} event
+			 */
+			synchAll: function(event) {
+				this.openConfirmMsg({
+					type : 'info',
+					title : Things.DataGlobal.t('button.sync'),
+					text : Things.DataGlobal.t('text.Sure to process'),
+					showCancelButton: true
+
+				}, function() {
+					var dataludiGrid = this.$.grid.getGridObject();
+					var dataSet = this.$.grid.getGridDataSet();
+					var rows = dataludiGrid.getCheckedRows();
+
+					if (rows && rows.length > 0) {
+						var list = rows.map(function(row) {
+							var entity = dataSet.getRowObject(row.dataIndex());
+							return entity.id;
+						}.bind(this));
+						this.syncWithEntity(list);
+					}
+
+				}.bind(this));
+			},
+
+			/**
+			 * save ajax 호출이 성공하면 search-form을 통해 데이터를 다시 조회
+			 *******
+			 * @param {Object} entityList
+			 */
+			syncWithEntity: function(entityList) {
+				var syncAjax = this.$['entity-sync-ajax'];
+				syncAjax.body = entityList;
+				syncAjax.generateRequest();
+			}
+		})
+	</script>
+</dom-module>

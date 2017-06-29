@@ -1,0 +1,94 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+
+<!--
+	Purchase Order
+-->
+
+<dom-module id="asset-apps-main">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-ajax
+			auto
+			id="resource-meta"
+			method="GET"
+			resource-url="[[menuMetaUrl]]"
+			last-response="{{metaData}}">
+		</things-ajax>
+
+		<things-search-form
+			id="search-form"
+			title="[[menuInfo.title]]"
+			form-fields="[[searchFormFields]]"
+			select-fields="[[selectFields]]"
+			sort-fields="[[sortFields]]"
+			action-url="[[menuInfo.resource_url]]"
+			page="{{page}}"
+			limit="{{limit}}"
+			last-response="{{lastResponse}}">
+		</things-search-form>
+
+		<things-resource-grid
+			id="grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]"
+			columns="[[gridColumns]]"
+			data="[[items]]"
+			total-count="[[itemCount]]"
+			current-page="{{page}}"
+			limit="{{limit}}"
+      selected-row-data="{{item}}"
+			fixed-column-count="[[menuInfo.fixed_columns]]"
+			grid-save-action="[[menuInfo.grid_save_url]]"
+			buttons="[[buttons]]"
+			export-file-name="[[menuInfo.title]]"
+			export-sheet-name="[[menuInfo.title]]">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'asset-apps-main',
+
+      properties: {
+          item: {
+            type: Object
+          }
+      },
+
+      observers: [
+        'itemChanged(item)'
+      ],
+
+      itemChanged: function(item) {
+        event.preventDefault();
+
+        var row = this.$.grid.getGridObject().focusedRow();
+        var rowObj = row.getRowObject();
+        //var state = { term_type_id : rowObj.id };
+        var state = { term_type_id : rowObj };
+        page('/terminology_repos', state);
+      },
+
+			behaviors: [
+				Things.ResourceMenuContentBehavior
+			]
+		});
+	</script>
+</dom-module>

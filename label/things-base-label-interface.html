@@ -1,0 +1,213 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html">
+<link rel="import" href="../../things-section/things-diy-based-form.html">
+<link rel="import" href="../../things-section/things-diy-based-grid.html">
+<link rel="import" href="../../things-meta/things-menu-meta-behavior.html">
+
+<!--
+  라벨 인터페이스 정의 화면
+-->
+
+<dom-module id="things-base-label-interface">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        background-color:rgba(0,0,0,.05);
+        overflow-y:hidden
+      }
+
+      .search-field {
+        @apply(--layout-horizontal);
+        @apply(--things-brand);
+      }
+
+      ::shadow things-search-form div.things-search-form {
+        display:block !important
+      }
+
+      .left-side {
+        min-width: 450px;
+        @apply(--layout-flex-1);
+      }
+
+      .right-side {
+        @apply(--layout-flex-2);
+        @apply(--layout-vertical);
+      }
+
+      .subtitle:before {
+        content: '';
+        @apply(--things-subtitle-icon);
+      }
+
+      .subtitle {
+        @apply(--things-default-padding);
+        @apply(--things-subtitle);
+        padding-left: 16px
+      }
+    </style>
+
+    <things-ajax
+      auto
+      id="resource-meta"
+      method="GET"
+      resource-url="[[menuMetaUrl]]"
+      last-response="{{metaData}}">
+    </things-ajax>
+
+    <things-ajax
+      id="label-master"
+      method="GET"
+      resource-url="label_interfaces/master"
+      last-response="{{masterData}}">
+    </things-ajax>
+
+    <div class="left-side">
+      <span class="subtitle">[[formTitle]]</span>
+
+      <things-resource-form
+        id="form"
+        resource-url="[[resourceUrl]]"
+        form-fields="[[resourceFormFields]]"
+        column-count="1">
+      </things-resource-form>
+    </div>
+
+    <div class="right-side">
+      <span class="subtitle">[[gridTitle]]</span>
+
+      <things-resource-grid
+        id="grid"
+        class="layout vertical flex"
+        config="[[gridConfig]]"
+        model="[[gridModel]]"
+        columns="[[gridColumns]]"
+        data="[[items]]"
+        grid-save-action="[[menuInfo.grid_save_url]]"
+        fixed-column-count="0"
+        buttons="[[buttons]]">
+      </things-resource-grid>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'things-base-label-interface',
+
+      behaviors: [
+        Things.MenuMetaBehavior
+      ],
+
+      properties: {
+        /**
+         * 조회 결과
+         */
+        menuInfo: {
+          type: Object,
+          observer: '_menuInfoChanged'
+        },
+
+        /**
+         * Form Title
+         */
+        formTitle: {
+          type: String,
+          value: function() {
+            return Things.DataGlobal.t('menu.DataSrc');
+          }
+        },
+
+        /**
+         * Grid Title
+         */
+        gridTitle: {
+          type: String,
+          value: 'Table Mapping'
+        },
+
+        /**
+         * Form Buttons
+         */
+        formButtons: {
+          type: Array,
+          value: [ {
+            id: 'save-btn',
+            text: 'save',
+            icon: 'icons:save'
+          } ]
+        },
+
+        /**
+         * 마스터 데이터
+         */
+        masterData: {
+          type: Object,
+          observer: '_masterDataChanged'
+        }
+      },
+
+      listeners: {
+        'grid.things-grid-configured': '_gridConfigured'
+      },
+
+      /**
+       * 메뉴 메타데이터 변경시
+       *
+       * @param {Object} menuInfo
+       */
+      _menuInfoChanged: function(menuInfo) {
+        if(menuInfo) {
+          this.menuId = menuInfo.id;
+          this.routingChanged(menuInfo.routing);
+        }
+      },
+
+      /**
+       * 그리드가 구성된 이후
+       *
+       * @param {Object} event
+       */
+      _gridConfigured: function(event) {
+        this.refreshData();
+      },
+
+      /**
+       * 마스터 데이터가 변경된 이후 ...
+       */
+      _masterDataChanged: function(masterData) {
+        console.log(masterData);
+
+        this.$.form.setFormData(masterData);
+      },
+
+      /**
+       * Route Changed
+       */
+      routingChanged: function(routing) {
+        document.addEventListener('things-routing-changed-' + routing, function(event) {
+          this._handlerRouteChange(event);
+        }.bind(this));
+      },
+
+      /**
+       * Route change handler
+       *
+       * @param {Object} event
+       */
+      _handlerRouteChange: function(event) {
+        this.refreshData();
+      },
+
+      /**
+       * Refresh Data
+       */
+      refreshData: function() {
+        this.$['label-master'].generateRequest();
+      }
+    });
+  </script>
+</dom-module>

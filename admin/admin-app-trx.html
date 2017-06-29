@@ -1,0 +1,104 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-responsive-iframe/things-responsive-iframe.html">
+
+<!-- 
+	모니터링 대상 애플리케이션 탭 - Transaction 
+-->
+ 
+<dom-module id="admin-app-trx">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-code-editor {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-responsive-iframe resource-url="[[trxMonitorUrl]]">
+		</things-responsive-iframe>
+	</template>
+ 
+	<script>
+		Polymer({
+			is: 'admin-app-trx',
+ 
+			properties: {
+				/**
+				 * 애플리케이션 ID
+				 */
+				resourceId: {
+					type: String
+				},
+
+				/**
+				 * 선택된 애플리케이션 정보 
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * Management URL 
+				 */
+				managementUrl: {
+					type: String
+				},
+
+				/**
+				 * App Agent Port
+				 */
+				appAgentPort: {
+					type: String
+				},
+
+				/**
+				 * Transaction Monitor URL 변경시 
+				 */
+				trxMonitorUrl: {
+					type: String,
+					computed: '_computeTrxMonitorUrl(managementUrl, appAgentPort)'
+				}
+			},
+
+			/**
+			 * Refresh
+			 */
+			refresh: function() {
+			},
+
+			/**
+			 * Application 선택이 변경된 경우
+			 *
+			 * @param {Object} resource
+			 */
+			resourceChanged: function(resource) {
+				this.resourceUrl = resource.managementUrl;
+				this.resourceId = resource.id;
+				var managementUrl = resource.managementUrl;
+				var portSep = managementUrl.lastIndexOf(':');
+
+				if(managementUrl.lastIndexOf(':') > 6) {
+					this.managementUrl = managementUrl.substr(0, portSep);
+				} else {
+					this.managementUrl = managementUrl;
+				}
+			},
+
+			/**
+			 * managementUrl, appAgentPort로 trxMonitorUrl을 계산 
+			 *
+			 * @param {String} managementUrl
+			 * @param {String} appAgentPort
+			 */
+			_computeTrxMonitorUrl: function(managementUrl, appAgentPort) {
+				return managementUrl + ':' + appAgentPort + '/transaction/average?transaction-type=Web';
+			}
+		})
+	</script>
+</dom-module>

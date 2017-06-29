@@ -1,0 +1,193 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+
+<!--
+	모니터링 대상 애플리케이션 탭 - Metrics 화면
+-->
+
+<dom-module id="admin-app-metrics">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<!-- Metrics 내용 조회 -->
+		<things-ajax
+			id="app-metrics-ajax"
+			resource-action="find">
+		</things-ajax>
+
+		<things-resource-grid
+			left
+			id="grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]"
+			columns="[[gridColumns]]"
+			data="[[items]]"
+			total-count="[[itemCount]]"
+			current-page="{{page}}"
+			limit="{{limit}}"
+			fixed-column-count="0">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-app-metrics',
+
+			properties: {
+				/**
+				 * Admin Base Url
+				 */
+				adminBaseUrl: {
+					type: String
+				},
+
+				/**
+				 * Application 선택 후 ...
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * Metrics List
+				 */
+				items: {
+					type: Array,
+				},
+
+				/**
+				 * grid config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									visible: false
+								}
+							}
+						}
+					}
+				},
+
+				/**
+				 * grid model
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'name'
+						}, {
+							fieldName: 'value',
+							dataType: 'number'
+						} ];
+					}
+				},
+
+				/**
+				 * grid columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [ {
+							name: 'name',
+							fieldName: 'name',
+							width: 450,
+							header: {
+								text: Things.DataGlobal.t('label.name')
+							}
+						}, {
+							name: 'value',
+							fieldName: 'value',
+							width: 100,
+							header: {
+								text: Things.DataGlobal.t('label.value')
+							},
+							editable: false,
+							styles: {
+								textAlignment: 'far',
+								numberFormat: '0,000'
+							}
+						} ];
+					}
+				}
+			},
+
+			listeners: {
+				'app-metrics-ajax.things-ajax-response': '_metricsArrived',
+				'app-metrics-ajax.things-ajax-error': '_errorHandler'
+			},
+
+			/**
+			 * Metrics 데이터 조회 완료 이후 ...
+			 */
+			_metricsArrived: function(event) {
+				var metricsData = event.detail;
+
+				if(metricsData) {
+					var items = [];
+					var gaugeKey = 'gauge';
+
+					for(key in metricsData) {
+						var value = metricsData[key];
+						if(key.startsWith(gaugeKey)) {
+							items.push({ name : key, value : value});
+						}
+					}
+
+					this.items = items;
+				} else {
+					this.items = [];
+				}
+
+				this.itemCount = this.items.length;
+			},
+
+			/**
+			 * Error 핸들링 ...
+			 *
+			 * @param {Object} event
+			 */
+			_errorHandler: function(event) {
+				this.items = [];
+				this.itemCount = 0;
+			},
+
+			/**
+			 * Application 선택이 변경된 경우 Thread List 호출
+			 */
+			resourceChanged: function(resource) {
+				var metricsListAjax = this.$['app-metrics-ajax'];
+				metricsListAjax.withCredentials = false;
+				metricsListAjax.resourceUrl = this.adminBaseUrl + '/:id/metrics';
+				metricsListAjax.resourceId = resource.id;
+				metricsListAjax.generateRequest();
+			},
+
+			/**
+			 * Data Refresh ...
+			 */
+			refresh: function() {
+				if(this.resource) {
+					this.$['app-metrics-ajax'].generateRequest();
+				}
+			}
+		});
+	</script>
+</dom-module>

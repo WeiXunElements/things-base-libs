@@ -1,0 +1,629 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../iron-icon/iron-icon.html">
+<link rel="import" href="../../paper-dialog/paper-dialog.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-button/things-button.html">
+<link rel="import" href="../../things-form/things-resource-form.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-full-dialog/things-full-dialog.html">
+<link rel="import" href="../../things-grid/things-basic-grid.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-meta/things-menu-meta-behavior.html">
+<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html">
+<link rel="import" href="../../things-resource-selector/things-resource-selector.html">
+<link rel="import" href="../../things-spinner/things-spinner.html">
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
+
+<!--link rel="import" href="../base/things-base-menu-detail.html"-->
+
+<!--
+Seed 리파지토리 화면 셋
+두 개의 그리드로 구성되는데 하나는 Seed 표시용이고
+다른 하나는 Seed를 선택했을 때 SeedDetail 리스트를 표시하는데 사용된다.
+-->
+
+<dom-module id="asset-seed-main">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical) @apply(--layout-flex)
+      }
+
+      .subtitle:before {
+        content: "";
+        @apply(--things-subtitle-icon);
+      }
+
+      .subtitle {
+        @apply(--things-default-padding);
+        padding-bottom: 7px;
+        @apply(--things-subtitle);
+      }
+
+      things-resource-grid {
+        @apply(--things-default-padding);
+        padding-top: 0px;
+        padding-bottom: 0px;
+      }
+
+      .things-resource-grid-main {
+        @apply(--layout-flex);
+      }
+
+      .things-resource-grid-sub {
+        @apply(--layout-flex-2);
+        min-height: 150px;
+      }
+
+      paper-toolbar {
+        background-color:var(--things-primary-background-color);
+        height:45px;
+        margin-top:0px !important;
+        @apply(--things-padding-clear)
+        padding:0px;
+      }
+
+      .toolbardown {
+        background-color:white;
+        height:45px;
+        margin-top:0px !important;
+        @apply(--things-padding-clear)
+      }
+
+      paper-toolbar::shadow {
+        height:45px;
+        padding:0;
+        margin:0px;
+      }
+
+      paper-toolbar .title {
+        margin-left:32px !important;
+        line-height:initial !important;
+        padding:0;
+        margin:0px;
+      }
+
+      paper-dialog {
+        width:60%;
+        height:95%;
+        @apply(--layout-vertical);
+        padding:0;
+        margin:0px;
+      }
+
+      .close-btn {
+        @apply(--things-header-button);
+        background:url(/images/icon-close.png) 100% 50% no-repeat;
+        margin-right:10px;
+      }
+
+      .paddingmargin0 {
+        padding:0px;
+        padding-bottom:7px;
+        margin:0;
+      }
+    </style>
+
+    <things-ajax
+      id="seedDetailJsonAjax"
+      method="GET"
+      resource-url="[[seedDetailJsonAjaxUrl]]"
+      last-response="{{seedDetailAttachmentData}}">
+    </things-ajax>
+
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" modal>
+      <paper-toolbar class="aligntop">
+        <span class="title">{{resourceSite}}_{{seedDetailEntity}}</span>
+        <div class="buttonsGroup">
+          <button dialog-confirm class="close-btn"></button>
+        </div>
+      </paper-toolbar>
+
+      <things-spinner id="thingsSpinner"></things-spinner>
+
+      <things-code-editor
+        id="code-editor"
+        class="flex paddingmargin0"
+        theme="ace/theme/monokai"
+        mode="ace/mode/json"
+        resource="{{fileResource}}"
+        code-field="content"
+        buttons='[]'
+        !hideToolbar>
+      </things-code-editor>
+    </paper-dialog>
+
+    <things-ajax
+      auto
+      id="resource-meta"
+      method="GET"
+      resource-url="[[menuMetaUrl]]"
+      last-response="{{metaData}}">
+    </things-ajax>
+
+    <things-search-form
+      id="search-form"
+      title="[[menuInfo.title]]"
+      form-fields="[[searchFormFields]]"
+      select-fields="[[selectFields]]"
+      sort-fields="[[sortFields]]"
+      action-url="[[resourceUrl]]"
+      page="1"
+      limit="1000"
+      last-response="{{seedResponse}}">
+    </things-search-form>
+
+    <span class="subtitle">초기데이터 셋</span>
+
+    <things-resource-grid
+      id="grid"
+      class="things-resource-grid-main"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      current-page="1"
+      limit="1000"
+      data="[[seedList]]"
+      total-count="[[seedTotal]]"
+      grid-save-action="[[menuInfo.grid_save_url]]"
+      selected-row-data="{{selectedRow}}"
+      buttons="[[buttons]]"
+      fixed-column-count="[[menuInfo.fixed-column-count]]"
+      enable-detail-column
+      !paginatable
+      !show-paginator>
+    </things-resource-grid>
+
+    <things-ajax
+      id="subcode-list"
+      resource-url="[[seedDetailListUrl]]"
+      resource-action="index"
+      resource-id="{{resourceId}}"
+      last-response="{{seedDetailResponse}}">
+    </things-ajax>
+
+    <span class="subtitle">초기데이터 상세</span>
+
+    <things-resource-grid
+      id="sub-grid"
+      class="things-resource-grid-sub"
+      config="[[gridConfig]]"
+      model="[[detailModel]]"
+      columns="[[detailColumns]]"
+      current-page="1"
+      limit="1000"
+      data="[[seedDetailItems]]"
+      grid-save-action="[[detailSaveUrl]]"
+      buttons="[[detailButtons]]"
+      fixed-column-count="0"
+      enable-detail-column>
+    </things-resource-grid>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'asset-seed-main',
+
+      behaviors: [
+        Things.MenuMetaBehavior,
+        Things.ResourceSelectorBehavior,
+        Things.MsgBoxBehavior,
+        Things.ViewOpenBehavior,
+        Things.SpinnerBehavior
+      ],
+
+      properties: {
+        /**
+         * 서버에서 관리하는 메뉴 정보
+         */
+        menuInfo: {
+          type: Object,
+          observer: '_menuInfoChanged'
+        },
+
+        /**
+         * 그리드에서 선택된 Row Data
+         */
+        selectedRow: {
+          type: Object
+        },
+
+        /**
+         * Seed Detail Search URL
+         */
+        seedDetailListUrl: {
+          type: String,
+          value: 'seed_repos/:id/seed_repo_details'
+        },
+
+        /**
+         * Resource id attribute
+         */
+        resourceId: {
+          type: String
+        },
+
+        /**
+         * SeedDetail save url
+         */
+        detailSaveUrl: {
+          type: String,
+          value: 'seed_repos/:id/seed_repo_details/update_multiple'
+        },
+
+        /**
+         * SeedDetail 조회 Ajax URL
+         */
+        seedDetailJsonAjaxUrl: {
+          type: String,
+          value: 'seed_repos/:id/seeds/:seeddetail_id'
+        },
+
+        /**
+         * 실제 그리드에 매핑되는 결과값
+         */
+        seedList: {
+          type: Array
+        },
+
+        seedDetailAttachmentData: {
+          type: Array
+        },
+
+        /**
+        * 실제 그리드에 매핑되는 total값
+        */
+        seedTotal: {
+          type: Number
+        },
+
+        /**
+         * SeedDetail ajax call response로 null 값일 경우 observer를 통해 초기화 한다.
+         */
+        seedDetailResponse: {
+          type: Object,
+          observer: '_seedDetailChanged'
+        },
+
+        /**
+         * 실제 그리드에 매핑되는 결과값
+         */
+        seedDetailItems: {
+          type: Array
+        },
+
+        /**
+         * grid config
+         */
+        gridConfig: {
+          type: Object,
+          value: function() {
+            return {
+              // displayOptions : {
+              //     fitStyle : DataLudi.GridFitStyle.EVEN_FILL
+              // }
+            }
+          }
+        },
+
+        /**
+         * Detail Grid Model
+         */
+        detailModel: {
+          type: Array,
+          value: [ {
+            fieldName: 'id'
+          }, {
+            fieldName: '_showjson_'
+          }, {
+            fieldName: 'rank',
+            dataType: 'number',
+            rank: true,
+            increment: 10
+          }, {
+            fieldName: 'bundle'
+          }, {
+            fieldName: 'entity_name'
+          }, {
+            fieldName: 'data_length'
+          }, {
+            fieldName: 'data_size'
+          }, {
+            fieldName: 'attachment',
+            dataType: 'object'
+          }, {
+            fieldName: 'attachment_editor'
+          }, {
+            fieldName: 'seedrepo_id'
+          }, {
+            fieldName: 'enabled'
+          }, {
+            fieldName: 'created_at'
+          } ]
+        },
+
+        /**
+         * seed detail grid columns
+         */
+        detailColumns: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+
+        /**
+         * detail-grid 버튼 정보
+         */
+        detailButtons: {
+          type: Array,
+          value: [ {
+            id: 'add-btn',
+            text: 'add'
+          }, {
+            id: 'save-btn',
+            text: 'save'
+          }, {
+            id: 'delete-btn',
+            text: 'delete'
+          } ]
+        }
+      },
+
+      /**
+       * Column 번역을 위하여 Attached로 바꿈
+       */
+      attached: function() {
+        this.detailColumns = [ {
+          name: 'id',
+          fieldName: 'id',
+          width: 0
+        }, {
+          fieldName: '_showjson_',
+          name: '_showjson_',
+          width: 50,
+          editable: false,
+          imageList: 'images',
+          header: { text: '파일보기' },
+          renderer: { type: 'icon' },
+          styles: { iconIndex: 'menu_button_hover.png', iconLocation: 'center' },
+          styleCallback: function(index, styles) {
+            var row = index.getRow();
+            var data = row.getRowObject();
+            if(!data.attachment || !data.attachment.id) {
+              styles.setIconIndex(null);
+            } else {
+              styles.setIconIndex('menu_button_hover.png');
+            }
+          }
+        }, {
+          name: 'seedrepo_id',
+          fieldName: 'seedrepo_id',
+          width: 0
+        }, {
+          name: 'rank',
+          fieldName: 'rank',
+          width: 50,
+          nullable: false,
+          header: { text: Things.DataGlobal.t('label.rank') },
+          styles: { textAlignment: 'center' }
+        }, {
+          name: 'bundle',
+          fieldName: 'bundle',
+          width: 70,
+          nullable: false,
+          lookupDisplay: true,
+          header: { text: Things.DataGlobal.t('label.bundle') },
+          editor: { type: 'list', domainOnly: true },
+          styles: { textAlignment: 'center' },
+          lookupValues: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'scene', 'admin', 'sub-mgt'],
+          lookupLabels: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'scene', 'admin', 'sub-mgt']
+        }, {
+          name: 'entity_name',
+          fieldName: 'entity_name',
+          width: 150,
+          nullable: false,
+          header: { text: Things.DataGlobal.t('label.entity') }
+				}, {
+          fieldName: 'attachment',
+          name: 'attachment',
+          width: 275,
+          editable: false,
+          header: { text: Things.DataGlobal.t('label.attachment') },
+          styles: { iconIndex: 'file-selector' },
+          userData: {
+            titleField: 'name',
+            defaultStorage: 'default'
+          },
+          displayCallback: function(index, value) {
+            var rowObj = index.getRow().getRowObject();
+            var fieldName = index.column.dataFieldName();
+            var userData = index.column.userData();
+            var columnObj = rowObj[fieldName];
+            return columnObj ? columnObj.name : '';
+          }
+        }, {
+          name: 'data_length',
+          fieldName: 'data_length',
+          editable: false,
+          width: 80,
+          header: { text: Things.DataGlobal.t('label.qty') },
+          styles: { textAlignment: 'far' }
+        }, {
+          name: 'data_size',
+          fieldName: 'data_size',
+          editable: false,
+          width: 80,
+          styles: { textAlignment: 'far' },
+          header: { text: Things.DataGlobal.t('label.size') }
+        }, {
+          name: 'enabled',
+          fieldName: 'enabled',
+          width: 60,
+          header: { text: Things.DataGlobal.t('label.active') },
+          renderer: {
+            type: 'check',
+            editable: true,
+            threeStates: false,
+            trueValues: 'true',
+            falseValues: 'false'
+          }
+        }, {
+          name: 'created_at',
+          fieldName: 'created_at',
+          editable: false,
+          width: 140,
+          header: { text: Things.DataGlobal.t('label.created_at') }
+        } ];
+      },
+
+      listeners: {
+        'grid.things-grid-detail-tap': '_showSeedDetail',
+        'grid.things-grid-row-data-select': '_showSeedDetail',
+        'grid.things-grid-save-success': '_reloadSeeds',
+        'grid.things-grid-configured': '_reloadSeeds',
+        'sub-grid.things-grid-configured': '_subGridConfigured',
+        'sub-grid.things-grid-save-success': '_reloadSeedDetails',
+        'sub-grid.things-grid-handle-save': '_beforeSeedDetailSave',
+        'sub-grid.things-grid-detail-tap': '_downloadFile',
+        'sub-grid.things-grid-column-dblclicked' : 'gridShowJsonClicked',
+        'seedDetailJsonAjax.things-ajax-response' :'dialogopen'
+      },
+
+      observers: [
+        'seedResponseChanged(seedResponse)'
+      ],
+
+      _subGridConfigured: function(event) {
+        var var1 = event.detail.columns();
+        var var2 = var1[0];
+        var var3 = var2._styles;
+        var2._width = "50";
+        var3._iconIndex = "download.png";
+        var var4 = var2._header;
+        var4._text = "다운로드";
+      },
+
+      gridShowJsonClicked: function(event) {
+        var index = event.detail.index;
+        var grid = event.detail.grid;
+        var row = grid.focusedRow();
+        var data = row.getRowObject();
+
+        // 첫번쩨 컬럼 아이콘에 대한 로직
+        if(index.column.name() == '_showjson_' && data.attachment && data.attachment.id) {
+          this.seedDetailEntity = data.attachment.name;
+          this.seedDetailJsonAjaxUrl = 'seed_repos/:id/seeds/:seeddetail_id';
+          this.seedDetailJsonAjaxUrl = this.seedDetailJsonAjaxUrl.replace(':id', this.resourceId);
+          this.seedDetailJsonAjaxUrl = this.seedDetailJsonAjaxUrl.replace(':seeddetail_id', data.id);
+          this.$['seedDetailJsonAjax'].generateRequest();
+        }
+      },
+
+      dialogopen:function(e){
+        this.fileResource = { content: JSON.stringify(e.detail, null, 8) };
+        this.$['dialog'].open();
+      },
+
+      seedResponseChanged: function(seedResponse) {
+        this.seedList = seedResponse.items ? seedResponse.items : [];
+      },
+
+      /**
+       * 메뉴 정보 변경시 모든 설정을 처리한다.
+       *
+       * @param {Object} menuInfo 메뉴 정보
+       */
+      _menuInfoChanged: function(menuInfo) {
+        if (menuInfo) {
+          this.menuId = menuInfo.id;
+          this.resourceType = menuInfo.resource_name;
+          this.resourceUrl = menuInfo.resource_url;
+          this.dataRoute = menuInfo.routing;
+          this.detailView = menuInfo.detail_form_id;
+        }
+      },
+
+      /**
+       * SeedDetail를 표시한다.
+       *
+       * @param {Event} event 그리드에서 선택된 event
+       */
+      _showSeedDetail: function(event) {
+        this.resourceId = event.detail.id;
+        this.resourceSite = event.detail.site_url;
+        this.$['subcode-list'].generateRequest();
+      },
+
+      /**
+       * Seed 그리드 리프레쉬
+       *
+       * @param {Event} event
+       */
+      _reloadSeeds: function(event) {
+        this.$['search-form'].submitMyForm();
+      },
+
+      /**
+       * SeedDetail 그리드 리프레쉬
+       *
+       * @param {Event} event
+       */
+      _reloadSeedDetails: function(event) {
+        this.$['subcode-list'].generateRequest();
+      },
+
+      /**
+      * SeedDetail 저장 전에...
+      *
+      * @param {Event} event
+      */
+      _beforeSeedDetailSave: function(event) {
+        this.detailSaveUrl = 'seed_repos/:id/seed_repo_details/update_multiple';
+        this.detailSaveUrl = this.detailSaveUrl.replace(':id', this.resourceId);
+
+        var subGrid = event.target;
+        var changedList = subGrid.writeData;
+        if (!changedList || changedList.length == 0) return event;
+
+        changedList.forEach(function(changedData) {
+          if (changedData.cud_flag_ == 'c' && !changedData.seedrepo_id) {
+            changedData.seedrepo_id = this.resourceId;
+          }
+        }.bind(this));
+
+        return event;
+      },
+
+      /**
+       * seed detail ajax response를 받아 빈값일 경우에 빈 배열로 초기화
+       *
+       * @param {Object} response
+       */
+      _seedDetailChanged: function(response) {
+        this.seedDetailItems = response ? response: [];
+      },
+
+      /**
+       * 그리드 셀 선택이 변경되었을 경우 파일 다운로드
+       */
+      _downloadFile: function(e) {
+        var baseUrl = this.get('globals.baseUrl');
+        this.openConfirmMsg({
+          type : 'info',
+          title : Things.DataGlobal.t('text.Want to download file'),
+          text : Things.DataGlobal.t('text.You can download file'),
+          showCancelButton: true
+        }, function() {
+          window.location = baseUrl + '/download/' + e.detail.attachment.id;
+        }, function() {
+        });
+      }
+    });
+  </script>
+</dom-module>

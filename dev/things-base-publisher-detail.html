@@ -1,0 +1,276 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-code-editor/things-code-editor.html">
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
+<link rel="import" href="../../things-form/things-resource-form.html">
+
+<!--
+	Publisher 상세 View
+-->
+
+<dom-module id="things-base-publisher-detail">
+	<template>
+		<style>
+			:host {
+				display: block;
+				height: 100%;
+				width: 100%;
+				@apply(--layout-vertical);
+				--paper-header-panel-container: {
+					height: 100%;
+					width: 100%;
+					@apply(--layout-vertical);
+				};
+			}
+			paper-header-panel {
+				@apply(--layout-flex);
+				@apply(--layout-vertical);
+			}
+			.iron-pages {
+				@apply(--layout-flex);
+				@apply(--layout-vertical);
+			}
+			.detail-flex {
+				@apply(--layout-flex);
+			}
+			.container {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			.form {
+				@apply(--layout-flex);
+			}
+			.editor {
+				@apply(--layout-flex-10);
+			}
+		</style>
+
+		<paper-header-panel mode="standard" class="green">
+			<paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
+				<template is="dom-repeat" items="{{_panels}}">
+					<paper-tab id="{{item.elementId}}">{{item.title}}</paper-tab>
+				</template>
+			</paper-tabs>
+
+			<things-ajax 
+				auto
+				id="get-resource"
+				method="GET"
+				resource-url="[[resourceUrl]]"
+				resource-id="[[resourceId]]"
+				last-response="{{resource}}">
+			</things-ajax>
+
+			<things-ajax 
+				id="save-ajax" 
+				resource-url="[[resourceUrl]]"
+				resource-id="[[resourceId]]"
+				resource-action="update">
+			</things-ajax>
+
+			<iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
+				<things-resource-form
+					id="resource-form" 
+					resource-url="[[resourceUrl]]"
+					resource="{{resource}}"
+					form-fields="[[formFields]]"
+					remove-fields-on-save="[[removeFieldsOnSave]]">
+				</things-resource-form>
+
+				<div id="editor-container" class="container">
+					<things-form
+						class="form"
+						id="query-setting-form"
+						form-fields="[[editorFormFields]]">
+					</things-form>
+
+					<things-code-editor
+						id="code-editor"
+						class="editor"
+						theme="ace/theme/monokai"
+						mode="ace/mode/groovy"
+						resource="{{resource}}"
+						code-field="logic">
+					</things-code-editor>
+				</div>
+			</iron-pages>
+		</paper-header-panel>
+	</template>
+
+	<script>
+		Polymer({
+
+			is: 'things-base-publisher-detail',
+
+			behaviors: [ 
+				Things.ResourceDetailTabViewBahavior
+			],
+
+			properties: {
+				/**
+				 * 폼필드 모델 
+				 */
+				editorFormFields: {
+					type: Array,
+					value: function() {
+						return [{
+							name: 'format',
+							label: Things.DataGlobal.t('label.return_type'),
+							type: 'code-combo',
+							codeName: 'QUERY_RETURN_TYPE'
+						}, {
+							name: 'format_key',
+							label: Things.DataGlobal.t('label.format_key'),
+							type: 'text'
+						}, {
+							name: 'variable',
+							label: Things.DataGlobal.t('label.variable'),
+							type: 'text'
+						}, {
+							name: 'format_value',
+							label: Things.DataGlobal.t('label.format_value'),
+							type: 'text'
+						}];
+					}
+				},
+
+				/**
+				 * resource
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * Save 하기 전에 폼에는 있지만 Save하는데 필요 없는 필드를 삭제하기 위한 필드명
+				 */
+				removeFieldsOnSave: {
+					type: Array,
+					value: [
+						'domain_id', 
+						'creator', 
+						'updater', 
+						'creator_id', 
+						'updater_id', 
+						'created_at', 
+						'updated_at', 
+						'logic'
+					]
+				}
+			},
+
+			listeners: {
+				'things-combo-value-changed': 'comboValueChanged',
+				'code-editor.things-template-editor-handle-save': 'saveBtnTapped'
+			},
+
+			ready: function() {
+				this._panels = [ {
+					title: Things.DataGlobal.t('title.basic_info'),
+					elementId: 'things-resource-form'
+				}, {
+					title: Things.DataGlobal.t('title.service_logic'),
+					elementId: 'things-code-editor'
+				} ];
+			},
+
+			/**
+			 * resource가 변화하면 두번째 탭의 화면을 구성함
+			 */
+			resourceChanged: function(resource) {
+				var queryForm = this.$['query-setting-form'];
+				if(resource.handler_type == 'query') {
+					var format = resource.format;
+					this.consistForm(format);
+					queryForm.setFormData(resource);
+				} else {
+					queryForm.hidden = true;
+				}
+			},
+
+			/**
+			 * 코드 콤보의 값이 변화하면 호출되고 
+			 * 코드 콤보의 name이 format, handler_type 이라면 해당 값에 따라 화면을 폼을 구성함
+			 */
+			comboValueChanged: function(event) {
+				event.preventDefault();
+				if(event.target.name == 'format') {
+					var format = event.detail.value;
+					this.consistForm(format);
+				}
+
+				if(event.target.name == 'handler_type') {
+					if(event.detail.value == 'query') {
+						var format = resource.format;
+						this.consistForm(format);
+						this.$['query-setting-form'].hidden = false;
+						this.$['query-setting-form'].setFormData(resource);
+					} else {
+						this.$['query-setting-form'].hidden = true;
+					}
+				}
+			},
+
+			/**
+			 * format에 따라 폼을 구성함
+			 */
+			consistForm: function(format) {
+				var queryForm = this.$['query-setting-form'];
+
+				if(format == 'K_V_ARR') {
+					queryForm.disableElement('format_key');
+					queryForm.enableElement('variable');
+					queryForm.disableElement('format_value');
+
+				} else if (format == 'K_V_OBJ') {
+					queryForm.enableElement('format_key');
+					queryForm.disableElement('variable');
+					queryForm.enableElement('format_value');
+
+				} else if (format == 'K_OBJ_OBJ') {
+					queryForm.enableElement('format_key');
+					queryForm.disableElement('variable');
+					queryForm.disableElement('format_value');
+
+				} else if (format == 'SINGLE_VAR'){
+					queryForm.disableElement('format_key');
+					queryForm.enableElement('variable');
+					queryForm.disableElement('format_value');
+
+				} else {
+					queryForm.disableElement('format_key');
+					queryForm.disableElement('variable');
+					queryForm.disableElement('format_value');
+				}
+
+				queryForm.reconfigureMyForm();
+			},
+
+			/**
+			 * save 버튼 누를시 호출
+			 */
+			saveBtnTapped: function(event) {
+				event.preventDefault();
+				var formData = this.$['query-setting-form'].serializeMyForm();
+				var logic = event.target.resource.logic;
+
+				var saveAjax = this.$['save-ajax'];
+				saveAjax.body = {
+					logic: logic,
+					format: formData.format,
+					format_key: formData.format_key,
+					format_value: formData.format_value,
+					variable: formData.variable
+				};
+
+				saveAjax.generateRequest();
+			}
+		});
+	</script>
+</dom-module>

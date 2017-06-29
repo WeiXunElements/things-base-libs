@@ -1,0 +1,98 @@
+<link rel="stylesheet" href="../../fullcalendar/dist/fullcalendar.min.css"/>
+
+<!--link rel="import" href="../../fullcalendar-calendar/fullcalendar-calendar.html">
+<link rel="import" href="../../fullcalendar-calendar/fullcalendar-theme.html"-->
+
+<!-- 
+git : https://github.com/sorin-davidoi/fullcalendar-calendar
+Documents : http://sorin-davidoi.github.io/fullcalendar-calendar/components/fullcalendar-calendar/#fullcalendar-calendar
+https://fullcalendar.io/docs/
+-->
+
+<dom-module id="things-system-calendar">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+
+		<div class="actions">
+			<div>[[title]]</div>
+			<div>
+				<paper-button view="month" on-tap="changeView">Month</paper-button>
+				<paper-button view="agendaWeek" on-tap="changeView">week</paper-button>
+				<paper-button view="agendaDay" on-tap="changeView">day</paper-button>
+
+				<paper-icon-button id="previous" icon="chevron-left" on-transitionend="previous"></paper-icon-button>
+				<paper-icon-button id="next" icon="chevron-right" on-transitionend="next"></paper-icon-button>
+			</div>
+		</div>
+
+		<fullcalendar-calendar
+			id ="calendar"
+			options="[[options]]"
+			view="{{view}}"
+			on-view-render="setTitle"
+			on-event-click="handleEventClick"
+			on-day-click="notifyDayClick">
+		</fullcalendar-calendar>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-system-calendar',
+
+			properties:{
+				options:{
+					type: Object,
+					value : {
+						header: false,
+						events: [ { 
+							title: 'Discover fullcalendar-calendar', 
+							start: moment() 
+						}, { 
+							title: 'Install fullcalendar-calendar', 
+							start: moment().add(2, 'day') 
+						}, {
+							title: 'Play around with fullcalendar-calendar', 
+							start: moment().add(4, 'days'), 
+							end: moment().add(5, 'days') 
+						}, { 
+							title: 'Star fullcalendar-calendar on Github', 
+							start: moment().add(7, 'days'), 
+							end: moment().add(7, 'days').add(25, 'minutes') 
+						} ]
+					}
+				}
+			},
+
+			changeView : function(event) {
+				var calendar = this.$.calendar;
+				calendar.changeView(event.target.attributes.getNamedItem('view').value);
+			},
+
+			previous : function() {
+				var calendar = this.$.calendar;
+				calendar.previous(); 
+			},
+
+			next : function() {
+				var calendar = this.$.calendar;
+				calendar.next(); 
+			},
+			
+			notifyDayClick : function(event) {
+				console.log('You clicked on: ' + event.detail.date.format());
+			},
+
+			setTitle : function(event) {
+				this.title = event.detail.view.title;
+			},
+
+			handleEventClick: function(event){
+				console.log(event.detail);
+			}
+		});
+	</script>
+</dom-module>

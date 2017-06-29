@@ -1,0 +1,384 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-code-editor/things-code-editor.html">
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<link rel="import" href="./material-toggle-button.html">
+
+<!--
+	애플리케이션 별 로그 파일 리스트 및 조회 
+-->
+
+<dom-module id="admin-app-log-files">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+
+			material-toggle-button {
+				margin-left: 20px;
+				margin-bottom: 20px; 
+			}
+		</style>
+
+		<!-- Log File List Ajax -->
+		<things-ajax
+			id="log-list-ajax"
+			resource-url="[[resourceUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="index"
+			last-response="{{logList}}"
+			with-credentials="[[withCredentials]]">
+		</things-ajax>
+
+		<!-- Delete Log File Ajax -->
+		<things-ajax
+			id="delete-log-ajax"
+			resource-url="[[appDeleteLogUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="delete"
+			with-credentials="[[withCredentials]]">
+		</things-ajax>
+
+		<things-resource-grid 
+			id="grid"
+			class="flex"
+			config="[[gridConfig]]"
+			model="[[gridModel]]" 
+			columns="[[gridColumns]]"
+			data="[[logList]]"
+			fixed-column-count="0"
+			buttons="[[emptyButtons]]">
+		</things-resource-grid>
+
+		<div class="card-actions">
+			<div class="horizontal justified">
+				<material-toggle-button
+					active 
+					on-tap="refreshList">
+					<iron-icon icon="av:replay"></iron-icon>새로고침
+				</material-toggle-button>
+
+				<material-toggle-button 
+					active
+					on-tap="deleteLogFile">
+					<iron-icon icon="delete"></iron-icon>삭제
+				</material-toggle-button>
+
+				<material-toggle-button
+					active 
+					on-tap="downloadLogFile">
+					<iron-icon icon="file-download"></iron-icon>다운로드
+				</material-toggle-button>
+			</div>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-app-log-files',
+
+			behaviors: [
+				Things.MsgBoxBehavior,
+				Things.ResourceDetailTabViewBahavior
+			],
+
+			properties: {
+				/**
+				 * 선택된 Application 정보 
+				 */
+				resource: {
+					type: Object
+				},
+
+				/**
+				 * 선택된 Application ID
+				 */
+				resourceId: {
+					type: String,
+					computed: '_computeResourceId(resource)'
+				},
+
+				/**
+				 * 리소스 URL
+				 */
+				resourceUrl: {
+					type: String
+				},
+
+				/**
+				 * 로그 내용을 감싸는 Object
+				 */
+				logList: {
+					type: Array
+				},
+
+				/**
+				 * 로그 그리드 
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									exclusive: true
+								}
+							}
+						}
+					}
+				},
+
+				/**
+				 * 로그 그리드 모델 
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'id'
+						}, {
+							fieldName: 'name'
+						}, {
+							fieldName: 'size',
+							dataType: 'number'
+						} ];
+					}
+				},
+
+				/**
+				 * Grid Columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [ {
+							name: 'id',
+							fieldName: 'id',
+							width: 0,
+							editable: false,
+							header: {
+								text: Things.DataGlobal.t('label.id')
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'name',
+							fieldName: 'name',
+							width: 350,
+							editable: false,
+							header: {
+								text: '로그 파일명'
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'size',
+							fieldName: 'size',
+							width: 200,
+							header: {
+								text: Things.DataGlobal.t('label.size') + ' (Byte)'
+							},
+							styles: {
+								textAlignment: 'far',
+								numberFormat: '0,000'
+							}
+						} ];
+					},
+
+					/**
+					 * 버튼 
+					 */
+					emptyButtons: {
+						type: 'Array',
+						value: []
+					}
+				},
+
+				/**
+				 * Agent Base URL
+				 */
+				agentBaseUrl: {
+					type: String,
+					computed: '_computeAgentBaseUrl(resource)'
+				},
+
+				/**
+				 * Delete Log File URL
+				 */
+				appDeleteLogUrl: {
+					type: String
+				},
+
+				/**
+				 * Log Download URL
+				 */
+				appLogDownloadUrl: {
+					type: String
+				},
+
+				/**
+				 * With Credentials
+				 */
+				withCredentials: {
+					type: Boolean,
+					value: false
+				}
+			},
+
+			listeners: {
+				'delete-log-ajax.things-ajax-response' : 'refreshList'
+			},
+
+			observers: [
+				'_resourceIdChanged(resourceId, agentBaseUrl)',
+				'_resourceUrlChanged(resourceUrl)'
+			],
+
+			/**
+			 * 새로 설정된 resource에서 resourceId를 추출 
+			 *********
+			 * @param {Object} resource
+			 */
+			_computeResourceId: function(resource) {
+				return resource.appId;
+			},
+
+			/**
+			 * 새로 설정된 resource에서 agentBaseUrl을 추출 
+			 *********
+			 * @param {Object} resource
+			 */
+			_computeAgentBaseUrl: function(resource) {
+				return resource.managementUrl;
+			},
+
+			/**
+			 * resource가 변경된 이 후...
+			 *********
+			 * @param {String} resourceId
+			 * @param {String} agentBaseUrl
+			 */
+			_resourceIdChanged: function(resourceId, agentBaseUrl) {
+				if(resourceId) {
+					this.appDeleteLogUrl = agentBaseUrl + '/apps/' + resourceId + '/log/:file_name/delete';
+					this.appLogDownloadUrl = agentBaseUrl + '/apps/' + resourceId + '/log/:file_name/download';
+					this.resourceUrl = agentBaseUrl + '/apps/' + resourceId + '/log/files';
+				}
+			},
+
+			/**
+			 * resourceUrl이 변경된 이 후 ...
+			 *********
+			 * @param {String} resourceUrl
+			 */
+			_resourceUrlChanged: function(resourceUrl) {
+				this.refreshList();
+			},
+
+			/**
+			 * Log File List
+			 *********
+			 * @param {Object} event
+			 */
+			refreshList: function(event) {
+				this.$['log-list-ajax'].generateRequest();
+			},
+
+			/**
+			 * Delete Log File
+			 *********
+			 * @param {Object} event
+			 */
+			deleteLogFile: function(event) {
+				var checkedData = this.gridCheckedRow();
+				if(checkedData) {
+					var deleteLogAjax = this.$['delete-log-ajax'];
+					deleteLogAjax.resourceUrl = this.appDeleteLogUrl.replace(':file_name', checkedData.name);
+					this.executeApp('로그 파일 [' + checkedData.name + ']이 선택되었습니다.', '이 파일을 삭제하시겠습니까?', deleteLogAjax);
+				}
+			},
+
+			/**
+			 * 그리드에서 체크된 Row의 데이터를 리턴 
+			 */
+			gridCheckedRow: function() {
+				var resourceGrid = this.$.grid;
+				var rows = resourceGrid.getGridObject().getCheckedRows();
+
+				if (rows && rows.length > 0) {
+					var ds = resourceGrid.getGridDataSet();
+					var data = ds.getRowObject(rows[0].dataIndex());
+					return data;
+
+				}	else {
+					return null;
+				}			
+			},
+
+			/**
+			 * Application 수행 
+			 *********
+			 * @param {String} title
+			 * @param {String} text
+			 * @param {String} ajax
+			 */
+			executeApp: function(title, text, ajax) {
+				this.openConfirmMsg({
+					type : 'info',
+					title : title,
+					text : text,
+					showCancelButton: true
+				}, function() {
+					ajax.generateRequest();
+				});
+			},
+
+			/**
+			 * 로그 파일 다운로드
+			 *********
+			 * @param {Object} event
+			 */
+			downloadLogFile: function(event) {
+				var checkedData = this.gridCheckedRow();
+
+				if(checkedData) {
+					var downloadUrl = this.appLogDownloadUrl.replace(':file_name', checkedData.name);
+
+					this.openConfirmMsg({
+						type : 'info',
+						title : Things.DataGlobal.t('text.Want to download file'),
+						text : Things.DataGlobal.t('text.You can download file'),
+						showCancelButton: true
+					}, function() {
+						window.location = downloadUrl;
+					});
+				}
+			},
+
+			/**
+			 * Detail 화면을 오픈한다.
+			 *********
+			 * @param {String} resourceId
+			 * @param {Object} resource
+			 * @param {Function} openCallback
+			 * @param {Function} closeCallback
+			 */
+			showDetailView: function(resourceId, resource, openCallback, closeCallback) {
+				if(this.resource != resource) {
+					this.resource = resource;
+				}
+
+				this.openPopupView(this, true, openCallback, closeCallback);
+			}
+		})
+	</script>
+</dom-module>

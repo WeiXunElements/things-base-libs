@@ -1,0 +1,362 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+
+<!--
+	인덱스 관리 화면
+-->
+
+<dom-module id="things-base-table-mgr-index">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<!-- index list 조회를 위한 ajax -->
+		<things-ajax
+			id="index-list-ajax"
+			resource-url="ddl/table/:id/indexes"
+			resource-action="index"
+			last-response="{{indexList}}">
+		</things-ajax>
+
+		<!-- index 생성용 ajax -->
+		<things-ajax
+			id="create-index"
+			method="POST"
+			content-type="application/json">
+		</things-ajax>
+
+		<!-- index 삭제용 ajax -->
+		<things-ajax
+			id="drop-index"
+			method="DELETE">
+		</things-ajax>
+
+		<things-resource-grid
+			top
+			id="index-list-grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]"
+			columns="[[gridColumns]]"
+			data="[[indexList]]"
+			buttons="[[listButtons]]"
+			fixed-column-count="0">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-base-table-mgr-index',
+
+			behaviors: [
+				Things.MsgBoxBehavior
+			],
+
+			properties: {
+				/**
+				 * things-base-table-mgr에서 전달받는 resource
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * grid config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									exclusive: true
+								}
+							}
+						}
+					}
+				},
+
+				/**
+				 * grid model
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'entity_idx_name'
+						}, {
+							fieldName: 'entity_idx_unique',
+							dataType: 'boolean'
+						}, {
+							fieldName: 'entity_idx_fields'
+						}, {
+							fieldName: 'table_idx_name'
+						}, {
+							fieldName: 'table_idx_unique',
+							dataType: 'boolean'
+						}, {
+							fieldName: 'table_idx_fields'
+						}, {
+							fieldName: 'different',
+							dataType: 'boolean'
+						} ];
+					}
+				},
+
+				/**
+				 * grid columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [ {
+							type: 'Entity',
+							header: {
+								text: Things.DataGlobal.t('menu.Entity')
+							},
+							width: 465,
+							columns: [ {
+								name: 'entity_idx_name',
+								fieldName: 'entity_idx_name',
+								width: 150,
+								header: {
+									text: Things.DataGlobal.t('label.name')
+								}
+							}, {
+								name: 'entity_idx_unique',
+								fieldName: 'entity_idx_unique',
+								width: 60,
+								header: {
+									text: Things.DataGlobal.t('label.unique')
+								},
+								editable: false,
+								renderer: {
+									type: 'check',
+									editable: true,
+									threeStates: false
+								}
+							}, {
+								name: 'entity_idx_fields',
+								fieldName: 'entity_idx_fields',
+								width: 250,
+								header: {
+									text: Things.DataGlobal.t('label.columns')
+								}
+							} ]
+						}, {
+							type: 'Table',
+							width: 465,
+							header: {
+								text: Things.DataGlobal.t('label.table')
+							},
+							columns: [ {
+								name: 'table_idx_name',
+								fieldName: 'table_idx_name',
+								width: 150,
+								header: {
+									text: Things.DataGlobal.t('label.name')
+								},
+								dynamicStyles: [{
+									expression: "values['entity_idx_name'] != values['table_idx_name']",
+									styles: {
+										background: '#ffcccc'
+									}
+								}]
+							}, {
+								name: 'table_idx_unique',
+								fieldName: 'table_idx_unique',
+								width: 60,
+								header: {
+									text: Things.DataGlobal.t('label.unique')
+								},
+								editable: false,
+								renderer: {
+									type: 'check',
+									editable: true,
+									threeStates: false
+								},
+								dynamicStyles: [{
+									expression: "values['entity_idx_unique'] != values['table_idx_unique']",
+									styles: {
+										background: '#ffcccc'
+									}
+								}]
+							}, {
+								name: 'table_idx_fields',
+								fieldName: 'table_idx_fields',
+								width: 250,
+								header: {
+									text: Things.DataGlobal.t('label.columns')
+								},
+								dynamicStyles: [{
+									expression: "values['entity_idx_fields'] != values['table_idx_fields']",
+									styles: {
+										background: '#ffcccc'
+									}
+								}]
+							} ]
+						} ];
+					}
+				},
+
+				/**
+				 * list buttons
+				 */
+				listButtons: {
+					type: Array,
+					value: function() {
+						return [ {
+							id: 'create-index-btn',
+							text: 'create'
+						}, {
+							id: 'drop-index-btn',
+							text: 'delete'
+						} ];
+					}
+				}
+			},
+
+			listeners: {
+				'create-index-btn-tap': 'createIndex',
+				'drop-index-btn-tap': 'dropIndex',
+				'create-index.things-ajax-response': '_successHandler',
+				'drop-index.things-ajax-response': '_successHandler'
+			},
+
+			/**
+			 * things-base-table-mgr에서 전달받은 resource가 변경되면 호출됨
+			 * resource에서 id를 추출하여 index-list-ajax를 호출함
+			 */
+			resourceChanged: function(resource) {
+				var indexListAjax = this.$['index-list-ajax'];
+				indexListAjax.resourceId = resource.id;
+				indexListAjax.generateRequest();
+			},
+
+			/**
+			 * return index-list-grid object
+			 */
+			getGridObject: function() {
+				return this.$['index-list-grid'].getGridObject();
+			},
+
+			/**
+			 * 선택한 그리드 로우의 오브젝트를 리턴
+			 */
+			getSelectedRowObject: function() {
+				var grid = this.getGridObject();
+				var checkedRows = grid.getCheckedRows();
+				var rowObj = null;
+
+				if(checkedRows && checkedRows.length == 1) {
+					var rowObj = checkedRows[0].getRowObject();
+				}
+
+				return rowObj;
+			},
+
+			/**
+			 * 사용자에게 확인 후 서비스 호출
+			 *
+			 * @param {String} func
+			 */
+			_confirmAndInvoke: function(func, title) {
+				this.openConfirmMsg({
+					type : 'info',
+					title : title,
+					showCancelButton: true,
+					closeOnConfirm : true
+				}, func);
+			},
+
+			/**
+			 * create index button tap event listener
+			 */
+			createIndex: function(e) {
+				var rowObj = this.getSelectedRowObject();
+				var title = Things.DataGlobal.t('text.Sure to process');
+
+				if(rowObj && rowObj.entity_idx_fields && rowObj.entity_idx_name) {
+					this._confirmAndInvoke(function() {
+						var createIndexAjax = this.$['create-index'];
+						createIndexAjax.resourceUrl = 'ddl/table/' + this.resource.id +'/indexes';
+						createIndexAjax.body = rowObj;
+						createIndexAjax.generateRequest();
+					}.bind(this), title)
+				} else if(!rowObj) {
+					this.nothingSelected();
+				} else {
+					this.openInfoMsg({
+						title : Things.DataGlobal.t('label.failure'),
+						type : 'info',
+						text : Things.DataGlobal.t('text.X is empty', { x: Things.DataGlobal.t('label.entity')}),
+						closeOnConfirm: true
+					});
+				}
+			},
+
+			/**
+			 * drop index button tap event listener
+			 */
+			dropIndex: function(e) {
+				var rowObj = this.getSelectedRowObject();
+				var title = Things.DataGlobal.t('text.Sure to process');
+
+				if(rowObj && rowObj.table_idx_fields && rowObj.table_idx_name) {
+					this._confirmAndInvoke(function() {
+						var dropIndexAjax = this.$['drop-index'];
+						dropIndexAjax.resourceUrl = 'ddl/table/' + this.resource.id + '/indexes/' + rowObj.table_idx_name;
+						dropIndexAjax.generateRequest();
+					}.bind(this), title);
+				} else if(!rowObj) {
+					this.nothingSelected();
+				} else {
+					this.openInfoMsg({
+						title : Things.DataGlobal.t('label.failure'),
+						type : 'info',
+						text : Things.DataGlobal.t('text.X is empty', { x: Things.DataGlobal.t('label.table')}),
+						closeOnConfirm: true
+					});
+				}
+			},
+
+			/**
+			 * 변경 버튼 클릭하였을 때 선택한 로우가 없으면
+			 * 메시지 팝업을 출력함
+			 */
+			nothingSelected: function() {
+				this.openInfoMsg({
+					title: Things.DataGlobal.t('label.failure'),
+					type: 'info',
+					text: Things.DataGlobal.t('text.NOTHING_SELECTED'),
+					closeOnConfirm: true
+				})
+			},
+
+			/**
+			 * create & drop index succes response handler
+			 */
+			_successHandler: function(e) {
+				this.openInfoMsg({
+					title : Things.DataGlobal.t('label.success'),
+					type : 'info',
+					text : Things.DataGlobal.t('text.Success to Process'),
+					closeOnConfirm: true
+				});
+
+				this.resourceChanged(this.resource);
+			}
+		});
+	</script>
+</dom-module>

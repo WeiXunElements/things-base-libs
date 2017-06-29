@@ -1,0 +1,109 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+
+<link rel="import" href="./admin-section.html" >
+
+<!--
+	모니터링 대상 애플리케이션 탭 - Environment 화면
+-->
+
+<dom-module id="admin-app-environment">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<!-- Environment 내용 조회 -->
+		<things-ajax
+			id="app-env-ajax"
+			resource-action="find"
+			last-response="{{detailEnv}}">
+		</things-ajax>
+
+		<template is="dom-repeat" items="[[items]]" as="item">
+			<admin-section
+				title="[[item.name]]"
+				data="[[item.value]]">
+			</admin-section>
+			<br>
+		</template>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-app-environment',
+
+			properties: {
+				/**
+				 * Admin Base Url
+				 */
+				adminBaseUrl: {
+					type: String
+				},
+
+				/**
+				 * Application 선택 후 ...
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * 상세 내용 - Environment
+				 */
+				detailEnv: {
+					type: Object
+				},
+
+				/**
+				 * 화면과 바인딩된 데이터
+				 */
+				items: {
+					type: Array
+				}
+			},
+
+			observers: [
+				'_detailEnvChanged(detailEnv)'
+			],
+
+			/**
+			 * 환경변수 데이터 변경시
+			 *
+			 * @param {Object} detailEnv
+			 */
+			_detailEnvChanged: function(detailEnv) {
+				var items = [];
+				for(var key in detailEnv) {
+					items.push({name : key, value : detailEnv[key]});
+				}
+				this.items = items;
+			},
+
+			/**
+			 * Application 선택이 변경된 경우 trace list 호출
+			 */
+			resourceChanged: function(resource) {
+				var detailEnvAjax = this.$['app-env-ajax'];
+				detailEnvAjax.withCredentials = false;
+				detailEnvAjax.resourceUrl = this.adminBaseUrl + '/:id/env';
+				detailEnvAjax.resourceId = resource.id;
+				detailEnvAjax.generateRequest();
+			},
+
+			/**
+			 * Data Refresh ...
+			 */
+			refresh: function() {
+				if(this.resource) {
+					this.$['app-env-ajax'].generateRequest();
+				}
+			}
+		});
+	</script>
+</dom-module>

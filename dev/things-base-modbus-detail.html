@@ -1,0 +1,310 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
+
+<dom-module id="things-base-modbus-detail">
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+        width: 100%;
+        @apply(--layout-vertical);
+        --paper-header-panel-container: {
+          height: 100%;
+          width: 100%;
+          @apply(--layout-vertical);
+        };
+      }
+      paper-header-panel {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .detail-flex {
+        @apply(--layout-flex);
+      }
+    </style>
+
+    <paper-header-panel mode="standard" class="green">
+      <paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
+        <template is="dom-repeat" items="{{_panels}}">
+          <paper-tab id="{{item.elementId}}">{{item.title}}</paper-tab>
+        </template>
+      </paper-tabs>
+
+      <things-ajax 
+        auto
+        id="get-resource"
+        resource-url="[[resourceUrl]]"
+        resource-id="[[resourceId]]"
+        resource-action="find"
+        last-response="{{resource}}">
+      </things-ajax>
+
+      <things-ajax
+      	id="read-coil-output-ajax"
+      	resource-url="modbus/:id/read_coil_outputs"
+      	resource-id="[[resourceId]]"
+      	resource-action="index"
+      	last-response="{{coilOutputData}}">
+    	</things-ajax>
+
+      <things-ajax
+      	id="write-coil-output-ajax"
+      	resource-url="modbus/:id/write_coil_output"
+      	resource-id="[[resourceId]]"
+      	resource-action="create"
+      	last-response="{{coilOutputData}}">
+    	</things-ajax>
+
+    	<things-ajax
+    		id="read-digital-input-ajax"
+    		resource-url="modbus/:id/read_digital_inputs"
+    		resource-id="[[resourceId]]"
+    		resource-action="index"
+    		last-response="{{digitalInputData}}">
+  		</things-ajax>
+
+  		<things-ajax
+  			id="read-analogue-input-ajax"
+  			resource-url="modbus/:id/read_analog_inputs"
+  			resource-id="[[resourceId]]"
+  			resource-action="index"
+  			last-response="{{analogueInputData}}">
+			</things-ajax>
+
+			<things-ajax
+				id="read-holding-registers-ajax"
+				resource-url="modbus/:id/read_holding_registers"
+				resource-id="[[resourceId]]"
+				resource-action="index"
+				last-response="{{holdingRegistersData}}">
+			</things-ajax>
+
+			<things-ajax
+				id="write-holding-registers-ajax"
+				resource-url="modbus/:id/write_holding_registers"
+				resource-id="[[resourceId]]"
+				resource-action="create"
+				last-response="{{holdingRegistersData}}">
+			</things-ajax> 		
+
+      <iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
+        <things-resource-form
+          id="resource-form" 
+          resource-url="[[resourceUrl]]"
+          resource-id="[[resourceId]]"
+          form-fields="[[formFields]]"
+          remove-fields-on-save="[[removeFieldsOnSave]]">
+        </things-resource-form>
+
+        <things-diy-based-grid
+        	id="coil-output-grid"
+        	diy-grid-name="ModbusCoilOutput"
+        	buttons="[[coilOutputBtn]]"
+        	fixed-column-count="0"
+        	items="{{coilOutputData}}">
+      	</things-diy-based-grid>
+
+      	<things-diy-based-grid
+      		id="digital-input-grid"
+      		diy-grid-name="ModbusDigitalInput"
+      		buttons="[[digitalInputBtn]]"
+      		fixed-column-count="0"
+      		items="{{digitalInputData}}">
+      	</things-diy-based-grid>
+
+        <things-diy-based-grid
+        	id="analogue-input-grid"
+        	diy-grid-name="ModbusAnalogueInput"
+        	buttons="[[analogueInputBtn]]"
+        	fixed-column-count="0"
+        	items="{{analogueInputData}}">
+      	</things-diy-based-grid>
+
+      	<things-diy-based-grid
+      		id="holding-registers-grid"
+      		diy-grid-name="ModbusHoldingRegisters"
+      		buttons="[[holdingRegistersBtn]]"
+      		fixed-column-count="0"
+      		items="{{holdingRegistersData}}">
+    		</things-diy-based-grid>    		
+
+      </iron-pages>
+    </paper-header-panel>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'things-base-modbus-detail',
+
+      behaviors: [ 
+        Things.ResourceDetailTabViewBahavior
+      ],
+
+      listeners: {
+				'coil-output-read-btn-tap': 'readData',
+				'coil-output-write-btn-tap': 'coilOutputWrite',
+				'digital-input-read-btn-tap': 'readData',
+				'analogue-input-read-btn-tap': 'readData',
+				'holding-registers-read-btn-tap': 'readData',
+				'holding-registers-write-btn-tap': 'holdingRegistersWrite'
+      },
+
+      properties: {
+
+      	/**
+      	 * Coil Output button setting
+      	 */
+				coilOutputBtn: {
+					type: Array,
+					value: [{
+						id: 'coil-output-read-btn',
+						text: 'read',
+					}, {
+						id: 'coil-output-write-btn',
+						text: 'write'
+					}]
+				},
+
+				/**
+				 * digital input button setting
+				 */
+				digitalInputBtn: {
+					type: Array,
+					value: [{
+						id: 'digital-input-read-btn',
+						text: 'read',
+					}]
+				},
+
+				/**
+				 * analogue input button setting
+				 */
+				analogueInputBtn: {
+					type: Array,
+					value: [{
+						id: 'analogue-input-read-btn',
+						text: 'read',
+					}]
+				},
+
+				/**
+				 * hoding registers button setting
+				 */
+				holdingRegistersBtn: {
+					type: Array,
+					value: [{
+						id: 'holding-registers-read-btn',
+						text: 'read',
+					}, {
+						id: 'holding-registers-write-btn',
+						text: 'write'
+					}]
+				}
+      },
+
+
+      /**
+       * panels setting
+       */
+      ready: function() {
+        this._panels = [ {
+          title: Things.DataGlobal.t('title.basic_info'),
+          elementId: 'things-resource-form'
+        }, {
+          title: Things.DataGlobal.t('title.coil_output'),
+          elementId: 'coil_output'
+        }, {
+          title: Things.DataGlobal.t('title.digital_input'),
+          elementId: 'digital_input'
+        }, {
+          title: Things.DataGlobal.t('title.analogue_input'),
+          elementId: 'analogue_input'
+        }, {
+          title: Things.DataGlobal.t('title.holding_registers'),
+          elementId: 'hodling_registers'
+        } ];
+      },
+
+      /**
+       * read 버튼 클릭시 해당하는 ajax를 가져옴
+       */
+      getAjax: function(btnId) {
+      	switch (btnId) {
+      		case 'coil-output-read-btn':
+      			return this.$['read-coil-output-ajax'];
+
+    			case 'digital-input-read-btn':
+    				return this.$['read-digital-input-ajax'];
+
+  				case 'analogue-input-read-btn':
+  					return this.$['read-analogue-input-ajax'];
+
+					case 'holding-registers-read-btn':
+						return this.$['read-holding-registers-ajax'];
+      	}
+      },
+
+      /**
+       * read ajax 호출
+       */
+      readData: function(event) {
+      	this.getAjax(event.detail.id).generateRequest();
+      },
+
+      /**
+       * coil output write ajax call
+       */
+			coilOutputWrite: function() {
+				var grid = this.$['coil-output-grid'].getGrid().getGridObject();
+				grid.commit();
+
+				var rows = grid.getRows();
+				var values = {};
+
+				rows.forEach(function(row) {
+					var rowObject = row.getRowObject();
+
+					var prop = (rowObject.ref) ? rowObject.ref : 0;
+					var value = (rowObject.coil_status) ? rowObject.coil_status : false;
+					
+					values[prop] = value;
+				});
+
+				var writeCoilOutput = this.$['write-coil-output-ajax'];
+				writeCoilOutput.body = values;
+				writeCoilOutput.generateRequest();
+			},
+
+			/**
+			 * holding registers write ajax call
+			 */
+			holdingRegistersWrite: function() {
+				var grid = this.$['holding-registers-grid'].getGrid().getGridObject();
+				grid.commit();
+
+				var rows = grid.getRows();
+				var values = {};
+
+				rows.forEach(function(row) {
+					var rowObject = row.getRowObject();
+
+					var prop = (rowObject.ref) ? rowObject.ref : 0;
+					var value = (rowObject.register_value) ? rowObject.register_value : 0;
+					
+					values[prop] = value;
+				});
+
+				var writeHoldingRegisters = this.$['write-holding-registers-ajax'];
+				writeHoldingRegisters.body = values;
+				writeHoldingRegisters.generateRequest();
+
+			},
+
+    });
+  </script>
+</dom-module>

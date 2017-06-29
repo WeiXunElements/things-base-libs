@@ -1,0 +1,390 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-code-editor/things-code-editor.html">
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<link rel="import" href="material-toggle-button.html">
+
+<!--
+	Control Agent가 관리하는 컨트롤 애플리케이션 리스트 화면 
+-->
+
+<dom-module id="admin-app-controller">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			.content {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}			
+			.grid {
+				@apply(--layout-flex);
+				min-height: 135px;
+			}
+			.app-info {
+				@apply(--layout-flex-4);
+				@apply(--layout-vertical);
+			}
+			.rate-content {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+				float: left;
+			}
+			.card-content {
+				@apply(--layout-flex);
+				float: left;
+			}
+			.subtitle:before {
+				content:"";
+				@apply(--things-subtitle-icon);
+			}
+			.subtitle {
+				/*@apply(--things-default-padding);*/
+				padding-top: 5px;
+				padding-left: 25px;
+				@apply(--things-subtitle);
+			}
+			material-toggle-button {
+				margin-top: 8px;
+				margin-bottom: 8px; 
+			}
+		</style>
+
+		<!-- Application Start Ajax -->
+		<things-ajax
+			id="start-ajax"
+			with-credentials="[[withCredentials]]"
+			resource-url="[[ctlAgentStartUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Application Deploy Ajax -->
+		<things-ajax
+			id="deploy-ajax"
+			with-credentials="[[withCredentials]]"
+			resource-url="[[ctlAgentDeployUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Application Restart Ajax -->
+		<things-ajax
+			id="restart-ajax"
+			with-credentials="[[withCredentials]]"
+			resource-url="[[ctlAgentRestartUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Application Stop Ajax -->
+		<things-ajax
+			id="stop-ajax"
+			with-credentials="[[withCredentials]]"
+			resource-url="[[ctlAgentStopUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Log View Ajax -->
+		<things-ajax
+			id="log-ajax"
+			with-credentials="[[withCredentials]]"
+			resource-url="[[ctlAgentLogUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="find"
+			params="[[logParams]]"
+			last-response="{{logObj}}">
+		</things-ajax>
+
+		<div class="content">
+			<paper-card class="app-info rate" elevation=0>
+				<div class="rate-content">
+					<span class="subtitle">로그</span>
+
+					<things-code-editor 
+						class="card-content"
+						id="log-viewer"
+						theme="ace/theme/monokai"
+						resource="[[logObj]]"
+						code-field="log"
+						mode="ace/mode/json"
+						buttons='[]'>
+					</things-code-editor>
+
+					<div class="card-actions">
+						<div class="horizontal justified">
+							<material-toggle-button 
+								on-tap="deployApp"
+								active>
+								<iron-icon icon="av:play-arrow"></iron-icon>배포
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="stopApp"
+								active="[[app.rebootable]]" 
+								disabled="[[app.startable]]">
+								<iron-icon icon="av:stop"></iron-icon>중지
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="restartApp"
+								active="[[app.rebootable]]" 
+								disabled="[[app.startable]]">
+								<iron-icon icon="av:replay"></iron-icon>재시작
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="showLog"
+								active>
+								<iron-icon icon="av:library-books"></iron-icon>로그 보기
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="downloadLogFile"
+								active>
+								<iron-icon icon="file-download"></iron-icon>로그파일 다운로드
+							</material-toggle-button>
+						</div>
+					</div>
+				</div>
+			</paper-card>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-app-controller',
+
+			behaviors: [
+				Things.MsgBoxBehavior
+			],
+
+			properties: {
+				/**
+				 * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
+				 */
+				withCredentials: {
+					type: Boolean,
+					value: false
+				},
+
+				/**
+				 * 선택된 Control Agent 정보 
+				 */
+				resource: {
+					type: Object,
+					observer: '_resourceChanged'
+				},
+
+				/**
+				 * 선택된 Control Agent ID
+				 */
+				resourceId: {
+					type: String
+				},
+
+				/**
+				 * 로그 조회를 위한 파라미터 
+				 */
+				logParams: {
+					type: Object,
+					value: function() {
+						return { lines : 1000 };
+					}
+				},
+
+				/**
+				 * 로그 내용을 감싸는 Object
+				 */
+				logObj: {
+					type: Object
+				},
+
+				/**
+				 * Agent Base URL
+				 */
+				agentBaseUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Start URL
+				 */
+				ctlAgentStartUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Deploy URL
+				 */
+				ctlAgentDeployUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Restart URL
+				 */
+				ctlAgentRestartUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Stop URL
+				 */
+				ctlAgentStopUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Log URL
+				 */
+				ctlAgentLogUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Log Download URL
+				 */
+				ctlAgentLogDownloadUrl: {
+					type: String
+				}
+			},
+
+			/**
+			 * resource가 변경된 이 후...
+			 ********
+			 * @param {Object} resource
+			 */
+			_resourceChanged: function(resource) {
+				this.clearLog();
+
+				if(resource) {
+					this.agentBaseUrl = resource.managementUrl;
+					this.ctlAgentStartUrl = this.agentBaseUrl + '/apps/:id/start';
+					this.ctlAgentDeployUrl = this.agentBaseUrl + '/apps/:id/deploy';
+					this.ctlAgentRestartUrl = this.agentBaseUrl + '/apps/:id/restart';
+					this.ctlAgentStopUrl = this.agentBaseUrl + '/apps/:id/stop';
+					this.ctlAgentLogUrl = this.agentBaseUrl + '/apps/:id/log/today/read';
+					this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/apps/:id/log/today/download';
+				}
+			},
+
+			/**
+			 * refresh
+			 ********
+			 * @param {Object} resource
+			 */
+			refresh: function() {
+				this.clearLog();
+				this.showLog();
+			},
+
+			/**
+			 * App Start
+			 ********
+			 * @param {Object} event
+			 */
+			startApp: function(event) {
+				if(this.resource && this.resource.status == 'DOWN') {
+					this.executeApp('애플리케이션 상태 : DOWN', '애플리케이션을 시작 하시겠습니까?', this.$['start-ajax']);
+				}
+			},
+
+			/**
+			 * App Deploy
+			 ********
+			 * @param {Object} event
+			 */
+			deployApp: function(event) {
+				var status = this.resource ? this.resource.status : '';
+				this.executeApp('애플리케이션 상태 : ' + status, '애플리케이션 새 버전을 배포하시겠습니까?', this.$['deploy-ajax']);
+			},
+
+			/**
+			 * App Restart
+			 ********
+			 * @param {Object} event
+			 */
+			restartApp: function(event) {
+				if(this.resource && this.resource.status == 'UP') {
+					this.executeApp('애플리케이션 상태 : UP', '애플리케이션을 재시작 하시겠습니까??', this.$['restart-ajax']);
+				}
+			},
+
+			/**
+			 * App Stop
+			 ********
+			 * @param {Object} event
+			 */
+			stopApp: function(event) {
+				// TODO Control Agent 서버에 App의 상태 조회 요청 후 처리 
+				if(this.resource && this.resource.status == 'UP') {
+					this.executeApp('애플리케이션 상태 : UP', '애플리케이션을 중지 하시겠습니까??', this.$['stop-ajax']);
+				}
+			},
+
+			/**
+			 * Application 수행 
+			 ********
+			 * @param {String} title
+			 * @param {String} text
+			 * @param {String} ajax
+			 */
+			executeApp: function(title, text, ajax) {
+				this.openConfirmMsg({
+					type : 'info',
+					title : title,
+					text : text,
+					showCancelButton: true
+				}, function() {
+					ajax.generateRequest();
+				});
+			},
+
+			/**
+			 * 로그 클리어 ...
+			 */
+			clearLog: function() {
+				this.logObj = { id : 3, log : '' };
+			},
+
+			/**
+			 * 로그 보기 
+			 ********
+			 * @param {Object} event
+			 */
+			showLog: function(event) {
+				if(this.resource) {
+					this.$['log-ajax'].generateRequest();
+				}
+			},
+
+			/**
+			 * 로그 파일 다운로드
+			 *********
+			 * @param {Object} event
+			 */
+			downloadLogFile: function(event) {
+				if(this.resource && this.ctlAgentLogDownloadUrl) {
+					var downloadUrl = this.ctlAgentLogDownloadUrl.replace(':id', this.resourceId);
+					this.openConfirmMsg({
+						type : 'info',
+						title : Things.DataGlobal.t('text.Want to download file'),
+						text : Things.DataGlobal.t('text.You can download file'),
+						showCancelButton: true
+					}, function() {
+						window.location = downloadUrl;
+					});
+				}
+			}
+		})
+	</script>
+</dom-module>

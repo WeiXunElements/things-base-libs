@@ -1,0 +1,578 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-code-editor/things-code-editor.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
+
+
+<link rel="import" href="material-toggle-button.html">
+
+<!--
+	Control Agent가 관리하는 컨트롤 애플리케이션 리스트 화면 
+-->
+
+<dom-module id="control-agent-apps">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			.content {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}			
+			.grid {
+				@apply(--layout-flex);
+				min-height: 135px;
+			}
+			.app-info {
+				@apply(--layout-flex-4);
+				@apply(--layout-vertical);
+			}
+			.rate-content {
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+				float: left;
+			}
+			.card-content {
+				@apply(--layout-flex);
+				float: left;
+			}
+			.subtitle:before {
+				content:"";
+				@apply(--things-subtitle-icon);
+			}
+			.subtitle {
+				/*@apply(--things-default-padding);*/
+				padding: 0 0 0 25px;
+				@apply(--things-subtitle);
+			}			
+			material-toggle-button {
+				margin-top: 8px;
+				margin-bottom: 8px; 
+			}
+		</style>
+
+		<!-- Application List Ajax -->
+		<things-ajax
+			id="app-list-ajax"
+			resource-url="[[resourceUrl]]"
+			resource-id="[[resourceId]]"
+			resource-action="index"
+			last-response="{{apps}}">
+		</things-ajax>
+
+		<!-- Application Start Ajax -->
+		<things-ajax
+			id="start-ajax"
+			resource-url="[[ctlAgentStartUrl]]"
+			resource-id="[[appId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Application Restart Ajax -->
+		<things-ajax
+			id="restart-ajax"
+			resource-url="[[ctlAgentRestartUrl]]"
+			resource-id="[[appId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Application Stop Ajax -->
+		<things-ajax
+			id="stop-ajax"
+			resource-url="[[ctlAgentStopUrl]]"
+			resource-id="[[appId]]"
+			resource-action="create">
+		</things-ajax>
+
+		<!-- Log View Ajax -->
+		<things-ajax
+			id="log-ajax"
+			resource-url="[[ctlAgentLogUrl]]"
+			resource-id="[[appId]]"
+			resource-action="find"
+			params="[[logParams]]"
+			last-response="{{logObj}}">
+		</things-ajax>
+
+		<div class="content">
+			<things-resource-grid 
+				id="grid"
+				class="grid"
+				config="[[gridConfig]]"
+				model="[[gridModel]]" 
+				columns="[[gridColumns]]"
+				data="[[apps]]"
+				fixed-column-count="0"
+				enable-toolbar="[[gridEnableToolbar]]">
+			</things-resource-grid>
+
+			<paper-card class="app-info rate" elevation=0>
+				<div class="rate-content">
+					<span class="subtitle">[[app.name]]</span>
+
+					<things-code-editor 
+						class="card-content"
+						id="log-viewer"
+						theme="ace/theme/monokai"
+						resource="[[logObj]]"
+						code-field="log"
+						mode="ace/mode/json"
+						buttons='[]'>
+					</things-code-editor>
+
+					<div class="card-actions">
+						<div class="horizontal justified">
+							<material-toggle-button 
+								on-tap="refreshList"
+								active>
+								<iron-icon icon="apps"></iron-icon>apps
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="startApp"
+								active="[[app.startable]]" 
+								disabled="[[app.rebootable]]">
+								<iron-icon icon="av:play-arrow"></iron-icon>start
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="stopApp"
+								active="[[app.rebootable]]" 
+								disabled="[[app.startable]]">
+								<iron-icon icon="av:stop"></iron-icon>stop
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="restartApp"
+								active="[[app.rebootable]]" 
+								disabled="[[app.startable]]">
+								<iron-icon icon="av:replay"></iron-icon>restart
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="showLog"
+								active>
+								<iron-icon icon="av:library-books"></iron-icon>Log
+							</material-toggle-button>
+
+							<material-toggle-button 
+								on-tap="downloadLogFile"
+								active>
+								<iron-icon icon="file-download"></iron-icon>Download
+							</material-toggle-button>
+						</div>
+					</div>
+				</div>
+			</paper-card>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'control-agent-apps',
+
+			behaviors: [
+				Things.MsgBoxBehavior,
+				Things.ResourceDetailTabViewBahavior
+			],
+
+			properties: {
+				/**
+				 * 그리드 툴바 제거 
+				 */
+				gridEnableToolbar: {
+					type: Boolean,
+					value: false
+				},
+
+				/**
+				 * 선택된 Control Agent 정보 
+				 */
+				resource: {
+					type: Object,
+					observer: '_resourceChanged'
+				},
+
+				/**
+				 * 선택된 Control Agent ID
+				 */
+				resourceId: {
+					type: String
+				},
+
+				/**
+				 * 선택된 Application ID
+				 */
+				appId: {
+					type: String
+				},
+
+				/**
+				 * 리소스 URL
+				 */
+				resourceUrl: {
+					type: String,
+					observer: '_resourceUrlChanged'
+				},
+
+				/**
+				 * 로그 조회를 위한 파라미터 
+				 */
+				logParams: {
+					type: Object,
+					value: function() {
+						return { lines : 1000 };
+					}
+				},
+
+				/**
+				 * 로그 내용을 감싸는 Object
+				 */
+				logObj: {
+					type: Object
+				},
+
+				/**
+				 * Grid Config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									visible: false
+								}
+							}
+						}
+					}
+				},
+				
+				/**
+				 * Grid Model
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'id'
+						}, {
+							fieldName: 'name'
+						}, {
+							fieldName: 'port'
+						}, {
+							fieldName: 'status'
+						}, {
+							fieldName: 'stage'
+						}, {
+							fieldName: 'startable',
+							dataType: 'boolean'
+						}, {
+							fieldName: 'rebootable',
+							dataType: 'boolean'
+						} ];
+					}
+				},
+
+				/**
+				 * Grid Columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [ {
+							name: 'id',
+							fieldName: 'id',
+							width: 150,
+							editable: false,
+							header: {
+								text: Things.DataGlobal.t('label.id')
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'name',
+							fieldName: 'name',
+							width: 235,
+							editable: false,
+							header: {
+								text: Things.DataGlobal.t('label.name')
+							}
+						}, {
+							name: 'port',
+							fieldName: 'port',
+							width: 70,
+							header: {
+								text: Things.DataGlobal.t('label.port')
+							}
+						}, {
+							name: 'status',
+							fieldName: 'status',
+							width: 90,
+							header: {
+								text: Things.DataGlobal.t('label.status')
+							}
+						}, {
+							name: 'stage',
+							fieldName: 'stage',
+							width: 100,
+							header: {
+								text: 'Stage'
+							}
+						} ];
+					}
+				},
+
+				/**
+				 * Application List
+				 */
+				apps: {
+					type: Array,
+					observer: '_appsChanged'
+				},
+
+				/**
+				 * 선택된 애플리케이션 
+				 */
+				app: {
+					type: Object
+				},
+
+				/**
+				 * Agent Base URL
+				 */
+				agentBaseUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Start URL
+				 */
+				ctlAgentStartUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Restart URL
+				 */
+				ctlAgentRestartUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Stop URL
+				 */
+				ctlAgentStopUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Log URL
+				 */
+				ctlAgentLogUrl: {
+					type: String
+				},
+
+				/**
+				 * Control Agent : Log Download URL
+				 */
+				ctlAgentLogDownloadUrl: {
+					type: String
+				}
+			},
+
+			listeners: {
+				'grid.things-grid-row-data-select': '_appSelectChanged'
+			},
+
+			/**
+			 * resource가 변경된 이 후...
+			 *
+			 * @param {Object} resource
+			 */
+			_resourceChanged: function(resource) {
+				this.clearLog();
+
+				if(resource) {
+					this.agentBaseUrl = resource.base_url;
+					this.resourceUrl = this.agentBaseUrl + '/apps/infos';
+					this.ctlAgentStartUrl = this.agentBaseUrl + '/apps/:id/start';
+					this.ctlAgentRestartUrl = this.agentBaseUrl + '/apps/:id/restart';
+					this.ctlAgentStopUrl = this.agentBaseUrl + '/apps/:id/stop';
+					this.ctlAgentLogUrl = this.agentBaseUrl + '/apps/:id/log/today/read';
+					this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/apps/:id/log/today/download';
+				}
+			},
+
+			/**
+			 * resourceUrl이 변경된 이 후 ...
+			 *
+			 * @param {String} resourceUrl
+			 */
+			_resourceUrlChanged: function(resourceUrl) {
+				this.refreshList();
+			},
+
+			/**
+			 * apps 데이터 변경 후 ...
+			 *
+			 * @param {Array} apps
+			 */
+			_appsChanged: function(apps) {
+				apps.forEach(function(item) {
+					item.startable  = (item.status == 'DOWN');
+					item.rebootable = (item.status == 'UP');
+				})
+			},
+
+			/**
+			 * app 선택이 변경된 이 후 ...
+			 *
+			 * @param {Object} event
+			 */
+			_appSelectChanged: function(event) {
+				this.app = event.detail;
+				this.appId = event.detail.id;
+				this.clearLog();
+				this.showLog();
+			},
+
+			/**
+			 * 버튼 상태 변경을 위한 Toggle
+			 *
+			 * @param {Object} event
+			 */
+			/*_toggleControlButtons : function(event) {
+				var startStatus = event.model.get('item.startable');
+				var rebootStatus = event.model.get('item.rebootable');
+				event.model.set('item.startable', !startStatus);
+				event.model.set('item.rebootable', !rebootStatus);
+			},*/
+
+			/**
+			 * 버튼 상태 변경을 위한 Toggle
+			 *
+			 * @param {Object} event
+			 */
+			/*_toggleRestartButton: function(event) {
+				event.model.set('item.startable', false);
+				event.model.set('item.rebootable', true);
+			},*/
+
+			refreshList: function(event) {
+				this.$['app-list-ajax'].generateRequest();
+			},
+
+			/**
+			 * App Start
+			 *
+			 * @param {Object} event
+			 */
+			startApp: function(event) {
+				if(this.app && this.app.status == 'DOWN') {
+					this.executeApp('Current status is DOWN', 'Do you want to start this application?', this.$['start-ajax']);
+				}
+			},
+
+			/**
+			 * App Restart
+			 *
+			 * @param {Object} event
+			 */
+			restartApp: function(event) {
+				if(this.app && this.app.status == 'UP') {
+					this.executeApp('Current status is UP', 'Do you want to restart this application?', this.$['restart-ajax']);
+				}
+			},
+
+			/**
+			 * App Stop
+			 *
+			 * @param {Object} event
+			 */
+			stopApp: function(event) {
+				if(this.app && this.app.status == 'UP') {
+					this.executeApp('Current status is UP', 'Do you want to stop this application?', this.$['stop-ajax']);
+				}
+			},
+
+			/**
+			 * Application 수행 
+			 *
+			 * @param {String} executeStr
+			 * @param {String} ajax
+			 */
+			executeApp: function(title, text, ajax) {
+				this.openConfirmMsg({
+					type : 'info',
+					title : title,
+					text : text,
+					showCancelButton: true
+				}, function() {
+					ajax.generateRequest();
+				});
+			},
+
+			/**
+			 * 로그 클리어 ...
+			 */
+			clearLog: function() {
+				this.logObj = { id : 3, log : '' };
+			},
+
+			/**
+			 * 로그 보기 
+			 *
+			 * @param {Object} event
+			 */
+			showLog: function(event) {
+				if(this.app) {
+					this.$['log-ajax'].generateRequest();
+				}
+			},
+
+			/**
+			 * 로그 파일 다운로드
+			 *
+			 * @param {Object} event
+			 */
+			downloadLogFile: function(event) {
+				if(this.app && this.ctlAgentLogDownloadUrl) {
+					var downloadUrl = this.ctlAgentLogDownloadUrl.replace(':id', this.appId);
+					this.openConfirmMsg({
+						type : 'info',
+						title : Things.DataGlobal.t('text.Want to download file'),
+						text : Things.DataGlobal.t('text.You can download file'),
+						showCancelButton: true
+					}, function() {
+						window.location = downloadUrl;
+					});
+				}
+			},
+
+			/**
+			 * Detail 화면을 오픈한다.
+			 *
+			 * @param {String} resourceId
+			 * @param {Object} resource
+			 * @param {Function} openCallback
+			 * @param {Function} closeCallback
+			 */
+			showDetailView: function(resourceId, resource, openCallback, closeCallback) {
+				if(this.resource != resource) {
+					this.resourceId = resourceId;
+					this.resource = resource;
+				}
+
+				this.openPopupView(this, true, openCallback, closeCallback);
+			}
+		})
+	</script>
+</dom-module>

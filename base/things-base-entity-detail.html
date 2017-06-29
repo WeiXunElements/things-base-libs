@@ -1,0 +1,551 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../paper-tabs/paper-tab.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-detail/things-detail-tab-view-behavior.html">
+<link rel="import" href="../../things-form/things-resource-form.html">
+<link rel="import" href="../../things-attached-file/things-attached-file.html">
+<link rel="import" href="../../things-spinner/things-spinner.html">
+<link rel="import" href="../../paper-dialog/paper-dialog.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../things-resource-combo/things-resource-combo.html">
+
+<link rel="import" href="./things-base-entity-detail-columns.html">
+<link rel="import" href="./things-base-entity-detail-search.html">
+<link rel="import" href="./things-base-entity-detail-grid.html">
+<link rel="import" href="./things-base-entity-detail-form.html">
+
+<!--
+  Entity Detail 셋업 View
+-->
+
+<dom-module id="things-base-entity-detail">
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+        width: 100%;
+        @apply(--layout-vertical);
+        --paper-header-panel-container: {
+          height: 100%;
+          width: 100%;
+          @apply(--layout-vertical);
+        };
+      }
+      paper-header-panel {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .iron-pages {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .detail-flex {
+        @apply(--layout-flex);
+      }
+      .close-btn {
+        @apply(--things-header-button);
+        background:url(/images/icon-close.png) 100% 50% no-repeat;
+        margin-right:10px;
+      }
+      paper-toolbar {
+        background-color:var(--things-primary-background-color);
+        height:45px;
+        margin-top:0px !important;
+        @apply(--things-padding-clear)
+      }
+      .toolbardown{
+        background-color:white;
+        height:45px;
+        margin-top:0px !important;
+        @apply(--things-padding-clear)
+      }
+      paper-toolbar::shadow #topBar {
+        height:45px;
+        padding:0;
+      }
+      paper-toolbar::shadow #bottomBar {
+        height: 45px;
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        padding: 0 10px;
+      }
+      paper-toolbar .title {
+        margin-left:32px !important;
+        line-height:initial !important;
+      }
+      paper-dialog {
+        min-width:600px;
+        @apply(--layout-vertical);
+      }
+
+    </style>
+
+    <paper-header-panel mode="standard" class="green">
+      <paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
+        <template is="dom-repeat" items="{{_panels}}">
+          <paper-tab id="{{item.elementId}}">{{item.title}}</paper-tab>
+        </template>
+      </paper-tabs>
+
+      <things-ajax
+        auto
+        id="get-resource"
+        method="GET"
+        resource-url="entities/:id/entity_columns"
+        resource-id="{{resourceId}}"
+        last-response="{{lastResponse}}">
+      </things-ajax>
+
+      <things-ajax
+        id="get-seed-repository"
+        method="GET"
+        last-response="{{seedRepositories}}">
+      </things-ajax>
+
+      <things-ajax
+        id="get-seed-exist"
+        method="GET">
+      </things-ajax>
+
+      <things-ajax
+        id="get-json-objects"
+        resource-action="index">
+      </things-ajax>
+
+      <things-ajax
+        id="add-seed"
+        content-type="application/json"
+        resource-action="create">
+      </things-ajax>
+
+      <paper-dialog
+        id="dialog"
+        entry-animation="scale-up-animation"
+        exit-animation="fade-out-animation"
+        modal>
+        <things-spinner id="thingsSpinner"></things-spinner>
+        <paper-toolbar>
+          <span class="title">Select Upload Seed Site</span>
+          <div class="buttonsGroup">
+            <button  dialog-confirm  class="close-btn"></button>
+          </div>
+        </paper-toolbar>
+         <things-input-field
+         label="SeedServer URL"
+         value={{adminUrlValue}}
+         >
+         </things-input-field>
+        <paper-toolbar id="toolbar" class="toolbardown" justify='end'>
+        <div class="bottom">
+        <things-button-bar id="button-group" buttons="[[adminUrlBtn]]"></things-button-bar>
+        </div>
+        </paper-toolbar>
+        <things-combo
+          id="seed-repo-combo"
+          label="Seed Repository"
+          items="[[seedRepositories.items]]"
+          value-path="id"
+          label-path="site_url">
+        </things-combo>
+
+        <things-tristate-radio
+          label="master & detail"
+          value="{{uploadMasterDetail}}">
+        </things-tristate-radio>
+
+        <paper-toolbar id="toolbar" class="toolbardown" justify='end'>
+					<div class="bottom">
+						<things-button-bar id="button-group" buttons="[[seedUploadButtons]]"></things-button-bar>
+					</div>
+				</paper-toolbar>
+      </paper-dialog>
+
+      <iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
+        <things-resource-form
+          id="resource-form"
+          resource-url="[[resourceUrl]]"
+          resource="{{resource}}"
+          form-fields="[[formFields]]"
+          buttons="[[buttons]]"
+          remove-fields-on-save="[[removeFieldsOnSave]]">
+        </things-resource-form>
+
+        <things-base-entity-detail-columns
+          class="detail-flex"
+          resource="[[resource]]"
+          resource-id="[[resourceId]]"
+          resource-columns="{{resourceColumns}}"
+          grid-model="[[gridModel]]">
+        </things-base-entity-detail-columns>
+
+        <things-base-entity-detail-search
+          class="detail-flex"
+          resource-id="[[resourceId]]"
+          resource-columns="{{resourceColumns}}"
+          grid-model="[[gridModel]]">
+        </things-base-entity-detail-search>
+
+        <things-base-entity-detail-grid
+          class="detail-flex"
+          resource-id="[[resourceId]]"
+          resource-columns="{{resourceColumns}}"
+          grid-model="[[gridModel]]">
+        </things-base-entity-detail-grid>
+
+        <things-base-entity-detail-form
+          class="detail-flex"
+          resource-id="[[resourceId]]"
+          resource-columns="{{resourceColumns}}"
+          grid-model="[[gridModel]]">
+        </things-base-entity-detail-form>
+
+        <things-base-entity-detail-seed
+          class="detail-flex"
+          resource-id="[[resourceId]]">
+        </things-base-entity-detail-seed>
+
+      </iron-pages>
+    </paper-header-panel>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'things-base-entity-detail',
+
+      behaviors: [
+        Things.DetailTabViewBahavior,
+        Things.MsgBoxBehavior,
+        Things.SpinnerBehavior
+      ],
+
+      properties: {
+        /**
+         * Administrator URL값
+         */
+        adminUrlValue:{
+          type: String,
+          value:'http://suite-base.hatiolab.com/rest'
+        },
+
+        /**
+         * Button
+         */
+        buttons: {
+          type: Array,
+          value: function() {
+            return [{
+              id: 'save-btn',
+              name: 'save'
+            }]
+          }
+        },
+
+        /**
+         * Admin URL 조회 Button
+         */
+        adminUrlBtn: {
+          type: Array,
+          value: function() {
+            return [ {
+              id: 'admin-geturl-btn',
+              name: 'confirm'
+            } ];
+          }
+        },
+
+        /**
+         * Administrator URL
+         */
+        adminUrlPath: {
+          type: String,
+          value: 'http://sms-hq.hatiolab.com/rest'
+        },
+
+        /**
+         * Seed Upload 화면에서의 버튼
+         */
+        seedUploadButtons: {
+          type: Array,
+          value: function() {
+            return [{
+              id: 'upload-seed-btn',
+              name: 'confirm'
+            }]
+          }
+        },
+
+        /**
+         * Entity Resource 조회 데이터
+         */
+        lastResponse: {
+          type: Object,
+          observer: '_entityResourceChanged'
+        },
+
+        /**
+         * 각 화면에 전달될 Entity Columns
+         */
+        resourceColumns: {
+          type: Array,
+          notify: true
+        },
+
+        /**
+         * Save 하기 전에 폼에는 있지만 Save하는데 필요 없는 필드를 삭제하기 위한 필드명
+         */
+        removeFieldsOnSave: {
+          type: Array,
+          value: ['creator', 'updater', 'creator_id', 'updater_id', 'created_at', 'updated_at']
+        },
+
+        /**
+         * Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: [ {
+            fieldName: 'id'
+          }, {
+            fieldName: 'menu_id'
+          }, {
+            fieldName: 'rank'
+          }, {
+            fieldName: 'name'
+          }, {
+            fieldName: 'description'
+          }, {
+            fieldName: 'term'
+          }, {
+            fieldName: 'trans'
+          }, {
+            fieldName: 'col_type'
+          }, {
+            fieldName: 'col_size'
+          }, {
+            fieldName: 'virtual_field'
+          }, {
+            fieldName: 'nullable'
+          }, {
+            fieldName: 'uniq_rank'
+          }, {
+            fieldName: 'search_rank'
+          }, {
+            fieldName: 'sort_rank'
+          }, {
+            fieldName: 'reverse_sort'
+          }, {
+            fieldName: 'grid_rank'
+          }, {
+            fieldName: 'ref_type'
+          }, {
+            fieldName: 'ref_name'
+          }, {
+            fieldName: 'ref_name_editor'
+          }, {
+            fieldName: 'ref_url'
+          }, {
+            fieldName: 'ref_params'
+          }, {
+            fieldName: 'ref_related'
+          }, {
+            fieldName: 'search_editor'
+          }, {
+            fieldName: 'search_name'
+          }, {
+            fieldName: 'search_oper'
+          }, {
+            fieldName: 'search_init_val'
+          }, {
+            fieldName: 'def_val'
+          }, {
+            fieldName: 'range_val'
+          }, {
+            fieldName: 'form_editor'
+          }, {
+            fieldName: 'form_validator'
+          }, {
+            fieldName: 'form_format'
+          }, {
+            fieldName: 'ignore_on_save'
+          }, {
+            fieldName: 'grid_align'
+          }, {
+            fieldName: 'grid_width'
+          }, {
+            fieldName: 'grid_editor'
+          }, {
+            fieldName: 'grid_format'
+          }, {
+            fieldName: 'search_check'
+          }, {
+            fieldName: 'grid_check'
+          } ]
+        }
+      },
+
+      listeners: {
+        'seed-dialog-btn-tap': 'openSeedDialog',
+        'upload-seed-btn-tap': 'isSeedExist',
+        'get-seed-exist.things-ajax-response': 'seedUpload',
+        'get-json-objects.things-ajax-response': 'jsonObjectsResponsed',
+        'admin-geturl-btn-tap':'onInputFieldSubmit'
+      },
+
+      /**
+       * Life cycle - Element Ready
+       */
+      ready: function() {
+        this._panels = [ {
+          title: Things.DataGlobal.t('title.basic_info'),
+          elementId: 'things-resource-form'
+        }, {
+          title: Things.DataGlobal.t('title.setup_columns'),
+          elementId: 'things-base-entity-detail-columns'
+        }, {
+          title: Things.DataGlobal.t('title.setup_searching'),
+          elementId: 'things-base-entity-detail-search'
+        }, {
+          title: Things.DataGlobal.t('title.setup_grid'),
+          elementId: 'things-base-entity-detail-grid'
+        }, {
+          title: Things.DataGlobal.t('title.setup_form'),
+          elementId: 'things-base-entity-detail-form'
+        }/*, {
+          title: Things.DataGlobal.t('title.seed_upload'),
+          elementId: 'things-base-entity-detail-seed'
+        }*/ ];
+
+        this.checkDevMode();
+      },
+
+      onInputFieldSubmit: function() {
+        this.adminUrlPath = this.adminUrlValue
+        var seedRepoAjax = this.$['get-seed-repository'];
+        seedRepoAjax.resourceUrl = this.adminUrlPath + '/seed_repos';
+        seedRepoAjax.generateRequest();
+      },
+
+      /**
+       * Open Seed Upload Dialog
+       */
+      openSeedDialog: function(event) {
+        this.$.dialog.open();
+      },
+
+      /**
+       * 서버에 Seed가 이미 존재하는지 체크
+       */
+      isSeedExist: function(event) {
+        var seedRepoCombo = this.$['seed-repo-combo'];
+        var seedId = seedRepoCombo.value ? seedRepoCombo.value : '';
+
+        if(seedId) {
+          var seedExist = this.$['get-seed-exist'];
+          seedExist.params = {
+            seed_id: seedId,
+            entity_name: this.resource.name
+          };
+
+          seedExist.resourceUrl = this.adminUrlPath + '/seed_repos/seed_exist';
+          seedExist.generateRequest();
+        }
+      },
+
+      /**
+       * seed upload
+       */
+      seedUpload: function(event) {
+        var isExist = event.detail;
+
+        if(isExist) {
+          this.openConfirmMsg({
+            type: 'warning',
+            title: 'Entity is alread exist!',
+            text: 'Are you sure to over write this entity?',
+            showCancelButton: true
+          }, function() {
+            this.getEntityData();
+          }.bind(this));
+
+        } else {
+          this.getEntityData();
+        }
+      },
+
+      /**
+       * 엔티티 자신의 레코드들을 서버로 부터 요청한다.
+       */
+      getEntityData: function() {
+        var ajax = this.$['get-json-objects'];
+
+        if(this.uploadMasterDetail) {
+          ajax.resourceUrl = this.resource.search_url + '/search_with_details';
+        } else {
+          ajax.resourceUrl = this.resource.search_url;
+        }
+
+        ajax.page = 1;
+        ajax.limit = 100000;
+        ajax.generateRequest();
+      },
+
+      /**
+       * 서버로 부터 엔티티 데이터를 받은 후 Seed 서버에 업로드 요청
+       */
+      jsonObjectsResponsed: function(event) {
+        var result = event.detail;
+        var seedRepoId = this.$['seed-repo-combo'].value;
+        var addSeedAjax = this.$['add-seed'];
+        var dataCount = 0;
+
+        if(result.items) {
+          dataCount = result.items.length;
+        } else {
+          dataCount = result.length;
+        }
+
+        addSeedAjax.params = {
+          size: dataCount,
+          bundle: this.resource.bundle
+        };
+
+        addSeedAjax.resourceUrl = this.adminUrlPath+'/seed_repos/' + seedRepoId + '/seeds_add/' + this.resource.name;
+        addSeedAjax.body = result.items ? result.items : result;
+        addSeedAjax.generateRequest();
+        this.$.dialog.close();
+      },
+
+      /**
+       * Entity Resource가 변경된 후 ...
+       */
+      _entityResourceChanged: function(lastResponse) {
+        var items = lastResponse.items;
+        delete lastResponse['items'];
+        this.resource = lastResponse;
+        this.resourceColumns = items;
+      },
+
+      /**
+       * localhost인지 아닌지에 따라 Develop mode인지 판단하여 Develop mode이면 Seed Upload 버튼을 숨긴다.
+       * ******
+       */
+      checkDevMode: function() {
+        if(window.location.hostname == 'localhost' ) {
+          this.buttons = [ {
+            id: 'seed-dialog-btn',
+            name: 'upload-seed'
+          }, {
+            id: 'save-btn',
+            name: 'save'
+          } ];
+        };
+      }
+    });
+  </script>
+</dom-module>

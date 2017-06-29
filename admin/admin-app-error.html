@@ -1,0 +1,104 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-responsive-iframe/things-responsive-iframe.html">
+
+<!-- 
+	모니터링 대상 애플리케이션 탭 - Error 
+-->
+ 
+<dom-module id="admin-app-error">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-code-editor {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-responsive-iframe resource-url="[[errMonitorUrl]]">
+		</things-responsive-iframe>
+	</template>
+ 
+	<script>
+		Polymer({
+			is: 'admin-app-error',
+ 
+			properties: {
+				/**
+				 * 애플리케이션 ID
+				 */
+				resourceId: {
+					type: String
+				},
+
+				/**
+				 * 선택된 애플리케이션 정보 
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * Management URL 
+				 */
+				managementUrl: {
+					type: String
+				},
+
+				/**
+				 * App Agent Port
+				 */
+				appAgentPort: {
+					type: String
+				},
+
+				/**
+				 * Error Monitor URL 변경시 
+				 */
+				errMonitorUrl: {
+					type: String,
+					computed: '_computeErrMonitorUrl(managementUrl, appAgentPort)'
+				}
+			},
+
+			/**
+			 * Refresh
+			 */
+			refresh: function() {
+			},
+
+			/**
+			 * Application 선택이 변경된 경우
+			 *
+			 * @param {Object} resource
+			 */
+			resourceChanged: function(resource) {
+				this.resourceUrl = resource.managementUrl;
+				this.resourceId = resource.id;
+				var managementUrl = resource.managementUrl;
+				var portSep = managementUrl.lastIndexOf(':');
+
+				if(managementUrl.lastIndexOf(':') > 6) {
+					this.managementUrl = managementUrl.substr(0, portSep);
+				} else {
+					this.managementUrl = managementUrl;
+				}
+			},
+
+			/**
+			 * managementUrl, appAgentPort로 errMonitorUrl을 계산 
+			 *
+			 * @param {String} managementUrl
+			 * @param {String} appAgentPort
+			 */
+			_computeErrMonitorUrl: function(managementUrl, appAgentPort) {
+				return managementUrl + ':' + appAgentPort + '/error/messages?transaction-type=Web';
+			}
+		})
+	</script>
+</dom-module>

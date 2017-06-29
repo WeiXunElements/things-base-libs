@@ -1,0 +1,579 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<!--
+  역할 - 메뉴 권한 탭 
+-->
+
+<dom-module id="things-base-role-detail-auth">
+  <template>
+    <style>
+      :host {
+        display:block;
+        @apply(--layout-vertical);
+      }
+      #layout-flex {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      things-resource-grid {
+        @apply(--things-default-padding);
+        padding-top:0px;
+        padding-bottom:0px;
+      }
+      .things-resource-grid-main {
+        @apply(--layout-flex);
+        min-height: 200px;
+      }
+      .things-resource-grid-sub {
+        @apply(--layout-flex-2);
+      }
+    </style>
+
+    <!-- flex를 위해 id에  layout-flex 추가  -->
+    <div id="layout-flex">
+      <things-ajax 
+        auto
+        id="main-menus"
+        method="GET"
+        resource-url="menus"
+        resource-action="index"
+        select-fields="id,rank,name,description,menu_type,category",
+        query-fields="[[mainMenuQueryFields]]",
+        sort-fields="[[manuSortFields]]",
+        last-response="{{mainList}}">
+      </things-ajax>
+
+      <things-resource-grid 
+        id="grid"
+        class="things-resource-grid-main"
+        config="[[gridConfig]]"
+        model="[[mainGridModel]]"
+        columns="[[mainGridColumns]]"
+        current-page=1
+        limit=1000
+        data="[[mainList.items]]"
+        total-count="[[mainList.total]]"
+        fixed-column-count="0"
+        enable-detail-column>
+      </things-resource-grid>
+
+      <things-ajax 
+        id="sub-menu-search"
+        method="GET"
+        resource-url="[[subSearchUrl]]"
+        last-response="{{subList}}">
+      </things-ajax>
+
+      <things-resource-grid 
+        id="subgrid"
+        class="things-resource-grid-sub"
+        config="[[gridConfig]]"
+        model="[[subGridModel]]" 
+        columns="[[subGridColumns]]"
+        data="[[finalItem]]"
+        grid-save-action="[[subSaveUrl]]"
+        fixed-column-count="0"
+        buttons="[[buttons]]">
+      </things-resource-grid>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'things-base-role-detail-auth',
+
+      properties: {
+        /**
+         * 메인 메뉴 조회를 위한 쿼리
+         */
+        mainMenuQueryFields: {
+          type: Array,
+          value: function() {
+            return [{ 
+              name: 'menu_type', value: 'MENU' 
+            }, { 
+              name: 'hidden_flag', operator: 'is_not_true' 
+            }];
+          }
+        },
+
+        /**
+         * 메뉴 소팅 조건 
+         */
+        manuSortFields: {
+          type: Array,
+          value: function() {
+            return [{ 
+              field : 'parentId', ascending: true
+            }, {
+              field : 'rank', ascending: true
+            }];
+          }
+        },
+
+        /**
+         * 현재 선택된 Role Id
+         */
+        roleId: {
+          type: String
+        },
+
+        /**
+         * 현재 선택된 Main Menu Id
+         */
+        menuId: {
+          type: String
+        },
+
+        /**
+         * 하위 그리드 ajax response. 부모 메뉴의 자식 메뉴 리스트
+         */
+        subList: {
+          type: Object,
+          observer: '_subListChanged'
+        },
+
+        /**
+         * Menu autholization search url
+         */
+        subSearchUrl: {
+          type: String,
+          computed: '_computeAuthSearchUrl(roleId, menuId)',
+        },
+
+        /**
+         * Menu autholization save URL
+         */
+        subSaveUrl: {
+          type: String,
+          computed: '_computeAuthColumnSaveUrl(roleId)'
+        },
+
+        /**
+         * 그리드에 나타나는 최종 item object _subListChanged 함수를 통해 초기화되는 결과 값
+         */
+        finalItem: {
+          type: Object
+        },
+
+        /**
+         * Role resource
+         */
+        resource: {
+          type: Object,
+          observer: '_onResourceChanged'
+        },
+
+        /**
+         * 상위 그리드 모델
+         */
+        mainGridModel: {
+          type: Array,
+          value: [{
+            fieldName: 'id'
+          },{
+            fieldName: 'rank'
+          }, {
+            fieldName: 'name'
+          }, {
+            fieldName: 'description'
+          }, {
+            fieldName: 'menu_type'
+          }, {
+            fieldName: 'category'
+          }]
+        },
+
+        /**
+         * 상위 그리드 컬럼
+         */
+        mainGridColumns: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+
+        /**
+         * 하위 그리드 모델
+         */
+        subGridModel: {
+          type: Array,
+          value: [ {
+            fieldName: 'id'
+          }, {
+            fieldName: 'parent_id'
+          }, {
+            fieldName: 'name'
+          }, {
+            fieldName: 'check_all',
+            dataType: 'boolean'
+          }, {
+            fieldName: 'show',
+            dataType: 'boolean'
+          }, {
+            fieldName: 'create',
+            dataType: 'boolean'
+          }, {
+            fieldName: 'update',
+            dataType: 'boolean'
+          }, {
+            fieldName: 'delete',
+            dataType: 'boolean'
+          } ]
+        },
+        
+        /**
+         * 하위 그리드 컬럼
+         */
+        subGridColumns: {
+          type: Array,
+          value: []
+        },
+
+        /**
+         * 버튼 정보 
+         */
+        buttons: {
+          type: Array,
+          value: [ {
+            id: 'save-btn',
+            text: 'save',
+            icon: 'icons:save'
+          } ]
+        },
+
+        /**
+         * Main grid config
+         */
+        mainGridConfig: {
+          type: Object,
+          value: function() {
+            return { checkBar : false };
+          }
+        },
+
+        /**
+         * Sub grid config
+         */
+        subGridConfig: {
+          type: Object,
+          value: function() {
+            return { checkBar : false };
+          }
+        }
+      },
+
+      listeners: {
+        'grid.things-grid-detail-tap': '_showSubMenus',
+        'grid.things-grid-configured' : '_onGridConfigured',
+        'subgrid.things-grid-configured' : '_onSubGridConfigured',
+        'subgrid.things-grid-save-success' : 'reloadGrid',
+        'subgrid.things-grid-handle-build-writedata' : '_setupPermissionsToUpdate',
+        'subgrid.things-grid-handle-save' : '_saveGridData'
+      },
+
+      /**
+       * lifecycle
+       */
+      attached: function () {
+        this.mainGridColumns =[ {
+          name: 'id',
+          fieldName: 'id',
+          width: 0
+        }, {
+          name: 'rank',
+          fieldName: 'rank',
+          width: 70,
+          editable: false,
+          styles: { 
+            textAlignment : 'center' 
+          },
+          header: {
+            text: Things.DataGlobal.t('label.rank')
+          }
+        }, {
+          name: 'name',
+          fieldName: 'name',
+          width: 200,
+          editable: false,
+          header: {
+            text: Things.DataGlobal.t('label.name')
+          },
+          valueType: 'text', type: 'calced',
+          valueCallback: function(column, row) {
+            var name = row.getValue('name');
+            return Things.DataGlobal.t('menu.' + name);
+          }
+        }, {
+          name: 'description',
+          fieldName: 'description',
+          width: 200,
+          editable: false,
+          header: {
+            text: Things.DataGlobal.t('label.description')
+          }
+        }, {
+          name: 'menu_type',
+          fieldName: 'menu_type',
+          width: 80,
+          editable: false,
+          header: {
+            text: Things.DataGlobal.t('label.menu_type')
+          }
+        }, {
+          name: 'category',
+          fieldName: 'category',
+          width: 100,
+          editable: false,
+          header: {
+            text: Things.DataGlobal.t('label.category')
+          }          
+        }];
+            
+        this.subGridColumns = [ {
+          fieldName: 'id',
+          width: 0
+        }, {
+          fieldName: 'parent_id',
+          width: 0
+        }, {
+          fieldName: 'name',
+          editable: false,
+          width: 300,
+          header: {
+            text: Things.DataGlobal.t('label.name')
+          },
+          valueType: 'text', type: 'calced',
+          valueCallback: function(column, row) {
+            var name = row.getValue('name');
+            return Things.DataGlobal.t('menu.' + name);
+          }
+        }, {
+          name: 'check_all', fieldName: 'check_all', width: 100, editable: false,
+          header: { 
+            text: Things.DataGlobal.t('label.check_all')
+          },
+          renderer: {
+            type: 'check', editable: true, editOnClick: true, threeStates: false, 
+            trueValues: 'true', falseValues: 'false'
+          }
+        }, {
+          name: 'show', fieldName: 'show', width: 80, editable: false,
+          header: { 
+            text: Things.DataGlobal.t('label.show')
+          },
+          renderer: {
+            type: 'check', editable: true, editOnClick: true, threeStates: false, 
+            trueValues: 'true', falseValues: 'false'
+          }
+        }, {
+          name: 'create', fieldName: 'create', width: 80, editable: false,
+          header: { 
+            text: Things.DataGlobal.t('label.create')
+          },
+          renderer: {
+            type: 'check', editable: true, editOnClick: true, threeStates: false, 
+            trueValues: 'true', falseValues: 'false'
+          }
+        }, {
+          name: 'update', fieldName: 'update', width: 80, editable: false,
+          header: { 
+            text: Things.DataGlobal.t('label.update')
+          },
+          renderer: {
+            type: 'check', editable: true, editOnClick: true, threeStates: false, 
+            trueValues: 'true', falseValues: 'false'
+          }
+        }, {
+          name: 'delete', fieldName: 'delete', width: 80, editable: false,
+          header: { 
+            text: Things.DataGlobal.t('label.delete')
+          },
+          renderer: {
+            type: 'check', editable: true, editOnClick: true, threeStates: false, 
+            trueValues: 'true', falseValues: 'false'
+          }
+        } ];
+      },
+
+      /**
+       * Resource 변경시
+       *
+       * @param {Object} resource
+       */
+      _onResourceChanged: function(resource) {
+        this.roleId = resource.id;
+      },
+
+      /**
+       * Main Grid가 구성된 이후 ...
+       *
+       * @param {Object} event grid.things-grid-configured 이벤트 
+       */
+      _onGridConfigured: function(event) {
+        var grid = event.detail;
+        grid.setCheckBar(false);
+      },
+
+      /**
+       * Sub Grid가 구성된 이후 ...
+       *
+       * @param {Object} event subgrid.things-grid-configured 이벤트 
+       */
+      _onSubGridConfigured: function(event) {
+        var grid = event.detail;
+        grid.setCheckBar(false);
+        grid.onEditCellUpdated = function (grid, rowIndex, fieldIndex, newValue, oldValue) {
+          if(fieldIndex == 3) {
+            grid.commit();
+            var rowObj = grid.focusedRow().getRowObject();
+            rowObj['show'] = newValue;
+            rowObj['create'] = newValue;
+            rowObj['update'] = newValue;
+            rowObj['delete'] = newValue;
+            grid.dataSource().updateRow(rowIndex._dataIndex, rowObj);
+          }
+        };
+      },
+
+      /**
+       * 업데이트할 Permissions 데이터를 셋업한다. - override setupWriteData Logic
+       *
+       * @param {Object} event things-grid-handle-build-writedata
+       */
+      _setupPermissionsToUpdate: function(event) {
+        event.preventDefault();
+        var grid = event.detail;
+        var thingsGrid = event.srcElement;
+        var count = grid.dataSource().rowCount();
+        var dataList = grid.dataSource().getRowObjects(0, count);
+
+        if(dataList && dataList.length > 0) {
+          var updateList = [];
+          dataList.forEach(function(data) {
+            if(data.show || data.create || data.update || data.delete) {
+              var clonedObj = JSON.parse(JSON.stringify(data));
+              clonedObj.menu_id = clonedObj.id;
+              delete clonedObj['id'];
+              delete clonedObj['name'];
+              updateList.push(clonedObj);
+            }
+          });
+
+          thingsGrid.writeData = updateList;
+        }
+      },
+
+      /**
+       * 변경 데이터 업데이트 - override updateMultipleData Logic
+       *
+       * @param {Object} event things-grid-handle-save
+       */
+      _saveGridData: function(event) {
+        event.preventDefault();
+        var grid = event.detail;
+        var thingsGrid = event.srcElement;
+        var saveUrl = this.subSaveUrl + '?parent_menu_id=' + this.menuId;
+
+        if(!thingsGrid.writeData || thingsGrid.writeData.length == 0) {
+          saveUrl = saveUrl + '&delete_all=true';
+        }
+
+        thingsGrid.updateMultipleData(saveUrl);
+      },
+
+      /**
+       * role id를 통한 searching URL 생성
+       *
+       * @param roleId
+       * @param menuId
+       */
+      _computeAuthSearchUrl: function(roleId, menuId) {
+        return 'roles/' + roleId + '/permitted_resources/' + menuId + '.json';
+      },
+
+      /**
+       * role id를 통해 menu authorization save URL 생성
+       *
+       * @param roleId
+       */
+      _computeAuthColumnSaveUrl: function(roleId) {
+        return 'roles/' + roleId + '/update_permissions';
+      },
+
+      /**
+       * main menu click시 submenu를 표시한다.
+       *
+       * @param event
+       */
+      _showSubMenus: function(event) {
+        this.menuId = event.detail.id;
+        this.$['sub-menu-search'].generateRequest();
+      },
+
+      /**
+       * reload grid data
+       *
+       * @param event
+       */
+      reloadGrid: function(e) {
+        this.$['sub-menu-search'].generateRequest();
+      },
+
+      /**
+       * 하위메뉴 검색을 통해 얻은 결과 값을 그리드에 매핑하기 위한 데이터의 형식으로 가공하는 로직
+       *
+       * @param subList
+       */
+      _subListChanged: function(subList) {
+        var newItems = [];
+        var itemsLength = subList.items.length;
+
+        for(var i = 0; i < itemsLength; i++) {
+          var currentName = subList.items[i].name;
+          var actionName = subList.items[i].action_name;
+          var tempItem = subList.items[i];
+          var lastIdx = newItems.length - 1;
+          
+          if(actionName) {
+            if(currentName != previousName) {
+              if(actionName == 'create') {
+                tempItem.create = true;
+              } else if (actionName == 'delete') {
+                tempItem.delete = true;
+              } else if (actionName == 'update') {
+                tempItem.update = true;
+              } else { //show
+                tempItem.show = true;
+              }
+
+              newItems.push(tempItem);
+
+            } else {
+              if(actionName == 'create') {
+                newItems[lastIdx].create = true;
+              } else if (actionName == 'delete') {
+                newItems[lastIdx].delete = true;
+              } else if (actionName == 'update') {
+                newItems[lastIdx].update = true;
+              } else { //show
+                newItems[lastIdx].show = true;
+              }
+            }
+          } else {
+            newItems.push(tempItem);
+          }
+
+          var previousName = currentName;
+        }
+
+        this.finalItem = newItems;
+      }
+    });
+  </script>
+</dom-module>

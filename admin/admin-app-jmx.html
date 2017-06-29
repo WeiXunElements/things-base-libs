@@ -1,0 +1,176 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+
+<!--
+	모니터링 대상 애플리케이션 탭 - JMX 화면
+-->
+
+<dom-module id="admin-app-jmx">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<!-- JMX 내용 조회 -->
+		<things-ajax
+			id="app-jmx-ajax"
+			resource-action="create">
+		</things-ajax>
+
+		<things-resource-grid 
+			left
+			id="grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]" 
+			columns="[[gridColumns]]"
+			data="[[items]]"
+			total-count="[[itemCount]]"
+			current-page="{{page}}"
+			limit="{{limit}}"
+			fixed-column-count="0">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'admin-app-jmx',
+
+			properties: {
+				/**
+				 * Admin Base Url
+				 */				
+				adminBaseUrl: {
+					type: String
+				},
+
+				/**
+				 * Application 선택 후 ...
+				 */
+				resource: {
+					type: Object,
+					observer: 'resourceChanged'
+				},
+
+				/**
+				 * JMX List
+				 */
+				items: {
+					type: Array,
+				},
+
+				/**
+				 * grid config
+				 */
+				gridConfig: {
+					type: Object,
+					value: function() {
+						return {
+							options: {
+								checkBar: {
+									visible: false
+								}
+							}
+						}
+					}
+				},
+				
+				/**
+				 * grid model
+				 */
+				gridModel: {
+					type: Array,
+					value: function() {
+						return [ {
+							fieldName: 'name'
+						}, {
+							fieldName: 'value'
+						} ];
+					}
+				},
+
+				/**
+				 * grid columns
+				 */
+				gridColumns: {
+					type: Array,
+					value: function() {
+						return [ {
+							name: 'name',
+							fieldName: 'name',
+							width: 400,
+							header: {
+								text: Things.DataGlobal.t('label.name')
+							}
+						} ];
+					}
+				}
+			},
+
+			listeners: {
+				'app-jmx-ajax.things-ajax-response': '_jmxArrived',
+				'app-jmx-ajax.things-ajax-error': '_errorHandler'
+			},
+
+			/**
+			 * JMX 데이터 조회 완료 이후 ...
+			 */
+			_jmxArrived: function(event) {
+				var jmxData = event.detail;
+
+				if(jmxData) {
+					var items = [];
+					for(key in jmxData.value) {
+						items.push({ name : key, value : jmxData[key] });
+					}
+
+					this.items = items;
+				} else {
+					this.items = [];
+				}
+
+				this.itemCount = this.items.length;
+			},
+
+			/**
+			 * Error 핸들링 ...
+			 *
+			 * @param {Object} event
+			 */
+			_errorHandler: function(event) {
+				this.items = [];
+				this.itemCount = 0;
+			},
+
+			/**
+			 * Application 선택이 변경된 경우 JMX List 호출 
+			 */
+			resourceChanged: function(resource) {
+				var metricsListAjax = this.$['app-jmx-ajax'];
+				metricsListAjax.withCredentials = false;
+				metricsListAjax.resourceUrl = this.adminBaseUrl + '/:id/jolokia';
+				metricsListAjax.resourceId = resource.id;
+				metricsListAjax.body = { type: 'list' };
+				metricsListAjax.generateRequest();
+			},
+
+			/**
+			 * Data Refresh ...
+			 */
+			refresh: function() {
+				if(this.resource) {
+					this.$['app-jmx-ajax'].generateRequest();
+				}
+			}
+		});
+	</script>
+</dom-module>
