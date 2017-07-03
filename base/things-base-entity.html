@@ -1,0 +1,106 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+
+<link rel="import" href="./things-base-entity-detail.html">
+
+<!--
+	엔티티 정의 화면 
+-->
+
+<dom-module id="things-base-entity">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-ajax
+			auto
+			id="resource-meta"
+			method="GET"
+			resource-url="[[menuMetaUrl]]"
+			last-response="{{metaData}}">
+		</things-ajax>
+
+		<things-search-form
+			id="search-form"
+			title="[[menuInfo.title]]"
+			form-fields="[[searchFormFields]]"
+			select-fields="[[selectFields]]"
+			sort-fields="[[sortFields]]"
+			action-url="[[menuInfo.resource_url]]"
+			page="{{page}}"
+			limit="{{limit}}"
+			last-response="{{lastResponse}}">
+		</things-search-form>
+
+		<things-resource-grid
+			id="grid"
+			config="[[gridConfig]]"
+			model="[[gridModel]]"
+			columns="[[gridColumns]]"
+			data="[[items]]"
+			total-count="[[itemCount]]"
+			current-page="{{page}}"
+			limit="{{limit}}"
+			fixed-column-count="[[menuInfo.fixed_columns]]"
+			grid-save-action="[[menuInfo.grid_save_url]]"
+			buttons="[[buttons]]"
+			export-file-name="[[menuInfo.title]]"
+			export-sheet-name="[[menuInfo.title]]">
+		</things-resource-grid>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-base-entity',
+
+			behaviors: [
+				Things.ResourceMenuContentBehavior
+			],
+
+			properties: {
+			},
+
+			listeners : {
+				'grid.things-grid-handle-export': '_exportExcel'
+			},
+
+			/**
+			 * 그리드 셀 선택이 변경되었을 경우 파일 다운로드
+			 *********
+			 * @param {Object} e
+			 */
+			_exportExcel: function(e) {
+				e.preventDefault();
+				var baseUrl = this.get('globals.baseUrl');
+				var form = this.$['search-form'].serializeMyForm();
+				var bundle = form.bundle ? form.bundle : 'base';
+				
+				this.openConfirmMsg({
+					type : 'info',
+					title : Things.DataGlobal.t('text.Want to download file'),
+					text : Things.DataGlobal.t('text.You can download file'),
+					showCancelButton: true
+				}, function() {
+					window.location = baseUrl + '/entities/export/' + bundle;
+				});
+			}
+		});
+	</script>
+</dom-module>
