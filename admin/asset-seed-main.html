@@ -334,9 +334,11 @@ Seed 리파지토리 화면 셋
           }, {
             fieldName: 'entity_name'
           }, {
-            fieldName: 'data_length'
+            fieldName: 'data_length',
+            dataType: 'number'
           }, {
-            fieldName: 'data_size'
+            fieldName: 'data_size',
+            dataType: 'number'
           }, {
             fieldName: 'attachment',
             dataType: 'object'
@@ -425,8 +427,8 @@ Seed 리파지토리 화면 셋
           header: { text: Things.DataGlobal.t('label.bundle') },
           editor: { type: 'list', domainOnly: true },
           styles: { textAlignment: 'center' },
-          lookupValues: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'scene', 'admin', 'sub-mgt'],
-          lookupLabels: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'scene', 'admin', 'sub-mgt']
+          lookupValues: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'admin'],
+          lookupLabels: ['', 'sys', 'msg', 'sec', 'core', 'base', 'screen', 'dev', 'job', 'admin']
         }, {
           name: 'entity_name',
           fieldName: 'entity_name',
@@ -457,13 +459,13 @@ Seed 리파지토리 화면 셋
           editable: false,
           width: 80,
           header: { text: Things.DataGlobal.t('label.qty') },
-          styles: { textAlignment: 'far' }
+          styles: { textAlignment: 'far', numberFormat: '#,###' }
         }, {
           name: 'data_size',
           fieldName: 'data_size',
-          editable: false,
           width: 80,
-          styles: { textAlignment: 'far' },
+          editable: false,
+          styles: { textAlignment: 'far', numberFormat: '#,###' },
           header: { text: Things.DataGlobal.t('label.size') }
         }, {
           name: 'enabled',

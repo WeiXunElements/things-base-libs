@@ -1,18 +1,14 @@
-<!--
-@license
-Copyright © HatioLab Inc. All rights reserved.
--->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-form/things-search-form.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../../bower_components/things-ajax/things-ajax.html">
+<link rel="import" href="../../../bower_components/things-form/things-search-form.html">
+<link rel="import" href="../../../bower_components/things-grid/things-resource-grid.html">
+<link rel="import" href="../../../bower_components/things-content/things-resource-menu-content-behavior.html">
 
 <link rel="import" href="./admin-apps-monitor.html">
 
 <!--
-	서브터미널 애플리케이션 리스트 화면
+	서버 모니터링 화면
 -->
 
 <dom-module id="admin-apps-main">
@@ -77,6 +73,14 @@ Copyright © HatioLab Inc. All rights reserved.
 			last-response="{{subItems}}">
 		</things-ajax>
 
+		<things-ajax
+			id="deploy-ajax"
+			method="POST"
+			resource-url="/apps/client/deploy"
+			with-credentials="[[withCredentials]]"
+			last-response="{{deployResponse}}">
+		</things-ajax>
+
 		<things-search-form
 			id="search-form"
 			title="[[menuInfo.title]]"
@@ -90,7 +94,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			last-response="{{lastResponse}}">
 		</things-search-form>
 
-		<span class="subtitle">서브터미널</span>
+		<span class="subtitle">Servers</span>
 
 		<things-resource-grid
 			id="grid"
@@ -108,7 +112,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			!show-paginator>
 		</things-resource-grid>
 
-		<span class="subtitle">[[subtermName]] 애플리케이션 리스트</span>
+		<span class="subtitle">[[serverName]] Applications</span>
 
 		<things-resource-grid
 			id="sub-grid"
@@ -156,9 +160,9 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * 선택된 서브터미널 이름
+				 * 선택된 서버 이름
 				 */
-				subtermName: {
+				serverName: {
 					type: String,
 					value: ''
 				},
@@ -233,7 +237,7 @@ Copyright © HatioLab Inc. All rights reserved.
 							fieldName: 'port',
 							width: 75,
 							header: {
-								text: '서비스 포트'
+								text: Things.DataGlobal.t('label.service_port')
 							},
 							styles: {
 								textAlignment: 'center'
@@ -263,7 +267,7 @@ Copyright © HatioLab Inc. All rights reserved.
 							fieldName: 'builtAt',
 							width: 150,
 							header: {
-								text: '빌드 시간'
+								text: Things.DataGlobal.t('label.built_at')
 							},
 							styles: {
 								textAlignment: 'center'
@@ -273,7 +277,7 @@ Copyright © HatioLab Inc. All rights reserved.
 							fieldName: 'stage',
 							width: 85,
 							header: {
-								text: '실행 모드'
+								text: Things.DataGlobal.t('label.stage')
 							},
 							styles: {
 								textAlignment: 'center'
@@ -283,14 +287,14 @@ Copyright © HatioLab Inc. All rights reserved.
 							fieldName: 'serviceUrl',
 							width: 0,
 							header: {
-								text: 'Service URL'
+								text: Things.DataGlobal.t('label.service_url')
 							}
 						}, {
 							name: 'updatedAt',
 							fieldName: 'updatedAt',
 							width: 145,
 							header: {
-								text: '마지막 체크시간'
+								text: Things.DataGlobal.t('label.last_checked_at')
 							},
 							styles: {
 								textAlignment: 'center'
@@ -302,7 +306,7 @@ Copyright © HatioLab Inc. All rights reserved.
 							editable: false,
 							imageList: 'images',
 							header: {
-								text: '리소스 모니터'
+								text: Things.DataGlobal.t('label.resource_monitor')
 							},
 							renderer: {
 								type: 'icon'
@@ -326,17 +330,22 @@ Copyright © HatioLab Inc. All rights reserved.
 
 				/**
 				 * sub grid buttons
-				 * 클라이언트 배포 버튼
-				 * @type Array
 				 */
 				subGridButtons: {
 					type: Array,
 					value: function() {
-						return [{
-							id: 'deploy-cli-btn',
-							text: 'deploy'
-						}]
+						return [ {
+							id: 'deploy-client-btn',
+							text: 'deploy-client'
+						} ];
 					}
+				},
+
+				/**
+				 * deploy response
+				 */
+				deployResponse: {
+					type: Object
 				}
 			},
 
@@ -345,8 +354,12 @@ Copyright © HatioLab Inc. All rights reserved.
 				'grid.things-grid-row-data-select': 'showApplications',
 				'sub-grid.things-grid-detail-tap': 'showApplicationDetails',
 				'sub-grid.things-grid-cell-data-select': '_appCellSelectionChanged',
-				'deploy-cli-btn-tap': '_deployCliBtnTapped'
+				'deploy-client-btn-tap': 'deployClient'
 			},
+
+			observers: [
+				'_deployResponseChange(deployResponse)'
+			],
 
 			/**
 			 * Admin Base URL 설정
@@ -377,19 +390,19 @@ Copyright © HatioLab Inc. All rights reserved.
 							var sInfo = item.extensions.systemStatus;
 							if(sInfo) {
 								item.osName = sInfo.name + ' ' + sInfo.version + ' (' + sInfo.arch + ')';
-								item.cpuUsage = (sInfo.systemCpuLoad * 100).toFixed(2);
-								item.totalMemory = sInfo.totalPhysicalMemorySize ? this.humanizeByte(sInfo.totalPhysicalMemorySize, false) : '0GiB';
-								
+								item.cpuUsage = (sInfo.systemCpuLoad && sInfo.systemCpuLoad > 0) ? (sInfo.systemCpuLoad * 100).toFixed(2) : 0;
+								item.totalMemory = sInfo.totalPhysicalMemorySize ? this._humanizeByte(sInfo.totalPhysicalMemorySize, false) : '0GiB';
+
 								var totMem = sInfo.totalPhysicalMemorySize ? sInfo.totalPhysicalMemorySize : 0;
 								var freeMem = sInfo.freePhysicalMemorySize ? sInfo.freePhysicalMemorySize : 0;
-								item.memoryUsage = (totMem && totMem > 0) ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
+								item.memoryUsage = totMem > 0 ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
 
 								var totalDisk = sInfo.totalDiskSpace ? sInfo.totalDiskSpace : 0;
 								var freeDisk = sInfo.freeDiskSpace ? sInfo.freeDiskSpace : 0;
 								item.diskUsage = totalDisk > 0 ? (((totalDisk - freeDisk) / totalDisk) * 100).toFixed(2) : 0;
 							}
 
-							// 서브터미널인 경우에만 해당 
+							// 서브터미널인 경우에만 해당
 							if(item.subCode.indexOf('center') < 0) {
 								var aInfo = item.extensions.appsStatus;
 								item.appOrderStatus = (aInfo && aInfo.order) ? aInfo.order : 'DOWN';
@@ -410,9 +423,8 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
-			 * 그리드 구성이 완료 되었을 때 리소스 사용량과 관련된 컬럼들의
-			 * renderer 속성을 추가함
-			 * 
+			 * 그리드 구성이 완료 되었을 때 리소스 사용량과 관련된 컬럼들의 renderer 속성을 추가함
+			 ***********
 			 * @param  Object event
 			 */
 			_gridConfigured: function(event) {
@@ -424,66 +436,67 @@ Copyright © HatioLab Inc. All rights reserved.
 					valueThickness: 1,
 					valueLocation: 'top',
 					rages: [{
-		        label: "1",
-		        endValue: 25,
-		        background: "#080"
-			    }, {
-		        label: "2",
-		        startValue: 25,
-		        endValue: 50,
-		        background: "#080"
-			    }, {
-		        label: "3",
-		        startValue: 50,
-		        endValue: 75,
-		        background: "#080"
-			    }, {
-		        label: "4",
-		        startValue: 75,
-		        endValue: 100,
-		        background: "#080"
-			    }],
-			    scale: {
-			    	ticks: [0, 25, 50, 75, 100],
-			    	tickLength: 0,
-			    	categoryStroke: null
-			    }
+						label: "1",
+						endValue: 25,
+						background: "#080"
+					}, {
+						label: "2",
+						startValue: 25,
+						endValue: 50,
+						background: "#080"
+					}, {
+						label: "3",
+						startValue: 50,
+						endValue: 75,
+						background: "#080"
+					}, {
+						label: "4",
+						startValue: 75,
+						endValue: 100,
+						background: "#080"
+					}],
+					scale: {
+						ticks: [0, 25, 50, 75, 100],
+						tickLength: 0,
+						categoryStroke: null
+					}
 				};
 
 				var dynamicStyleProp = [{
-            expressions: [
-                'value <= 90',
-                'value > 90'
-            ],
-            styles: [{
-                shapeColor: '#a000aa00',
-                color: '#080'            	
-            }, {
-                shapeColor: '#a0aa0000',
-                color: '#800'
-            }]
-        }];
-				
+					expressions: [
+						'value <= 90',
+						'value > 90'
+					],
+					styles: [ {
+						shapeColor: '#a000aa00',
+						color: '#080'
+					}, {
+						shapeColor: '#a0aa0000',
+						color: '#800'
+					} ]
+				}];
+
 				var grid = event.detail;
-				grid.setDisplayOptions({
-					rowHeight: 40
-				});
+				grid.setDisplayOptions({ rowHeight: 40 });
 
-				var usageFields = ['cpuUsage', 'memoryUsage', 'diskUsage'];
-
-				usageFields.forEach(function(usageField) {
+				['cpuUsage', 'memoryUsage', 'diskUsage'].forEach(function(usageField) {
 					var usageFieldCol = grid.columnByField(usageField);
-					usageFieldCol.setRenderer(rendererProp);
-					usageFieldCol.setDynamicStyles(dynamicStyleProp);
+					if(usageFieldCol) {
+						usageFieldCol.setRenderer(rendererProp);
+						usageFieldCol.setDynamicStyles(dynamicStyleProp);
+					}
 				});
 			},
 
 			/**
 			 * Byte 정보를 KB, MB, GB 형태로 ...
+			 ************
+			 * @param {Number} bytes
+			 * @param {String} si
 			 */
-			humanizeByte: function(bytes, si) {
+			_humanizeByte: function(bytes, si) {
 				var thresh = si ? 1000 : 1024;
-				
+
 				if(Math.abs(bytes) < thresh) {
 					return bytes + ' B';
 				}
@@ -493,12 +506,12 @@ Copyright © HatioLab Inc. All rights reserved.
 					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
 
 				var u = -1;
-				
+
 				do {
 					bytes /= thresh;
 					++u;
 				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
-				
+
 				return bytes.toFixed(1) + ' ' + units[u];
 			},
 
@@ -514,7 +527,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				if(cellData.column._fieldName == 'monitorUrl' && rowData.status == 'UP' && rowData.monitorUrl) {
 					this.openConfirmMsg({
 						type: 'info',
-						title: '리소스 모니터링',
+						title: Things.DataGlobal.t('label.resource_monitor'),
 						text: '리소스 모니터링 화면으로 이동하시겠습니까?',
 						showCancelButton: true
 					}, function() {
@@ -524,7 +537,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
-			 * 서브터미널 선택 변경시 ...
+			 * 서버 선택 변경시 ...
 			 *********
 			 * @param {Object} event
 			 */
@@ -532,7 +545,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				this.subItems = [];
 				this.resource = event.detail;
 				this.resourceId = this.resource.id;
-				this.subtermName = '[' + this.resource.name + '] ';
+				this.serverName = '[' + this.resource.name + '] ';
 
 				var ajax = this.$['sub-ajax'];
 				ajax.resourceUrl = this.resource.managementUrl + '/apps/infos';
@@ -563,13 +576,46 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			/**
 			 * client 배포 버튼 클릭시 실행
+			 *********
+			 * @param {Object} event
 			 */
-			_deployCliBtnTapped: function(event) {
-				console.log(this.resource);
+			deployClient: function(event) {
+				if(this.resource) {
+					var text = '[' + this.resource.name + ']에 클라이언트를 배포하시겠습니까?'
+					this.openConfirmMsg({
+						type : 'info',
+						title : '배포',
+						text : text,
+						showCancelButton: true
+					}, function() {
+						var deployAjax = this.$['deploy-ajax'];
+						deployAjax.resourceUrl = this.resource.managementUrl + '/apps/client/deploy';
+						deployAjax.generateRequest();
+					}.bind(this));
+
+				} else {
+					this.openConfirmMsg({
+						type : 'info',
+						title : '서버 선택',
+						text : '서버를 먼저 선택하세요.',
+						showCancelButton: false
+					});
+				}
+			},
+
+			/**
+			 * client 배포 응답 이 후
+			 *********
+			 * @param {Object} deployResponse
+			 */
+			_deployResponseChange: function(deployResponse) {
+				console.log(deployResponse);
 			},
 
 			/**
 			 * Override
+			 *********
+			 * @param {Object} event
 			 */
 			showDetailView: function(event) {
 			}
