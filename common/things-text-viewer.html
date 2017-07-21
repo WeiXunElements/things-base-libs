@@ -5,12 +5,12 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../polymer/polymer.html">
 
 <link rel="import" href="../../things-code-editor/things-code-editor.html">
-  
+
 <!--
-  모니터링 대상 탭에서 상세 버튼 클릭시 텍스트 정보를 보여주는 상세 화면
+  텍스트 정보를 보여주는 상세 화면
 -->
 
-<dom-module id="admin-app-detail-text">
+<dom-module id="things-text-viewer">
   <template>
     <style>
       :host {
@@ -35,7 +35,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
   <script>
     Polymer({
-      is: 'admin-app-detail-text',
+      is: 'things-text-viewer',
 
       properties: {
         /**
@@ -55,7 +55,7 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         /**
-         * 로그 리소스
+         * 코드 에디터에서 사용할 Resource
          */
         resource: {
           type: Object

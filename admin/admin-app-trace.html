@@ -7,7 +7,7 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-ajax/things-ajax.html">
 <link rel="import" href="../../things-grid/things-resource-grid.html">
 
-<link rel="import" href="./admin-app-detail-text.html">
+<link rel="import" href="../common/things-text-viewer.html">
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Trace 화면
@@ -176,7 +176,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			 * @param {Object} event
 			 */
 			_detailButtonSelected: function(event) {
-				var view = document.createElement('admin-app-detail-text');
+				var view = document.createElement('things-text-viewer');
 				view.title = 'Request & Response';
 				view.content = event.detail.info ? JSON.stringify(event.detail.info, null, 4) : JSON.stringify(event.detail, null, 4);
 				var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };

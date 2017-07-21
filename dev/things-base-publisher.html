@@ -7,8 +7,9 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-ajax/things-ajax.html">
 <link rel="import" href="../../things-form/things-search-form.html">
 <link rel="import" href="../../things-grid/things-resource-grid.html">
-
 <link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+
+<link rel="import" href="../common/things-text-viewer.html">
 
 <!--
 	Publisher 정의 화면
@@ -34,6 +35,13 @@ Copyright © HatioLab Inc. All rights reserved.
 			method="GET"
 			resource-url="[[menuMetaUrl]]"
 			last-response="{{metaData}}">
+		</things-ajax>
+
+		<things-ajax
+			id="init-data"
+			method="GET"
+			content-type="application/json"
+			resource-url="publishers/:id/init_data">
 		</things-ajax>
 
 		<things-ajax
@@ -110,6 +118,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			listeners : {
 				'grid.things-grid-configure': '_onBeforeGridConfigure',
 				'grid.things-grid-cell-data-select' : '_gridCellClicked',
+				'init-data.things-ajax-response': 'showInitDataResult',
 				'start-job.things-ajax-response': 'refreshGridData',
 				'pause-job.things-ajax-response': 'refreshGridData',
 				'stop-job.things-ajax-response': 'refreshGridData',
@@ -167,8 +176,19 @@ Copyright © HatioLab Inc. All rights reserved.
 					}
 				};
 
+				var testColumn = {
+					fieldName: '_test_',
+					name: '_test_',
+					width: 35,
+					editable: false,
+					imageList: 'images',
+					header: { text: Things.DataGlobal.t('button.test') },
+					renderer: { type: 'icon' },
+					styles: { iconIndex: 'error_info.png', iconLocation: 'center' }
+				};
+
 				var gridColumns = event.detail.columns;
-				gridColumns.unshift(startColumn, stopColumn);
+				gridColumns.unshift(startColumn, stopColumn, testColumn);
 			},
 
 			/**
@@ -197,6 +217,10 @@ Copyright © HatioLab Inc. All rights reserved.
 					if (status == 'PAUSED' || status == 'RUNNING') {
 						this.stopJob(data);
 					}
+
+				// 세번째 컬럼 아이콘에 대한 로직
+				} else if(cellName == '_test_') {
+					this.testInvoke(data);
 				}
 			},
 
@@ -231,6 +255,17 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
+			 * Test Invoke
+			 *
+			 * @param {Object} record
+			 */
+			testInvoke: function(record) {
+				var ajax = this.$['init-data'];
+				ajax.resourceId = record.scene;
+				ajax.generateRequest();
+			},
+
+			/**
 			 * Invoke Ajax
 			 *
 			 * @param {String} ajaxId
@@ -250,6 +285,21 @@ Copyright © HatioLab Inc. All rights reserved.
 					ajax.resourceId = record.id;
 					ajax.generateRequest();
 				});
+			},
+
+			/**
+			 * Init Data 결과 표시
+			 ********
+			 * @param {Object} event
+			 */
+			showInitDataResult: function(event) {
+				var result = event.detail;
+				var view = document.createElement('things-text-viewer');
+				view.title = 'Test Result';
+				view.content = result ? JSON.stringify(result, null, 4) : '';
+				var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
+				var event = new CustomEvent('things-open-popup-view', { 'detail': eventDetail });
+				document.dispatchEvent(event);
 			},
 
 			/**
