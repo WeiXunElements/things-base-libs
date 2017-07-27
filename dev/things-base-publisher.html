@@ -38,10 +38,10 @@ Copyright © HatioLab Inc. All rights reserved.
 		</things-ajax>
 
 		<things-ajax
-			id="init-data"
+			id="data"
 			method="GET"
 			content-type="application/json"
-			resource-url="publishers/:id/init_data">
+			resource-url="publishers/:id/data">
 		</things-ajax>
 
 		<things-ajax
@@ -118,7 +118,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			listeners : {
 				'grid.things-grid-configure': '_onBeforeGridConfigure',
 				'grid.things-grid-cell-data-select' : '_gridCellClicked',
-				'init-data.things-ajax-response': 'showInitDataResult',
+				'data.things-ajax-response': 'showInitDataResult',
 				'start-job.things-ajax-response': 'refreshGridData',
 				'pause-job.things-ajax-response': 'refreshGridData',
 				'stop-job.things-ajax-response': 'refreshGridData',
@@ -260,8 +260,8 @@ Copyright © HatioLab Inc. All rights reserved.
 			 * @param {Object} record
 			 */
 			testInvoke: function(record) {
-				var ajax = this.$['init-data'];
-				ajax.resourceId = record.scene;
+				var ajax = this.$['data'];
+				ajax.resourceId = record.id;
 				ajax.generateRequest();
 			},
 
@@ -288,7 +288,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
-			 * Init Data 결과 표시
+			 * Data 결과 표시
 			 ********
 			 * @param {Object} event
 			 */
