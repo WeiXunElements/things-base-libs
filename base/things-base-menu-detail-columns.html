@@ -169,6 +169,8 @@ Copyright © HatioLab Inc. All rights reserved.
             fieldName: 'form_format'
           }, {
             fieldName: 'ignore_on_save'
+          }, {
+            fieldName: 'ext_field'
           } ]
         },
 
@@ -251,6 +253,18 @@ Copyright © HatioLab Inc. All rights reserved.
               },
               renderer: {
                 type:'check',
+                editable: true,
+                threeStates: false,
+                trueValues: 'true',
+                falseValues: 'false'
+              }
+            }, {
+              name: 'ext_field', fieldName: 'ext_field', width: 60, editable: false,
+              header: {
+                text: Things.DataGlobal.t('label.ext_field')
+              },
+              renderer: {
+                type: 'check',
                 editable: true,
                 threeStates: false,
                 trueValues: 'true',
