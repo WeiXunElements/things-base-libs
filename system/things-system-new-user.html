@@ -154,7 +154,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			behaviors: [
 				Things.MsgBoxBehavior,
-				Things.AssertBehavior
+				Things.AssertBehavior,
+				Things.EncryptBehavior
 			],
 
 			properties: {
@@ -191,7 +192,7 @@ Copyright © HatioLab Inc. All rights reserved.
 						name: this.name,
 						email: this.email,
 						locale: 'ko-KR',
-						encrypted_password: this.password,
+						encrypted_password: this.sha256(this.password),
 						super_user: false,
 						admin_flag: this.adminFlag,
 						active_flag: this.activeFlag
