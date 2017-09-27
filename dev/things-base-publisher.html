@@ -65,6 +65,13 @@ Copyright © HatioLab Inc. All rights reserved.
 			resource-url="publishers/:id/delete_job">
 		</things-ajax>
 
+		<things-ajax
+			id="force-stop-job"
+			method="POST"
+			content-type="application/json"
+			resource-url="publishers/:id/interrupt_job">
+		</things-ajax>
+
 		<things-search-form
 			id="search-form"
 			title="[[menuInfo.title]]"
@@ -122,7 +129,9 @@ Copyright © HatioLab Inc. All rights reserved.
 				'start-job.things-ajax-response': 'refreshGridData',
 				'pause-job.things-ajax-response': 'refreshGridData',
 				'stop-job.things-ajax-response': 'refreshGridData',
-				'legend-btn-tap': 'showLegend'
+				'legend-btn-tap': 'showLegend',
+				'force-stop-btn-tap': 'forceStop',
+				'force-stop-job.things-ajax-response': 'forceStopResponsed'
 			},
 
 			/**
@@ -307,6 +316,38 @@ Copyright © HatioLab Inc. All rights reserved.
 			 */
 			showLegend: function() {
 				window.open("http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html");
+			},
+
+			/**
+			 * Publisher 강제 종료
+			 */
+			forceStop: function() {
+				var gridObject = this.$['grid'].getGridObject();
+				var checkedRows = gridObject.getCheckedRows();
+
+				if(checkedRows.length != 1) {
+					this.openConfirmMsg({
+						type: 'info',
+						title: Things.DataGlobal.t('button.force-stop'),
+						text: Things.DataGlobal.t('text.x_count_selectable', {
+							x: '1'
+						})
+					})
+
+					return;
+				}
+
+				var forceStopAjax = this.$['force-stop-job'];
+				forceStopAjax.resourceId = checkedRows[0].getRowObject().id;
+				forceStopAjax.generateRequest();
+			},
+
+			/**
+			 * force stop ajax response listener
+			 * search form submit to refresh list data
+			 */
+			forceStopResponsed: function() {
+				this.$['search-form'].submitMyForm();
 			}
 		});
 	</script>
