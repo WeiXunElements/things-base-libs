@@ -348,7 +348,7 @@ Seed 리파지토리 화면 셋
           }, {
             fieldName: 'data_size_str'
           }, {
-            fieldName: 'seedrepo_id'
+            fieldName: 'seed_repo_id'
           }, {
             fieldName: 'enabled'
           }, {
@@ -402,8 +402,8 @@ Seed 리파지토리 화면 셋
           renderer: { type: 'icon' },
           styles: { iconIndex: 'menu_button_hover.png', iconLocation: 'center' }
         }, {
-          name: 'seedrepo_id',
-          fieldName: 'seedrepo_id',
+          name: 'seed_repo_id',
+          fieldName: 'seed_repo_id',
           width: 0
         }, {
           name: 'rank',
@@ -618,8 +618,8 @@ Seed 리파지토리 화면 셋
         if (!changedList || changedList.length == 0) return event;
 
         changedList.forEach(function(changedData) {
-          if (changedData.cud_flag_ == 'c' && !changedData.seedrepo_id) {
-            changedData.seedrepo_id = this.resourceId;
+          if (changedData.cud_flag_ == 'c' && !changedData.seed_repo_id) {
+            changedData.seed_repo_id = this.resourceId;
           }
         }.bind(this));
 
