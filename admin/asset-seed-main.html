@@ -18,8 +18,6 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-meta/things-menu-meta-behavior.html">
 <link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html">
 <link rel="import" href="../../things-resource-selector/things-resource-selector.html">
-<link rel="import" href="../../things-spinner/things-spinner.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
 <link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
 
 <!--link rel="import" href="../base/things-base-menu-detail.html"-->
@@ -114,10 +112,17 @@ Seed 리파지토리 화면 셋
     </style>
 
     <things-ajax
-      id="seedDetailJsonAjax"
+      id="seed-detail-ajax"
       method="GET"
-      resource-url="[[seedDetailJsonAjaxUrl]]"
-      last-response="{{seedDetailAttachmentData}}">
+      resource-url="[[seedDetailContentUrl]]"
+      last-response="{{seedDetailContent}}">
+    </things-ajax>
+
+    <things-ajax
+      id="update-seed-content-ajax"
+      resource-action="update"
+      resource-url="[[seedDetailContentUrl]]"
+      last-response="{{seedDetailContent}}">
     </things-ajax>
 
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" modal>
@@ -128,8 +133,6 @@ Seed 리파지토리 화면 셋
         </div>
       </paper-toolbar>
 
-      <things-spinner id="thingsSpinner"></things-spinner>
-
       <things-code-editor
         id="code-editor"
         class="flex paddingmargin0"
@@ -137,7 +140,6 @@ Seed 리파지토리 화면 셋
         mode="ace/mode/json"
         resource="{{fileResource}}"
         code-field="content"
-        buttons='[]'
         !hideToolbar>
       </things-code-editor>
     </paper-dialog>
@@ -184,7 +186,7 @@ Seed 리파지토리 화면 셋
     </things-resource-grid>
 
     <things-ajax
-      id="subcode-list"
+      id="seed-details-ajax"
       resource-url="[[seedDetailListUrl]]"
       resource-action="index"
       resource-id="{{resourceId}}"
@@ -238,18 +240,25 @@ Seed 리파지토리 화면 셋
         },
 
         /**
+         * Resource Id attribute
+         */
+        resourceId: {
+          type: String
+        },
+
+        /**
+         * Resource Detail Id attribute
+         */
+        resourceDetailId: {
+          type: String
+        },
+
+        /**
          * Seed Detail Search URL
          */
         seedDetailListUrl: {
           type: String,
           value: 'seed_repos/:id/seed_repo_details'
-        },
-
-        /**
-         * Resource id attribute
-         */
-        resourceId: {
-          type: String
         },
 
         /**
@@ -263,9 +272,9 @@ Seed 리파지토리 화면 셋
         /**
          * SeedDetail 조회 Ajax URL
          */
-        seedDetailJsonAjaxUrl: {
+        seedDetailContentUrl: {
           type: String,
-          value: 'seed_repos/:id/seeds/:seeddetail_id'
+          value: 'seed_repos/:id/seeds/:seed_detail_id'
         },
 
         /**
@@ -275,13 +284,9 @@ Seed 리파지토리 화면 셋
           type: Array
         },
 
-        seedDetailAttachmentData: {
-          type: Array
-        },
-
         /**
-        * 실제 그리드에 매핑되는 total값
-        */
+         * 실제 그리드에 매핑되는 total값
+         */
         seedTotal: {
           type: Number
         },
@@ -295,10 +300,17 @@ Seed 리파지토리 화면 셋
         },
 
         /**
-         * 실제 그리드에 매핑되는 결과값
+         * Seed Detail 그리드에 매핑되는 결과값
          */
         seedDetailItems: {
           type: Array
+        },
+
+        /**
+         * Seed 데이터 상세 내용
+         */
+        seedDetailContent: {
+          type: String
         },
 
         /**
@@ -306,13 +318,7 @@ Seed 리파지토리 화면 셋
          */
         gridConfig: {
           type: Object,
-          value: function() {
-            return {
-              // displayOptions : {
-              //     fitStyle : DataLudi.GridFitStyle.EVEN_FILL
-              // }
-            }
-          }
+          value: {}
         },
 
         /**
@@ -340,10 +346,7 @@ Seed 리파지토리 화면 셋
             fieldName: 'data_size',
             dataType: 'number'
           }, {
-            fieldName: 'attachment',
-            dataType: 'object'
-          }, {
-            fieldName: 'attachment_editor'
+            fieldName: 'data_size_str'
           }, {
             fieldName: 'seedrepo_id'
           }, {
@@ -392,21 +395,12 @@ Seed 리파지토리 화면 셋
         }, {
           fieldName: '_showjson_',
           name: '_showjson_',
-          width: 50,
+          width: 60,
           editable: false,
           imageList: 'images',
-          header: { text: '파일보기' },
+          header: { text: '데이터 보기' },
           renderer: { type: 'icon' },
-          styles: { iconIndex: 'menu_button_hover.png', iconLocation: 'center' },
-          styleCallback: function(index, styles) {
-            var row = index.getRow();
-            var data = row.getRowObject();
-            if(!data.attachment || !data.attachment.id) {
-              styles.setIconIndex(null);
-            } else {
-              styles.setIconIndex('menu_button_hover.png');
-            }
-          }
+          styles: { iconIndex: 'menu_button_hover.png', iconLocation: 'center' }
         }, {
           name: 'seedrepo_id',
           fieldName: 'seedrepo_id',
@@ -414,14 +408,14 @@ Seed 리파지토리 화면 셋
         }, {
           name: 'rank',
           fieldName: 'rank',
-          width: 50,
+          width: 60,
           nullable: false,
           header: { text: Things.DataGlobal.t('label.rank') },
           styles: { textAlignment: 'center' }
         }, {
           name: 'bundle',
           fieldName: 'bundle',
-          width: 70,
+          width: 90,
           nullable: false,
           lookupDisplay: true,
           header: { text: Things.DataGlobal.t('label.bundle') },
@@ -436,24 +430,6 @@ Seed 리파지토리 화면 셋
           nullable: false,
           header: { text: Things.DataGlobal.t('label.entity') }
 				}, {
-          fieldName: 'attachment',
-          name: 'attachment',
-          width: 275,
-          editable: false,
-          header: { text: Things.DataGlobal.t('label.attachment') },
-          styles: { iconIndex: 'file-selector' },
-          userData: {
-            titleField: 'name',
-            defaultStorage: 'default'
-          },
-          displayCallback: function(index, value) {
-            var rowObj = index.getRow().getRowObject();
-            var fieldName = index.column.dataFieldName();
-            var userData = index.column.userData();
-            var columnObj = rowObj[fieldName];
-            return columnObj ? columnObj.name : '';
-          }
-        }, {
           name: 'data_length',
           fieldName: 'data_length',
           editable: false,
@@ -461,16 +437,16 @@ Seed 리파지토리 화면 셋
           header: { text: Things.DataGlobal.t('label.qty') },
           styles: { textAlignment: 'far', numberFormat: '#,###' }
         }, {
-          name: 'data_size',
-          fieldName: 'data_size',
-          width: 80,
+          name: 'data_size_str',
+          fieldName: 'data_size_str',
+          width: 100,
           editable: false,
-          styles: { textAlignment: 'far', numberFormat: '#,###' },
+          styles: { textAlignment: 'far' },
           header: { text: Things.DataGlobal.t('label.size') }
         }, {
           name: 'enabled',
           fieldName: 'enabled',
-          width: 60,
+          width: 75,
           header: { text: Things.DataGlobal.t('label.active') },
           renderer: {
             type: 'check',
@@ -496,47 +472,91 @@ Seed 리파지토리 화면 셋
         'sub-grid.things-grid-configured': '_subGridConfigured',
         'sub-grid.things-grid-save-success': '_reloadSeedDetails',
         'sub-grid.things-grid-handle-save': '_beforeSeedDetailSave',
-        'sub-grid.things-grid-detail-tap': '_downloadFile',
-        'sub-grid.things-grid-column-dblclicked' : 'gridShowJsonClicked',
-        'seedDetailJsonAjax.things-ajax-response' :'dialogopen'
+        'sub-grid.things-grid-column-dblclicked' : '_subGridShowJsonClicked',
+        'seed-detail-ajax.things-ajax-response' :'openDialog',
+        'things-template-editor-handle-save' : '_onContentSave'
       },
 
       observers: [
-        'seedResponseChanged(seedResponse)'
+        '_seedResponseChanged(seedResponse)'
       ],
 
+      /**
+			 * Byte 정보를 KB, MB, GB 형태로 ...
+			 ************
+			 * @param {Number} bytes
+			 * @param {String} si
+			 */
+			_humanizeByte: function(bytes, si) {
+				var thresh = si ? 1000 : 1024;
+
+				if(Math.abs(bytes) < thresh) {
+					return bytes + ' B';
+				}
+
+				var units = si
+					? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+
+				var u = -1;
+
+				do {
+					bytes /= thresh;
+					++u;
+				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
+
+				return bytes.toFixed(1) + ' ' + units[u];
+			},
+
+      /**
+       * 그리드 설정 후
+       *
+       * @param event
+       */
       _subGridConfigured: function(event) {
-        var var1 = event.detail.columns();
-        var var2 = var1[0];
-        var var3 = var2._styles;
-        var2._width = "50";
-        var3._iconIndex = "download.png";
-        var var4 = var2._header;
-        var4._text = "다운로드";
+        var columns = event.detail.columns();
+        var firstCol = columns[0];
+        firstCol.setWidth(1);
       },
 
-      gridShowJsonClicked: function(event) {
+      /**
+       * 데이터 보기 클릭시
+       *
+       * @param event
+       */
+      _subGridShowJsonClicked: function(event) {
         var index = event.detail.index;
         var grid = event.detail.grid;
         var row = grid.focusedRow();
         var data = row.getRowObject();
 
         // 첫번쩨 컬럼 아이콘에 대한 로직
-        if(index.column.name() == '_showjson_' && data.attachment && data.attachment.id) {
-          this.seedDetailEntity = data.attachment.name;
-          this.seedDetailJsonAjaxUrl = 'seed_repos/:id/seeds/:seeddetail_id';
-          this.seedDetailJsonAjaxUrl = this.seedDetailJsonAjaxUrl.replace(':id', this.resourceId);
-          this.seedDetailJsonAjaxUrl = this.seedDetailJsonAjaxUrl.replace(':seeddetail_id', data.id);
-          this.$['seedDetailJsonAjax'].generateRequest();
+        if(index.column.name() == '_showjson_') {
+          this.seedDetailEntity = data.entity_name;
+          this.resourceDetailId = data.id;
+          this.seedDetailContentUrl = 'seed_repos/:id/seeds/:seed_detail_id';
+          this.seedDetailContentUrl = this.seedDetailContentUrl.replace(':id', this.resourceId);
+          this.seedDetailContentUrl = this.seedDetailContentUrl.replace(':seed_detail_id', this.resourceDetailId);
+          this.$['seed-detail-ajax'].generateRequest();
         }
       },
 
-      dialogopen:function(e){
+      /**
+       * 다이얼로그 오픈
+       *
+       * @param e
+       */
+      openDialog: function(e) {
         this.fileResource = { content: JSON.stringify(e.detail, null, 8) };
         this.$['dialog'].open();
       },
 
-      seedResponseChanged: function(seedResponse) {
+      /**
+       * Seed 데이터 조회 이후...
+       *
+       * @param seedResponse
+       */
+      _seedResponseChanged: function(seedResponse) {
         this.seedList = seedResponse.items ? seedResponse.items : [];
       },
 
@@ -563,7 +583,7 @@ Seed 리파지토리 화면 셋
       _showSeedDetail: function(event) {
         this.resourceId = event.detail.id;
         this.resourceSite = event.detail.site_url;
-        this.$['subcode-list'].generateRequest();
+        this.$['seed-details-ajax'].generateRequest();
       },
 
       /**
@@ -581,7 +601,7 @@ Seed 리파지토리 화면 셋
        * @param {Event} event
        */
       _reloadSeedDetails: function(event) {
-        this.$['subcode-list'].generateRequest();
+        this.$['seed-details-ajax'].generateRequest();
       },
 
       /**
@@ -607,28 +627,33 @@ Seed 리파지토리 화면 셋
       },
 
       /**
-       * seed detail ajax response를 받아 빈값일 경우에 빈 배열로 초기화
+       * seed detail ajax response를 받아 빈 값일 경우에 빈 배열로 초기화
        *
        * @param {Object} response
        */
       _seedDetailChanged: function(response) {
-        this.seedDetailItems = response ? response: [];
+        var seedDetailList = response ? response: [];
+        this.seedDetailItems = seedDetailList.map(function(seedDetail) {
+          seedDetail.data_size_str = (seedDetail.data_length > 0 && seedDetail.data_size > 0) ? this._humanizeByte(seedDetail.data_size, false) : '0B';
+          return seedDetail;
+        }.bind(this));
       },
 
       /**
-       * 그리드 셀 선택이 변경되었을 경우 파일 다운로드
+       * Content 저장 ...
+       *
+       * @param e
        */
-      _downloadFile: function(e) {
-        var baseUrl = this.get('globals.baseUrl');
-        this.openConfirmMsg({
-          type : 'info',
-          title : Things.DataGlobal.t('text.Want to download file'),
-          text : Things.DataGlobal.t('text.You can download file'),
-          showCancelButton: true
-        }, function() {
-          window.location = baseUrl + '/download/' + e.detail.attachment.id;
-        }, function() {
-        });
+      _onContentSave: function(e) {
+        e.preventDefault();
+        var newContent = this.$['code-editor'].getSource();
+        var updateAjax = this.$['update-seed-content-ajax'];
+        var updateContentUrl = this.seedDetailContentUrl;
+        updateContentUrl = updateContentUrl.replace(':id', this.resourceId);
+        updateContentUrl = updateContentUrl.replace(':seed_detail_id', this.resourceDetailId);
+        updateAjax.resourceUrl = updateContentUrl;
+        updateAjax.body = newContent;
+        updateAjax.generateRequest();
       }
     });
   </script>
