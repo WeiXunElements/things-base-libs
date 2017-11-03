@@ -159,7 +159,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
         <things-tristate-radio
           label="master & detail"
-          value="{{uploadMasterDetail}}">
+          value="{{uploadMasterDetail}}"
+          hidden>
         </things-tristate-radio>
 
         <paper-toolbar id="toolbar" class="toolbardown" justify='end'>
@@ -234,7 +235,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         adminUrlValue:{
           type: String,
-          value:'http://suite-base.hatiolab.com/rest'
+          value:'http://admin.hatiolab.com/rest'
         },
 
         /**
@@ -268,7 +269,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         adminUrlPath: {
           type: String,
-          value: 'http://sms-hq.hatiolab.com/rest'
+          value: 'http://admin.hatiolab.com/rest'
         },
 
         /**
@@ -519,7 +520,7 @@ Copyright © HatioLab Inc. All rights reserved.
           bundle: this.resource.bundle
         };
 
-        addSeedAjax.resourceUrl = this.adminUrlPath+'/seed_repos/' + seedRepoId + '/seeds_add/' + this.resource.name;
+        addSeedAjax.resourceUrl = this.adminUrlPath + '/seed_repos/' + seedRepoId + '/seeds_add/' + this.resource.name;
         addSeedAjax.body = result.items ? result.items : result;
         addSeedAjax.generateRequest();
         this.$.dialog.close();
