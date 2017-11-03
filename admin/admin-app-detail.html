@@ -141,7 +141,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * APM Agent Port 정보 
+				 * APM Agent Port 정보
 				 **/
 				appAgentPort: {
 					type: String,
@@ -149,7 +149,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * Control Agent Port 정보 
+				 * Control Agent Port 정보
 				 **/
 				ctlAgentPort: {
 					type: String,
@@ -157,7 +157,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * Control Agent가 관리하는 Application ID 정보 
+				 * Control Agent가 관리하는 Application ID 정보
 				 **/
 				myCtlAgentId: {
 					type: String,
@@ -184,7 +184,7 @@ Copyright © HatioLab Inc. All rights reserved.
 					this.appAgentPort = detailInfo.agent.port;
 				}
 
-				// Control Agent 정보 
+				// Control Agent 정보
 				if(detailInfo.controlAgent) {
 					this.ctlAgentPort = detailInfo.controlAgent.port;
 					this.myCtlAgentId = detailInfo.controlAgent.my.id;
@@ -267,19 +267,22 @@ Copyright © HatioLab Inc. All rights reserved.
 				var detailInfoAjax = this.$['app-info-ajax'];
 				detailInfoAjax.withCredentials = false;
 				detailInfoAjax.resourceUrl = this.adminBaseUrl + '/:id/info';
-				detailInfoAjax.resourceId = resource.id;
+				//detailInfoAjax.resourceId = resource.id;
+				detailInfoAjax.resourceId = resource.monitorId;
 				detailInfoAjax.generateRequest();
 
 				var detailHealthAjax = this.$['app-health-ajax'];
 				detailHealthAjax.withCredentials = false;
 				detailHealthAjax.resourceUrl = this.adminBaseUrl + '/:id/health';
-				detailHealthAjax.resourceId = resource.id;
+				//detailHealthAjax.resourceId = resource.id;
+				detailHealthAjax.resourceId = resource.monitorId;
 				detailHealthAjax.generateRequest();
 
 				var detailMetricsAjax = this.$['app-metrics-ajax'];
 				detailMetricsAjax.withCredentials = false;
 				detailMetricsAjax.resourceUrl = this.adminBaseUrl + '/:id/metrics';
-				detailMetricsAjax.resourceId = resource.id;
+				//detailMetricsAjax.resourceId = resource.id;
+				detailMetricsAjax.resourceId = resource.monitorId;
 				detailMetricsAjax.generateRequest();
 			},
 

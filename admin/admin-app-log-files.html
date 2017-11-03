@@ -13,7 +13,7 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="./material-toggle-button.html">
 
 <!--
-	애플리케이션 별 로그 파일 리스트 및 조회 
+	애플리케이션 별 로그 파일 리스트 및 조회
 -->
 
 <dom-module id="admin-app-log-files">
@@ -27,7 +27,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			material-toggle-button {
 				margin-left: 20px;
-				margin-bottom: 20px; 
+				margin-bottom: 20px;
 			}
 		</style>
 
@@ -37,7 +37,6 @@ Copyright © HatioLab Inc. All rights reserved.
 			resource-url="[[resourceUrl]]"
 			resource-id="[[resourceId]]"
 			resource-action="index"
-			last-response="{{logList}}"
 			with-credentials="[[withCredentials]]">
 		</things-ajax>
 
@@ -50,11 +49,11 @@ Copyright © HatioLab Inc. All rights reserved.
 			with-credentials="[[withCredentials]]">
 		</things-ajax>
 
-		<things-resource-grid 
+		<things-resource-grid
 			id="grid"
 			class="flex"
 			config="[[gridConfig]]"
-			model="[[gridModel]]" 
+			model="[[gridModel]]"
 			columns="[[gridColumns]]"
 			data="[[logList]]"
 			fixed-column-count="0"
@@ -64,19 +63,19 @@ Copyright © HatioLab Inc. All rights reserved.
 		<div class="card-actions">
 			<div class="horizontal justified">
 				<material-toggle-button
-					active 
+					active
 					on-tap="refreshList">
 					<iron-icon icon="av:replay"></iron-icon>새로고침
 				</material-toggle-button>
 
-				<material-toggle-button 
+				<material-toggle-button
 					active
 					on-tap="deleteLogFile">
 					<iron-icon icon="delete"></iron-icon>삭제
 				</material-toggle-button>
 
 				<material-toggle-button
-					active 
+					active
 					on-tap="downloadLogFile">
 					<iron-icon icon="file-download"></iron-icon>다운로드
 				</material-toggle-button>
@@ -95,7 +94,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			properties: {
 				/**
-				 * 선택된 Application 정보 
+				 * 선택된 Application 정보
 				 */
 				resource: {
 					type: Object
@@ -105,8 +104,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				 * 선택된 Application ID
 				 */
 				resourceId: {
-					type: String,
-					computed: '_computeResourceId(resource)'
+					type: String
 				},
 
 				/**
@@ -124,7 +122,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * 로그 그리드 
+				 * 로그 그리드
 				 */
 				gridConfig: {
 					type: Object,
@@ -140,7 +138,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * 로그 그리드 모델 
+				 * 로그 그리드 모델
 				 */
 				gridModel: {
 					type: Array,
@@ -152,6 +150,8 @@ Copyright © HatioLab Inc. All rights reserved.
 						}, {
 							fieldName: 'size',
 							dataType: 'number'
+						} ,{
+							fieldName: 'size_str'
 						} ];
 					}
 				},
@@ -185,21 +185,20 @@ Copyright © HatioLab Inc. All rights reserved.
 								textAlignment: 'center'
 							}
 						}, {
-							name: 'size',
-							fieldName: 'size',
+							name: 'size_str',
+							fieldName: 'size_str',
 							width: 200,
 							header: {
-								text: Things.DataGlobal.t('label.size') + ' (Byte)'
+								text: Things.DataGlobal.t('label.size')
 							},
 							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
+								textAlignment: 'far'
 							}
 						} ];
 					},
 
 					/**
-					 * 버튼 
+					 * 버튼
 					 */
 					emptyButtons: {
 						type: 'Array',
@@ -239,25 +238,33 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			listeners: {
+				'log-list-ajax.things-ajax-response' : '_logListResponsed',
 				'delete-log-ajax.things-ajax-response' : 'refreshList'
 			},
 
 			observers: [
-				'_resourceIdChanged(resourceId, agentBaseUrl)',
+				'_resourceChanged(resource)',
 				'_resourceUrlChanged(resourceUrl)'
 			],
 
 			/**
-			 * 새로 설정된 resource에서 resourceId를 추출 
+			 * 새로 설정된 resource에서 resourceId를 추출
 			 *********
-			 * @param {Object} resource
+			 * @param {Object} response
 			 */
-			_computeResourceId: function(resource) {
-				return resource.appId;
+			_logListResponsed: function(response) {
+				if(response.detail) {
+					this.logList = response.detail.map(function(file) {
+							file.size_str = this._humanizeByte(file.size);
+							return file;
+						}.bind(this));
+				} else {
+					this.logList = [];
+				}
 			},
 
 			/**
-			 * 새로 설정된 resource에서 agentBaseUrl을 추출 
+			 * 새로 설정된 resource에서 agentBaseUrl을 추출
 			 *********
 			 * @param {Object} resource
 			 */
@@ -268,14 +275,20 @@ Copyright © HatioLab Inc. All rights reserved.
 			/**
 			 * resource가 변경된 이 후...
 			 *********
-			 * @param {String} resourceId
-			 * @param {String} agentBaseUrl
+			 * @param {String} resource
 			 */
-			_resourceIdChanged: function(resourceId, agentBaseUrl) {
-				if(resourceId) {
-					this.appDeleteLogUrl = agentBaseUrl + '/apps/' + resourceId + '/log/:file_name/delete';
-					this.appLogDownloadUrl = agentBaseUrl + '/apps/' + resourceId + '/log/:file_name/download';
-					this.resourceUrl = agentBaseUrl + '/apps/' + resourceId + '/log/files';
+			_resourceChanged: function(resource) {
+				this.resourceId = resource.id;
+
+				if(resource.controlType == 'control-agent') {
+					this.appDeleteLogUrl = resource.managementUrl + '/ctrl/apps/:id/log/:file_name/delete';
+					this.appLogDownloadUrl = resource.managementUrl + '/ctrl/apps/:id/log/:file_name/download';
+					this.resourceUrl = resource.managementUrl + '/ctrl/apps/:id/log/files';
+
+				} else {
+					this.appDeleteLogUrl = resource.managementUrl + '/rest/log_management/delete/:file_name';
+					this.appLogDownloadUrl = resource.managementUrl + '/rest/log_management/download/:file_name';
+					this.resourceUrl = resource.managementUrl + '/rest/log_management/list/files';
 				}
 			},
 
@@ -286,6 +299,33 @@ Copyright © HatioLab Inc. All rights reserved.
 			 */
 			_resourceUrlChanged: function(resourceUrl) {
 				this.refreshList();
+			},
+
+			/**
+			 * Byte 정보를 KB, MB, GB 형태로 ...
+			 ************
+			 * @param {Number} bytes
+			 * @param {String} si
+			 */
+			_humanizeByte: function(bytes, si) {
+				var thresh = si ? 1000 : 1024;
+
+				if(Math.abs(bytes) < thresh) {
+					return bytes + ' B';
+				}
+
+				var units = si
+					? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+
+				var u = -1;
+
+				do {
+					bytes /= thresh;
+					++u;
+				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
+
+				return bytes.toFixed(1) + ' ' + units[u];
 			},
 
 			/**
@@ -312,7 +352,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
-			 * 그리드에서 체크된 Row의 데이터를 리턴 
+			 * 그리드에서 체크된 Row의 데이터를 리턴
 			 */
 			gridCheckedRow: function() {
 				var resourceGrid = this.$.grid;
@@ -325,11 +365,11 @@ Copyright © HatioLab Inc. All rights reserved.
 
 				}	else {
 					return null;
-				}			
+				}
 			},
 
 			/**
-			 * Application 수행 
+			 * Application 수행
 			 *********
 			 * @param {String} title
 			 * @param {String} text

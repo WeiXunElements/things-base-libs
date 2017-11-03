@@ -185,7 +185,7 @@
 						return [ {
 							fieldName: 'id'
 						}, {
-							fieldName: 'appId'
+							fieldName: 'monitorId'
 						}, {
 							fieldName: 'name'
 						}, {
@@ -193,9 +193,15 @@
 						}, {
 							fieldName: 'stage'
 						}, {
-							fieldName: 'port'
-						}, {
 							fieldName: 'status'
+						}, {
+							fieldName: 'controlType'
+						}, {
+							fieldName: 'serverPort'
+						}, {
+							fieldName: 'monitorPort'
+						}, {
+							fieldName: 'controlPort'
 						}, {
 							fieldName: 'serviceUrl'
 						}, {
@@ -215,15 +221,18 @@
 					type: Array,
 					value: function() {
 						return [ {
+							name: 'monitorId',
+							fieldName: 'monitorId',
+							width: 1,
+							header: {
+								text: 'Monitor ID'
+							}
+						}, {
 							name: 'id',
 							fieldName: 'id',
-							width: 0
-						}, {
-							name: 'appId',
-							fieldName: 'appId',
 							width: 135,
 							header: {
-								text: 'App ID'
+								text: 'Application ID'
 							}
 						}, {
 							name: 'name',
@@ -231,16 +240,6 @@
 							width: 135,
 							header: {
 								text: Things.DataGlobal.t('label.name')
-							}
-						}, {
-							name: 'port',
-							fieldName: 'port',
-							width: 75,
-							header: {
-								text: Things.DataGlobal.t('label.service_port')
-							},
-							styles: {
-								textAlignment: 'center'
 							}
 						}, {
 							name: 'status',
@@ -255,12 +254,49 @@
 						}, {
 							name: 'version',
 							fieldName: 'version',
-							width: 50,
+							width: 65,
 							header: {
 								text: Things.DataGlobal.t('label.version')
 							},
 							styles: {
 								textAlignment: 'center'
+							}
+						}, {
+							name: 'stage',
+							fieldName: 'stage',
+							width: 100,
+							header: {
+								text: Things.DataGlobal.t('label.stage')
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'serverPort',
+							fieldName: 'serverPort',
+							width: 80,
+							header: {
+								text: Things.DataGlobal.t('label.service_port')
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'monitorPort',
+							fieldName: 'monitorPort',
+							width: 80,
+							header: {
+								text: Things.DataGlobal.t('label.monitor_port')
+							},
+							styles: {
+								textAlignment: 'center'
+							}
+						}, {
+							name: 'controlType',
+							fieldName: 'controlType',
+							width: 100,
+							header: {
+								text: Things.DataGlobal.t('label.type')
 							}
 						}, {
 							name: 'builtAt',
@@ -273,11 +309,11 @@
 								textAlignment: 'center'
 							}
 						}, {
-							name: 'stage',
-							fieldName: 'stage',
-							width: 85,
+							name: 'updatedAt',
+							fieldName: 'updatedAt',
+							width: 145,
 							header: {
-								text: Things.DataGlobal.t('label.stage')
+								text: Things.DataGlobal.t('label.last_checked_at')
 							},
 							styles: {
 								textAlignment: 'center'
@@ -288,16 +324,6 @@
 							width: 0,
 							header: {
 								text: Things.DataGlobal.t('label.service_url')
-							}
-						}, {
-							name: 'updatedAt',
-							fieldName: 'updatedAt',
-							width: 145,
-							header: {
-								text: Things.DataGlobal.t('label.last_checked_at')
-							},
-							styles: {
-								textAlignment: 'center'
 							}
 						}, {
 							fieldName: 'monitorUrl',
@@ -358,8 +384,22 @@
 			},
 
 			observers: [
+				'_gridModelChanged(gridModel)',
 				'_deployResponseChange(deployResponse)'
 			],
+
+			/**
+			 * Grid Model 변경시 - extensions 필드 타입을 object 타입으로 변경한다.
+			 ********
+			 * @param {String} gridModel
+			 */
+			_gridModelChanged: function(gridModel) {
+				gridModel.forEach(function(model) {
+					if(model.fieldName == 'extensions') {
+						model.dataType = 'object';
+					}
+				});
+			},
 
 			/**
 			 * Admin Base URL 설정
@@ -368,58 +408,6 @@
 			 */
 			_computeAdminBaseUrl: function(baseUrl) {
 				return baseUrl.replace('/rest', '/admin/api/applications');
-			},
-
-			/**
-			 * 조회 데이터 변경시
-			 ********
-			 * @param {Object} lastResponse
-			 */
-			_responseChanged: function(lastResponse) {
-				this.itemCount = lastResponse ? lastResponse.length : 0;
-
-				if(this.itemCount > 0) {
-					this.items = lastResponse.map(function(item) {
-						item.subCode = item.name;
-						item.status = item.statusInfo.status;
-						item.timestamp = moment(new Date(item.statusInfo.timestamp)).format('YYYY-MM-DD HH:mm:ss');
-						var mgmtUrl = item.managementUrl ? item.managementUrl : null;
-						item.serverIp = mgmtUrl ? mgmtUrl.substring(0, mgmtUrl.lastIndexOf(':')).replace('http://', '') : '';
-
-						if(item.extensions) {
-							var sInfo = item.extensions.systemStatus;
-							if(sInfo) {
-								item.osName = sInfo.name + ' ' + sInfo.version + ' (' + sInfo.arch + ')';
-								item.cpuUsage = (sInfo.systemCpuLoad && sInfo.systemCpuLoad > 0) ? (sInfo.systemCpuLoad * 100).toFixed(2) : 0;
-								item.totalMemory = sInfo.totalPhysicalMemorySize ? this._humanizeByte(sInfo.totalPhysicalMemorySize, false) : '0GiB';
-
-								var totMem = sInfo.totalPhysicalMemorySize ? sInfo.totalPhysicalMemorySize : 0;
-								var freeMem = sInfo.freePhysicalMemorySize ? sInfo.freePhysicalMemorySize : 0;
-								item.memoryUsage = totMem > 0 ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
-
-								var totalDisk = sInfo.totalDiskSpace ? sInfo.totalDiskSpace : 0;
-								var freeDisk = sInfo.freeDiskSpace ? sInfo.freeDiskSpace : 0;
-								item.diskUsage = totalDisk > 0 ? (((totalDisk - freeDisk) / totalDisk) * 100).toFixed(2) : 0;
-							}
-
-							// 서브터미널인 경우에만 해당
-							if(item.subCode.indexOf('center') < 0) {
-								var aInfo = item.extensions.appsStatus;
-								item.appOrderStatus = (aInfo && aInfo.order) ? aInfo.order : 'DOWN';
-								item.appMgtStatus = (aInfo && aInfo.mgt) ? aInfo.mgt : 'DOWN';
-								item.appAgentStatus = (aInfo && aInfo.agent) ? aInfo.agent : 'DOWN';
-								item.appSyncStatus = (aInfo && aInfo.sync) ? aInfo.sync : 'DOWN';
-								item.appMonitorStatus = (aInfo && aInfo.monitor) ? aInfo.monitor : 'DOWN';
-							}
-						}
-
-						return item;
-
-					}.bind(this));
-
-				} else {
-					this.items = [];
-				}
 			},
 
 			/**
@@ -436,24 +424,24 @@
 					valueThickness: 1,
 					valueLocation: 'top',
 					rages: [{
-						label: "1",
+						label: '1',
 						endValue: 25,
-						background: "#080"
+						background: '#080'
 					}, {
-						label: "2",
+						label: '2',
 						startValue: 25,
 						endValue: 50,
-						background: "#080"
+						background: '#080'
 					}, {
-						label: "3",
+						label: '3',
 						startValue: 50,
 						endValue: 75,
-						background: "#080"
+						background: '#080'
 					}, {
-						label: "4",
+						label: '4',
 						startValue: 75,
 						endValue: 100,
-						background: "#080"
+						background: '#080'
 					}],
 					scale: {
 						ticks: [0, 25, 50, 75, 100],
@@ -489,30 +477,68 @@
 			},
 
 			/**
-			 * Byte 정보를 KB, MB, GB 형태로 ...
-			 ************
-			 * @param {Number} bytes
-			 * @param {String} si
+			 * 조회 데이터 변경시
+			 ********
+			 * @param {Object} lastResponse
 			 */
-			_humanizeByte: function(bytes, si) {
-				var thresh = si ? 1000 : 1024;
+			_responseChanged: function(lastResponse) {
+				this.itemCount = lastResponse ? lastResponse.length : 0;
 
-				if(Math.abs(bytes) < thresh) {
-					return bytes + ' B';
+				if(this.itemCount > 0) {
+					this.items = lastResponse.map(function(item) {
+						item.subCode = item.name;
+						item.status = item.statusInfo.status;
+						item.timestamp = moment(new Date(item.statusInfo.timestamp)).format('YYYY-MM-DD HH:mm:ss');
+						var mgmtUrl = item.managementUrl ? item.managementUrl : null;
+						item.serverIp = mgmtUrl ? mgmtUrl.substring(0, mgmtUrl.lastIndexOf(':')).replace('http://', '') : '';
+
+						if(item.extensions) {
+							var sInfo = item.extensions.systemStatus;
+							if(sInfo) {
+								item.osName = sInfo.name + ' ' + sInfo.version + ' (' + sInfo.arch + ')';
+								item.cpuUsage = (sInfo.systemCpuLoad && sInfo.systemCpuLoad > 0) ? (sInfo.systemCpuLoad * 100).toFixed(2) : 0;
+								item.totalMemory = sInfo.totalPhysicalMemorySize ? this._humanizeByte(sInfo.totalPhysicalMemorySize, false) : '0GiB';
+
+								var totMem = sInfo.totalPhysicalMemorySize ? sInfo.totalPhysicalMemorySize : 0;
+								var freeMem = sInfo.freePhysicalMemorySize ? sInfo.freePhysicalMemorySize : 0;
+								item.memoryUsage = totMem > 0 ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
+
+								var totalDisk = sInfo.totalDiskSpace ? sInfo.totalDiskSpace : 0;
+								var freeDisk = sInfo.freeDiskSpace ? sInfo.freeDiskSpace : 0;
+								item.diskUsage = totalDisk > 0 ? (((totalDisk - freeDisk) / totalDisk) * 100).toFixed(2) : 0;
+							}
+						}
+
+						return item;
+
+					}.bind(this));
+
+				} else {
+					this.items = [];
+				}
+			},
+
+			/**
+			 * 서버 선택 변경시 ...
+			 *********
+			 * @param {Object} event
+			 */
+			showApplications: function(event) {
+				this.resource = event.detail;
+				this.resourceId = this.resource.id;
+				this.serverName = '[' + this.resource.name + '] ';
+				var subItems = (this.resource && this.resource.extensions && this.resource.extensions.appsStatus) ? this.resource.extensions.appsStatus : [];
+
+				if(subItems.length > 0) {
+					subItems.forEach(function(item) {
+						var managementUrl = event.detail.managementUrl;
+						managementUrl = managementUrl.replace('http://', '');
+						managementUrl = managementUrl.indexOf(':') > 0 ? managementUrl.substr(0, managementUrl.indexOf(':')) : managementUrl;
+						item.monitorUrl = 'http://' + managementUrl + ':' + item.monitorPort;
+					});
 				}
 
-				var units = si
-					? ['kB','MB','GB','TB','PB','EB','ZB','YB']
-					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-
-				var u = -1;
-
-				do {
-					bytes /= thresh;
-					++u;
-				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
-
-				return bytes.toFixed(1) + ' ' + units[u];
+				this.subItems = subItems;
 			},
 
 			/**
@@ -537,22 +563,6 @@
 			},
 
 			/**
-			 * 서버 선택 변경시 ...
-			 *********
-			 * @param {Object} event
-			 */
-			showApplications: function(event) {
-				this.subItems = [];
-				this.resource = event.detail;
-				this.resourceId = this.resource.id;
-				this.serverName = '[' + this.resource.name + '] ';
-
-				var ajax = this.$['sub-ajax'];
-				ajax.resourceUrl = this.resource.managementUrl + '/apps/infos';
-				ajax.generateRequest();
-			},
-
-			/**
 			 * 애플리케이션 선택 변경시 ...
 			 *********
 			 * @param {Object} event
@@ -560,11 +570,22 @@
 			showApplicationDetails: function(event) {
 				var appInfo = event.detail;
 				appInfo.managementUrl = this.resource.managementUrl;
+				appInfo.serviceUrl = appInfo.managementUrl + '/rest';
 				var viewElement = document.createElement('admin-apps-monitor');
 				viewElement.id = 'detail-view';
-				viewElement.adminBaseUrl = appInfo.managementUrl + '/admin/api/applications';
+
 				viewElement.appAgentPort = appInfo.monitorPort;
-				viewElement.myCtlAgentId = appInfo.appId;
+
+				if(appInfo.controlType == 'control-agent') {
+					viewElement.adminBaseUrl = appInfo.managementUrl + '/admin/api/applications';
+					viewElement.myCtlAgentId = appInfo.id;
+
+				} else {
+					viewElement.adminBaseUrl = this.adminBaseUrl;
+					appInfo.monitorId = this.resourceId;
+					viewElement.myCtlAgentId = appInfo.id;
+				}
+
 				viewElement.resource = appInfo;
 				viewElement.resourceId = appInfo.id;
 				viewElement.showDetailView(appInfo.id, appInfo);
@@ -618,6 +639,33 @@
 			 * @param {Object} event
 			 */
 			showDetailView: function(event) {
+			},
+
+			/**
+			 * Byte 정보를 KB, MB, GB 형태로 ...
+			 ************
+			 * @param {Number} bytes
+			 * @param {String} si
+			 */
+			_humanizeByte: function(bytes, si) {
+				var thresh = si ? 1000 : 1024;
+
+				if(Math.abs(bytes) < thresh) {
+					return bytes + ' B';
+				}
+
+				var units = si
+					? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+
+				var u = -1;
+
+				do {
+					bytes /= thresh;
+					++u;
+				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
+
+				return bytes.toFixed(1) + ' ' + units[u];
 			}
 		})
 	</script>

@@ -13,7 +13,7 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="material-toggle-button.html">
 
 <!--
-	Control Agent가 관리하는 컨트롤 애플리케이션 리스트 화면 
+	Control Agent가 관리하는 컨트롤 애플리케이션 리스트 화면
 -->
 
 <dom-module id="admin-app-controller">
@@ -27,7 +27,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			.content {
 				@apply(--layout-vertical);
 				@apply(--layout-flex);
-			}			
+			}
 			.grid {
 				@apply(--layout-flex);
 				min-height: 135px;
@@ -57,7 +57,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			}
 			material-toggle-button {
 				margin-top: 8px;
-				margin-bottom: 8px; 
+				margin-bottom: 8px;
 			}
 		</style>
 
@@ -113,7 +113,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				<div class="rate-content">
 					<span class="subtitle">로그</span>
 
-					<things-code-editor 
+					<things-code-editor
 						class="card-content"
 						id="log-viewer"
 						theme="ace/theme/monokai"
@@ -125,33 +125,36 @@ Copyright © HatioLab Inc. All rights reserved.
 
 					<div class="card-actions">
 						<div class="horizontal justified">
-							<material-toggle-button 
+							<material-toggle-button
 								on-tap="deployApp"
-								active>
+								active
+								hidden="[[hideControlButtons]]">
 								<iron-icon icon="av:play-arrow"></iron-icon>배포
 							</material-toggle-button>
 
-							<material-toggle-button 
+							<material-toggle-button
 								on-tap="stopApp"
-								active="[[app.rebootable]]" 
-								disabled="[[app.startable]]">
+								active="[[app.rebootable]]"
+								disabled="[[app.startable]]"
+								hidden="[[hideControlButtons]]">
 								<iron-icon icon="av:stop"></iron-icon>중지
 							</material-toggle-button>
 
-							<material-toggle-button 
+							<material-toggle-button
 								on-tap="restartApp"
-								active="[[app.rebootable]]" 
-								disabled="[[app.startable]]">
+								active="[[app.rebootable]]"
+								disabled="[[app.startable]]"
+								hidden="[[hideControlButtons]]">
 								<iron-icon icon="av:replay"></iron-icon>재시작
 							</material-toggle-button>
 
-							<material-toggle-button 
+							<material-toggle-button
 								on-tap="showLog"
 								active>
 								<iron-icon icon="av:library-books"></iron-icon>로그 보기
 							</material-toggle-button>
 
-							<material-toggle-button 
+							<material-toggle-button
 								on-tap="downloadLogFile"
 								active>
 								<iron-icon icon="file-download"></iron-icon>로그파일 다운로드
@@ -181,7 +184,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * 선택된 Control Agent 정보 
+				 * 선택된 Control Agent 정보
 				 */
 				resource: {
 					type: Object,
@@ -196,7 +199,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				},
 
 				/**
-				 * 로그 조회를 위한 파라미터 
+				 * 로그 조회를 위한 파라미터
 				 */
 				logParams: {
 					type: Object,
@@ -259,6 +262,14 @@ Copyright © HatioLab Inc. All rights reserved.
 				 */
 				ctlAgentLogDownloadUrl: {
 					type: String
+				},
+
+				/**
+				 * 컨트롤 버튼 (배포, 시작, 중지, 재시작)을 숨길지 여부
+				 */
+				hideControlButtons: {
+					type: Boolean,
+					value: true
 				}
 			},
 
@@ -272,12 +283,21 @@ Copyright © HatioLab Inc. All rights reserved.
 
 				if(resource) {
 					this.agentBaseUrl = resource.managementUrl;
-					this.ctlAgentStartUrl = this.agentBaseUrl + '/apps/:id/start';
-					this.ctlAgentDeployUrl = this.agentBaseUrl + '/apps/:id/deploy';
-					this.ctlAgentRestartUrl = this.agentBaseUrl + '/apps/:id/restart';
-					this.ctlAgentStopUrl = this.agentBaseUrl + '/apps/:id/stop';
-					this.ctlAgentLogUrl = this.agentBaseUrl + '/apps/:id/log/today/read';
-					this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/apps/:id/log/today/download';
+
+					if(resource.controlType == 'control-agent') {
+						this.hideControlButtons = false;
+						this.ctlAgentStartUrl = this.agentBaseUrl + '/ctrl/apps/:id/start';
+						this.ctlAgentDeployUrl = this.agentBaseUrl + '/ctrl/apps/:id/deploy';
+						this.ctlAgentRestartUrl = this.agentBaseUrl + '/ctrl/apps/:id/restart';
+						this.ctlAgentStopUrl = this.agentBaseUrl + '/ctrl/apps/:id/stop';
+						this.ctlAgentLogUrl = this.agentBaseUrl + '/ctrl/apps/:id/log/today/read';
+						this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/ctrl/apps/:id/log/today/download';
+
+					} else {
+						this.hideControlButtons = true;
+						this.ctlAgentLogUrl = this.agentBaseUrl + '/rest/log_management/read/latest_log';
+						this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/rest/log_management/download/latest_log';
+					}
 				}
 			},
 
@@ -329,14 +349,14 @@ Copyright © HatioLab Inc. All rights reserved.
 			 * @param {Object} event
 			 */
 			stopApp: function(event) {
-				// TODO Control Agent 서버에 App의 상태 조회 요청 후 처리 
+				// TODO Control Agent 서버에 App의 상태 조회 요청 후 처리
 				if(this.resource && this.resource.status == 'UP') {
 					this.executeApp('애플리케이션 상태 : UP', '애플리케이션을 중지 하시겠습니까??', this.$['stop-ajax']);
 				}
 			},
 
 			/**
-			 * Application 수행 
+			 * Application 수행
 			 ********
 			 * @param {String} title
 			 * @param {String} text
@@ -361,7 +381,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			},
 
 			/**
-			 * 로그 보기 
+			 * 로그 보기
 			 ********
 			 * @param {Object} event
 			 */
