@@ -1,0 +1,461 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../paper-tabs/paper-tab.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-form/things-search-form.html">
+<link rel="import" href="../../things-form/things-resource-form.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-code-editor/things-editor-script.html">
+
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+
+<dom-module id="things-base-procedure">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+        --things-label: {
+            width: 25%;
+            min-height: 19px;
+            display: inline-block;
+            margin-bottom: 10px;
+            padding-right: 5px;
+            color: var(--things-primary-text-color);
+            font-size: 13px;
+            text-align: left;
+        }
+      }
+      .flex {
+        @apply(--layout-flex);
+      }
+      .vertical {
+        @apply(--layout-vertical);
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+      .subtitle:before {
+        content: '';
+        @apply(--things-subtitle-icon);
+      }
+      .subtitle {
+        @apply(--things-default-padding);
+        @apply(--things-subtitle);
+        padding-bottom:7px;
+      }      
+      things-resource-form {
+        padding: 15px 15px 0 15px;
+        overflow-y: auto;
+      }
+      things-editor-script {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        width: 98%;
+        margin: 7px;
+        overflow: auto;
+      }      
+      paper-toolbar {
+        height: 50px;
+        @apply(--layout-horizontal);
+        @apply(--layout-end-justified);
+        padding: 0 10px;
+      }
+      iron-pages {
+        overflow-y: auto;
+        padding-bottom: 2%;
+      }
+    </style>
+
+		<things-ajax 
+			auto
+			id="resource-meta"
+			method="GET"
+			resource-url="[[menuMetaUrl]]"
+			last-response="{{metaData}}">
+    </things-ajax>
+
+    <things-ajax
+      id="get-params-ajax"
+      method="GET"
+      content-type="application/json"
+      resource-url="procedures/:id/procedure_params"
+      resource-id="[[procedureId]]">
+    </things-ajax>
+
+    <things-ajax
+      id="get-script-ajax"
+      method="GET"
+      resource-url="procedures/:id"
+      resource-id="[[procedureId]]">
+    </things-ajax>
+
+    <things-ajax
+      id="invoke-procedure"
+      method="POST"
+      content-type="application/json"
+      resource-url="procedures/:id/invoke_procedure"
+      resource-id="[[procedureId]]">
+    </things-ajax>
+    
+		<things-search-form 
+			id="search-form"
+			title="[[menuInfo.title]]"
+			form-fields="[[searchFormFields]]" 
+			select-fields="[[selectFields]]"
+			sort-fields="[[sortFields]]"
+			action-url="[[menuInfo.resource_url]]" 
+			page="{{page}}"
+			limit="{{limit}}"
+			last-response="{{lastResponse}}">
+		</things-search-form>
+
+    <div class="horizontal flex">
+      <div id="left-section" class="vertical flex">
+        <span class="subtitle">[[procedureLabel]]</span>
+
+        <things-resource-grid
+          class="flex"
+          id="grid"
+          config="[[gridConfig]]"
+          model="[[gridModel]]" 
+          columns="[[gridColumns]]"
+          data="[[items]]"
+          fixed-column-count="[[menuInfo.fixed_columns]]"
+          grid-save-action="[[menuInfo.grid_save_url]]"
+          buttons="[[buttons]]">
+        </things-resource-grid>
+      </div>
+
+      <div id="right-seceion" class="vertical flex">
+        <paper-tabs	id="info-tabs" selected="{{currentTabIdx}}" noink>
+          <template is="dom-repeat" items="[[sections]]">
+            <paper-tab id="[[item.tabId]]">[[item.title]]</paper-tab>
+          </template>
+        </paper-tabs>
+
+        <iron-pages id="tab-pages" class="vertical flex" selected="{{currentTabIdx}}">
+          <!-- Parameter form -->
+          <things-resource-form
+            id="param-form"
+            form-fields="[[paramFormFields]]"
+            buttons=""
+            column-count="1">
+          </things-resource-form>
+
+          <!-- Script Editor -->
+          <things-editor-script
+            class="vertical flex"
+            id="script-editor"
+            theme="ace/theme/monokai"
+            mode="ace/mode/sql"
+            buttons=""
+            readonly>
+          </things-editor-script>
+        </iron-pages>
+
+        <paper-toolbar >
+          <things-button-bar id="button-group" buttons="[[formButtons]]" hidden="[[hideFormButtons]]"></things-button-bar>
+        </paper-toolbar>        
+      </div>
+    </div>
+
+    <span class="subtitle">[[editor]]</span>
+
+    <things-editor-script
+      class="vertical flex"
+      id="result-editor"
+      theme="ace/theme/monokai"
+      mode="ace/mode/sql"
+      readonly>
+    </things-editor-script>    
+  </template>
+
+  <script>
+    Polymer({
+      is: 'things-base-procedure',
+
+      behaviors: [
+        Things.ResourceMenuContentBehavior        
+      ],      
+
+      properties: {
+        /**
+         * tab index
+         */
+        currentTabIdx: {
+          type: Number,
+          value: 0
+        },
+
+        /**
+         * hide form buttons
+         */
+        hideFormButtons: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * form button list
+         */
+        formButtons: {
+          type: Array,
+          value: function() {
+            return [{
+              id: 'invoke-btn',
+              text: 'invoke'
+            }]
+          }
+        }
+      },
+
+      listeners: {
+        'info-tabs.selected-changed': '_infoTabChanged',
+        'script-editor.editor-ready': '_onEditorReady',
+        'result-editor.editor-ready': '_onEditorReady',
+        'grid.things-grid-row-data-select': '_gridRowDataSelected',
+        'param-form.things-form-configured': '_paramFormConfigured',
+        'get-params-ajax.things-ajax-response': '_paramsResponsed',
+        'get-script-ajax.things-ajax-response': '_scriptResponsed',
+        'button-group.invoke-btn-tap': '_validationBeforeInvoke',
+        'invoke-procedure.things-ajax-response': '_invokeResponsed'
+      },
+
+      ready: function() {
+        this._setTabSections();
+        this._setLabels();
+      },
+
+      /**
+       * init tab sections
+       */
+      _setTabSections: function() {
+        this.sections = [{
+          id: 'param-tab',
+          title: Things.DataGlobal.t('label.params')
+        }, {
+          id: 'script-tab',
+          title: Things.DataGlobal.t('label.script')
+        }];
+      },
+
+      /**
+       * init labels
+       */
+      _setLabels: function() {
+        this.procedureLabel = Things.DataGlobal.t('label.procedure');
+        this.editor = Things.DataGlobal.t('label.editor');
+      },
+
+      /**
+       * editor ready시 option 적용
+       */
+      _onEditorReady: function(event) {
+        event.detail.renderer.setShowGutter(false);
+        event.target.value = '';
+      },      
+
+      /**
+       * param form configured event handler
+       * 폼 엘리먼트가 구성되면 tabIndex를 설정함
+       */
+      _paramFormConfigured: function(event) {
+        var formElement = event.target;
+        var inputs = formElement.querySelectorAll('input');
+
+        for(var i = 0; i < inputs.length; i++) {
+          inputs[i].tabIndex = 1;
+        }
+      },
+
+      /**
+       * grid row data selected event handler 선택한 그리드의 로우에서 id를 통해
+       * procedure 정보를 요청함
+       */
+      _gridRowDataSelected: function(event) {
+        var currentProcedureId = event.detail.id;
+        if(!currentProcedureId) return;
+        this._clearInfos()
+
+        if(this.procedureId != currentProcedureId) {
+          this.procedureName = event.detail.name;
+          this.procedureId = event.detail.id;
+          this._getProcedureInfoByTabId(this.sections[this.currentTabIdx].id);
+        };
+      },
+
+      /**
+       * isParamConfigured, isScriptConfigured 를 false로 초기화
+       * 서버로 여러차례 요청하지 않도록 하기 위한 flag
+       */
+      _clearInfos: function() {
+        this.isParamConfigured = false;
+        this.isScriptConfigured = false;
+      },
+
+      /**
+       * tab changed event handler
+       * 텝 변경시 호출 버튼의 hidden 여부를 결정
+       */
+      _infoTabChanged: function(event) {
+        var tabIndex = event.detail.value;
+        var tabId = this.sections[tabIndex].id;
+
+        if(tabId === 'param-tab') {
+          this.hideFormButtons = false;
+        } else {
+          this.hideFormButtons = true;
+        };
+
+        this._getProcedureInfoByTabId(tabId);
+      },            
+
+      /**
+       * tab id를 통해 param list 또는 script 내용을 조회함
+       * isParamConfigured & isScriptConfigured를 플래그로 사용하여 같은 데이터를 중복 조회하지 않도록함
+       */
+      _getProcedureInfoByTabId: function(tabId) {
+        if(tabId == 'param-tab' && !this.isParamConfigured) {
+          this._getProcedureParams();
+        } else {
+          if(this.procedureId && !this.isScriptConfigured) {
+            this._getProcedureScript();
+          }
+        }
+      },
+
+      /**
+       * param list를 조회함
+       */
+      _getProcedureParams: function() {
+        var getParamsAjax = this.$['get-params-ajax'];
+        getParamsAjax.generateRequest();
+      },
+
+      /**
+       * procedure script를 조회함
+       */
+      _getProcedureScript: function() {
+        var getScriptAjax = this.$['get-script-ajax'];
+        getScriptAjax.generateRequest();
+      },
+
+      /**
+       * get-params-ajax response event handler
+       * response의 paramList를 바탕으로 _setFormFields를 things-resource-selector의 paramFormFields 값을 결정함
+       */
+      _paramsResponsed: function(event) {
+        var paramList = event.detail;
+        this._setFormFields(paramList)
+        this.isParamConfigured = true;
+      },
+
+      /**
+       * get-script-ajax response event handler
+       * response의 script를 통해 script-editor의 값을 초기화 하도록 
+       * _setFormFields를 호출함
+       */
+      _scriptResponsed: function(event) {
+        var procedure = event.detail;
+        this._setScript(procedure.script);
+        this.isScriptConfigured = true;
+      },
+
+      /**
+       * paramList의 값을 통해 paramFormFields의 값을 초기화함
+       * paramFormFields의 값이 변경되면 things-resource-form의 input field를 동적으로 생성
+       */
+      _setFormFields: function(paramList) {
+        var tempArray = [];
+        
+        if(paramList.length > 0) {  
+          paramList.forEach(function(param) {
+            var rawLabel = 'label.' + this.procedureName + '.' + param.parameter_name;
+            var translatedLabel = Things.DataGlobal.t(rawLabel);
+            var label = (rawLabel === translatedLabel) ? param.parameter_name : translatedLabel;
+
+            var tempObj = {
+              name: param.parameter_name,
+              label: label,
+              userData: {
+                required: true,
+                type: param.data_type
+              }
+            };
+
+            tempArray.push(tempObj);
+          }.bind(this));
+        };
+
+        this.paramFormFields = tempArray;
+      },
+
+      /**
+       * script-editor의 값을 초기화
+       */
+      _setScript: function(script) {
+        this.$['script-editor'].value = script;
+      },
+
+      /**
+       * input field invoke 전 validation 수행
+       * validation 통과시 _invokeProcedure를 호출하여 procedure를 실행함
+       */
+      _validationBeforeInvoke: function(event) {
+        var paramForm = this.$['param-form'];
+        var paramInputs = paramForm.getFormElements();
+
+        if(paramInputs.length == 0) return;
+
+        paramInputs.forEach(function(paramInput) {
+          paramInput.validate();
+        });
+
+        if(this.$['param-form'].validationCheck()) {
+          this._invokeProcedure();
+        }
+      },
+
+      /**
+       * procedure 실행 호출
+       * _getParamsValue를 통해 body 값을 추출함
+       */
+      _invokeProcedure: function() {
+        var invokeProcedure = this.$['invoke-procedure'];
+        invokeProcedure.body = this._getParamsValue();
+        invokeProcedure.generateRequest();
+      },
+
+      /**
+       * param-form의 input fields를 추출하여 body 값을 return
+       */
+      _getParamsValue: function() {
+        var paramForm = this.$['param-form'];
+        var paramFields = paramForm.getFormElements();
+        var tempObj = {};
+
+        paramFields.forEach(function(field) {
+          tempObj[field.name] = field.value;
+        });
+
+        return tempObj;
+      },
+
+      /**
+       * result-editor의 값을 초기화
+       */
+      _invokeResponsed: function(event) {
+        this.$['result-editor'].value = event.detail;
+      }
+    })
+  </script>  
+</dom-module>
