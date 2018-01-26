@@ -185,7 +185,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       behaviors: [
         Things.ResourceMenuContentBehavior        
-      ],      
+      ],
 
       properties: {
         /**
@@ -284,7 +284,7 @@ Copyright © HatioLab Inc. All rights reserved.
       _gridRowDataSelected: function(event) {
         var currentProcedureId = event.detail.id;
         if(!currentProcedureId) return;
-        this._clearInfos()
+        this._clearInfos();        
 
         if(this.procedureId != currentProcedureId) {
           this.procedureName = event.detail.name;
@@ -300,6 +300,21 @@ Copyright © HatioLab Inc. All rights reserved.
       _clearInfos: function() {
         this.isParamConfigured = false;
         this.isScriptConfigured = false;
+        this._clearParamForms();
+      },
+
+      _clearParamForms: function() {
+        var paramForm = this.$['param-form'];
+        var paramFields = paramForm.getFormElements();
+        if(paramFields.length > 0) {
+          var parentElements = paramForm.querySelectorAll('#fields');
+
+          parentElements.forEach(function(parentElement) {
+            while(parentElement.children.length) {
+              parentElement.removeChild(parentElement.lastChild);
+            }
+          });
+        }
       },
 
       /**
