@@ -106,6 +106,8 @@ Copyright © HatioLab Inc. All rights reserved.
           }, { 
             fieldName: 'menu_id' 
           }, { 
+            fieldName: 'rank' 
+          },{ 
             fieldName: 'text' 
           }, { 
             fieldName: 'term' 
@@ -171,7 +173,18 @@ Copyright © HatioLab Inc. All rights reserved.
           fieldName: 'id', name: 'id', width: 0 
         }, { 
           fieldName: 'menu_id', name: 'menu_id', width: 0
-        }, {
+        }, { 
+            name: 'rank', 
+            fieldName: 'rank', 
+            width: 80,
+            nullable: true,
+            header: { 
+              text: Things.DataGlobal.t('label.rank') 
+            },
+            editor: { 
+              maxLength : 32
+            }
+          },{
           name: 'auth', 
           fieldName: 'auth', 
           width: 150,
