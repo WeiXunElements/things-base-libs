@@ -23,60 +23,66 @@ Copyright © HatioLab Inc. All rights reserved.
         display: block;
         @apply(--layout-vertical);
       }
+
       iron-pages {
         @apply(--layout-flex);
         @apply(--layout-vertical);
       }
+
       things-resource-grid {
         @apply(--layout-flex);
       }
 
       paper-toolbar {
-        background-color:var(--things-primary-background-color);
-        height:45px;
-        margin-top:0px !important;
+        background-color: var(--things-primary-background-color);
+        height: 45px;
+        margin-top: 0px !important;
         @apply(--things-padding-clear)
       }
+
       paper-toolbar::shadow #topBar {
-        height:45px;
-        padding:0;
+        height: 45px;
+        padding: 0;
       }
+
       paper-toolbar::shadow #bottomBar {
         height: 45px;
         @apply(--layout-horizontal);
         @apply(--layout-end-justified);
         padding: 0 10px;
       }
+
       paper-toolbar .title {
-        margin-left:32px !important;
-        line-height:initial !important;
+        margin-left: 32px !important;
+        line-height: initial !important;
       }
+
       .detail-card {
         @apply(--layout-vertical);
-        min-width:250px;
-        max-width:300px;
+        min-width: 250px;
+        max-width: 300px;
       }
+
       .detail-content {
         @apply(--layout-vertical);
       }
+
       .detail-content:first-child {
         @apply(--layout-horizontal);
       }
+
       .detail-content:last-child::shadow input {
-        width:68%;
+        width: 68%;
       }
+
       .close-btn {
         @apply(--things-header-button);
-        background:url(/images/icon-close.png) 100% 50% no-repeat;
-        margin-right:10px;
+        background: url(/images/icon-close.png) 100% 50% no-repeat;
+        margin-right: 10px;
       }
     </style>
 
-    <paper-dialog
-      modal
-      id="dialog"
-      entry-animation="scale-up-animation"
-      exit-animation="fade-out-animation">
+    <paper-dialog modal id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <paper-toolbar>
         <span class="title">Select Main Menu</span>
         <div class="buttonsGroup">
@@ -86,12 +92,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       <div class="detail-card">
         <div class="detail-content">
-          <things-resource-combo
-            name="menu"
-            label="Main Menu"
-            resource-url="menus"
-            select-fields="id,name,description"
-            query-fields='[{
+          <things-resource-combo name="menu" label="Main Menu" resource-url="menus" select-fields="id,name,description" query-fields='[{
               "name": "menu_type",
               "operator": "eq",
               "value": "MENU"
@@ -102,35 +103,21 @@ Copyright © HatioLab Inc. All rights reserved.
             }, {
               "name": "hidden_flag",
               "operator": "is_not_true"
-            }]',
-            label-path="title">
+            }]' , label-path="title">
           </things-resource-combo>
         </div>
       </div>
     </paper-dialog>
 
-    <things-ajax
-      id="sync-service"
-      method="POST"
-      content-type="application/json"
-      resource-url = 'entities/:id/create_entity_columns'
+    <things-ajax id="sync-service" method="POST" content-type="application/json" resource-url='entities/:id/create_entity_columns'
       last-response="{{lastResponse}}">
     </things-ajax>
 
-    <things-ajax
-      id="generate-service"
-      method="POST"
-      content-type="application/json">
+    <things-ajax id="generate-service" method="POST" content-type="application/json">
     </things-ajax>
 
-    <things-resource-grid
-      id="grid"
-      config="[[gridConfig]]"
-      model="[[gridModel]]"
-      columns="[[gridColumns]]"
-      data="[[items]]"
-      grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
+    <things-resource-grid id="grid" config="[[gridConfig]]" model="[[gridModel]]" columns="[[gridColumns]]" data="[[items]]"
+      grid-save-action="[[gridSaveUrl]]" buttons="[[buttons]]">
     </things-resource-grid>
   </template>
 
@@ -212,10 +199,10 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridColumns: {
           type: Array,
-          value: function() {
+          value: function () {
             var colTypes = ['', 'binary', 'boolean', 'date', 'datetime', 'decimal', 'double', 'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'];
 
-            return [ {
+            return [{
               fieldName: 'id', name: 'id', width: 0
             }, {
               fieldName: 'rank', name: 'rank', width: 50, type: 'number', nullable: false,
@@ -231,7 +218,7 @@ Copyright © HatioLab Inc. All rights reserved.
                 text: Things.DataGlobal.t('label.name')
               },
               editor: {
-                maxLength : 32
+                maxLength: 32
               }
             }, {
               fieldName: 'description', name: 'description', width: 135,
@@ -239,7 +226,7 @@ Copyright © HatioLab Inc. All rights reserved.
                 text: Things.DataGlobal.t('label.description')
               },
               editor: {
-                maxLength : 255
+                maxLength: 255
               }
             }, {
               fieldName: 'term', name: 'term', width: 150,
@@ -252,7 +239,7 @@ Copyright © HatioLab Inc. All rights reserved.
               header: {
                 text: Things.DataGlobal.t('label.term') + ' (to)'
               },
-              valueCallback: function(column, row) {
+              valueCallback: function (column, row) {
                 var term = row.getValue('term');
                 return term ? Things.DataGlobal.t(term) : '';
               }
@@ -355,8 +342,8 @@ Copyright © HatioLab Inc. All rights reserved.
             }, {
               fieldName: 'ref_type', name: 'ref_type', width: 90,
               lookupDisplay: true,
-              lookupValues: [ '', 'CommonCode', 'Entity', 'Menu' ],
-              lookupLabels: [ '', 'Code', 'Entity', 'Menu' ],
+              lookupValues: ['', 'CommonCode', 'Entity', 'Menu'],
+              lookupLabels: ['', 'Code', 'Entity', 'Menu'],
               header: {
                 text: Things.DataGlobal.t('label.ref_type')
               },
@@ -397,6 +384,14 @@ Copyright © HatioLab Inc. All rights reserved.
                 maxLength: 128
               }
             }, {
+              fieldName: 'default_val', name: 'default_val', width: 120,
+              header: {
+                text: Things.DataGlobal.t('label.default_val')
+              },
+              editor: {
+                maxLength: 128
+              }
+            }, {
               fieldName: 'ignore_on_save', name: 'ignore_on_save', width: 0,
               renderer: {
                 type: 'check',
@@ -417,7 +412,7 @@ Copyright © HatioLab Inc. All rights reserved.
               fieldName: 'grid_width', name: 'grid_width', width: 0
             }, {
               fieldName: 'grid_align', name: 'grid_align', width: 0
-            } ];
+            }];
           }
         },
 
@@ -430,20 +425,20 @@ Copyright © HatioLab Inc. All rights reserved.
       },
 
       listeners: {
-        'things-detail-view-selected' : '_myTabSelected',
-        'sync-btn-tap' : 'syncWithTable',
-        'create-menu-btn-tap' : 'createMenu',
-        'check-columns-btn-tap' : 'checkColumns',
-        'generate-table-btn-tap' : 'generateTable',
-        'generate-entity-btn-tap' : 'generateEntity',
-        'generate-svc-btn-tap' : 'generateService',
-        'grid.things-grid-handle-addrow' : '_addRow',
-        'grid.things-grid-handle-built-writedata' : '_setupWriteData',
-        'grid.things-grid-resource-column-edit' : '_onGridColumnRefEdit',
-        'grid.things-grid-save-success' : '_responseTransaction',
-        'sync-service.things-ajax-response' : '_responseTransaction',
-        'generate-service.things-ajax-response' : '_generationSuccess',
-        'things-combo-value-changed' : '_parentMenuSelected'
+        'things-detail-view-selected': '_myTabSelected',
+        'sync-btn-tap': 'syncWithTable',
+        'create-menu-btn-tap': 'createMenu',
+        'check-columns-btn-tap': 'checkColumns',
+        'generate-table-btn-tap': 'generateTable',
+        'generate-entity-btn-tap': 'generateEntity',
+        'generate-svc-btn-tap': 'generateService',
+        'grid.things-grid-handle-addrow': '_addRow',
+        'grid.things-grid-handle-built-writedata': '_setupWriteData',
+        'grid.things-grid-resource-column-edit': '_onGridColumnRefEdit',
+        'grid.things-grid-save-success': '_responseTransaction',
+        'sync-service.things-ajax-response': '_responseTransaction',
+        'generate-service.things-ajax-response': '_generationSuccess',
+        'things-combo-value-changed': '_parentMenuSelected'
       },
 
       /**
@@ -451,7 +446,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _myTabSelected: function(e) {
+      _myTabSelected: function (e) {
         this.setupButtons();
         this.$.grid.resizeGrid();
       },
@@ -462,7 +457,7 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} Save entity columns url
        */
-      _computeEntityColumnSaveUrl: function(resourceId) {
+      _computeEntityColumnSaveUrl: function (resourceId) {
         return 'entities/' + resourceId + '/update_multiple_entity_columns.json';
       },
 
@@ -471,7 +466,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _responseChanged: function(lastResponse) {
+      _responseChanged: function (lastResponse) {
         this.resourceColumns = lastResponse.items ? lastResponse.items : [];
       },
 
@@ -480,9 +475,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Array} resourceColumns
        */
-      _resourceColumnsChanged: function(resourceColumns) {
-        if(resourceColumns && resourceColumns.length > 0) {
-          for(var i = 0 ; i < resourceColumns.length ; i++) {
+      _resourceColumnsChanged: function (resourceColumns) {
+        if (resourceColumns && resourceColumns.length > 0) {
+          for (var i = 0; i < resourceColumns.length; i++) {
             var column = resourceColumns[i];
             column.search_check = (typeof column.search_rank != 'undefined' && column.search_rank > 0);
             column.grid_check = (typeof column.grid_rank != 'undefined' && column.grid_rank > 0);
@@ -497,26 +492,26 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _setupWriteData: function(event) {
+      _setupWriteData: function (event) {
         var writeData = event.detail;
-        if(writeData && writeData.length > 0) {
+        if (writeData && writeData.length > 0) {
           var entityId = this.resourceId;
 
-          writeData.forEach(function(changedData) {
+          writeData.forEach(function (changedData) {
             changedData.entity_id = entityId;
-            if(!changedData.uniq_rank) changedData.uniq_rank = 0;
+            if (!changedData.uniq_rank) changedData.uniq_rank = 0;
 
-            if(!changedData.search_check || 'false' === changedData.search_check) {
+            if (!changedData.search_check || 'false' === changedData.search_check) {
               changedData.search_rank = 0;
             } else {
-              if(!changedData.search_rank || changedData.search_rank <= 0)
+              if (!changedData.search_rank || changedData.search_rank <= 0)
                 changedData.search_rank = changedData.rank;
             }
 
-            if(!changedData.grid_check || 'false' === changedData.grid_check) {
+            if (!changedData.grid_check || 'false' === changedData.grid_check) {
               changedData.grid_rank = 0;
             } else {
-              if(!changedData.grid_rank || changedData.grid_rank <= 0)
+              if (!changedData.grid_rank || changedData.grid_rank <= 0)
                 changedData.grid_rank = changedData.rank;
             }
 
@@ -533,7 +528,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 트랜잭션 성공 이벤트
        */
-      _responseTransaction: function(e) {
+      _responseTransaction: function (e) {
         this.lastResponse = e.detail;
       },
 
@@ -542,7 +537,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      syncWithTable: function(e) {
+      syncWithTable: function (e) {
         var syncSvc = this.$['sync-service'];
         syncSvc.resourceUrl = 'entities/' + this.resourceId + '/create_entity_columns';
         syncSvc.generateRequest();
@@ -553,17 +548,17 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      checkColumns: function(e) {
+      checkColumns: function (e) {
         var dataSet = this.$.grid.getGridDataSet();
         var dataCount = dataSet._values.length;
 
-        if(!this._isExistRow(dataSet, 'id')) {
+        if (!this._isExistRow(dataSet, 'id')) {
           var idColumn = this._newDefaultRow('id', 'label.id', 'string', null, null, false, null, false);
           idColumn.form_editor = 'hidden';
           dataSet.insertRow(0, idColumn);
         }
 
-        if(!this.resource.master || !this.resource.master.name && !this._isExistRow(dataSet, 'domain_id')) {
+        if (!this.resource.master || !this.resource.master.name && !this._isExistRow(dataSet, 'domain_id')) {
           var domainIdColumn = this._newDefaultRow('domain_id', 'label.domain', 'integer', null, null, false, null, true)
           domainIdColumn.form_editor = 'hidden';
           dataSet.insertRow(1, domainIdColumn);
@@ -571,13 +566,13 @@ Copyright © HatioLab Inc. All rights reserved.
 
         dataCount = dataSet._values.length;
 
-        if(!this._isExistRow(dataSet, 'creator_id')) {
+        if (!this._isExistRow(dataSet, 'creator_id')) {
           var creator = this._newDefaultRow('creator_id', 'label.creator', 'string', 'Entity', 'User', true, null, true);
           creator.col_size = 32;
           dataSet.insertRow(dataCount, creator);
           dataCount += 1;
         }
-        if(!this._isExistRow(dataSet, 'updater_id')) {
+        if (!this._isExistRow(dataSet, 'updater_id')) {
           var updater = this._newDefaultRow('updater_id', 'label.updater', 'string', 'Entity', 'User', true, null, true);
           updater.col_size = 32;
           updater.grid_check = true;
@@ -586,11 +581,11 @@ Copyright © HatioLab Inc. All rights reserved.
           dataSet.insertRow(dataCount, updater);
           dataCount += 1;
         }
-        if(!this._isExistRow(dataSet, 'created_at')) {
+        if (!this._isExistRow(dataSet, 'created_at')) {
           dataSet.insertRow(dataCount, this._newDefaultRow('created_at', 'label.created_at', 'datetime', null, null, true, null, true));
           dataCount += 1;
         }
-        if(!this._isExistRow(dataSet, 'updated_at')) {
+        if (!this._isExistRow(dataSet, 'updated_at')) {
           var updatedAt = this._newDefaultRow('updated_at', 'label.updated_at', 'datetime', null, null, true, null, true);
           updatedAt.grid_editor = 'readonly';
           updatedAt.grid_check = true;
@@ -606,21 +601,21 @@ Copyright © HatioLab Inc. All rights reserved.
         for (var i = 0; i < dataCount; i++) {
           var row = dataSet.getRowObject(i);
           row.rank = (i + 1) * 10;
-          if(row.name && !row.term) row.term = 'label.' + row.name;
+          if (row.name && !row.term) row.term = 'label.' + row.name;
 
-          if(ignoreFieldsWhenSave.includes(row.name)) {
+          if (ignoreFieldsWhenSave.includes(row.name)) {
             row.ignore_on_save = true;
             row.form_editor = '';
           }
 
-          if(!row.form_editor && row.name == 'domain_id') {
+          if (!row.form_editor && row.name == 'domain_id') {
             row.form_editor = 'hidden';
           }
 
-          if(!(true === row.ignore_on_save || 'true' === row.ignore_on_save)) {
-            if(!row.form_editor) this._setFormEditor(row);
-            if(row.grid_rank && row.grid_rank > 0 && !row.grid_editor) this._setGridEditor(row);
-            if(row.search_rank && row.search_rank > 0 && !row.search_editor) this._setSearchEditor(row);
+          if (!(true === row.ignore_on_save || 'true' === row.ignore_on_save)) {
+            if (!row.form_editor) this._setFormEditor(row);
+            if (row.grid_rank && row.grid_rank > 0 && !row.grid_editor) this._setGridEditor(row);
+            if (row.search_rank && row.search_rank > 0 && !row.search_editor) this._setSearchEditor(row);
           }
 
           dataSet.updateRow(i, row);
@@ -632,23 +627,23 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} row
        */
-      _setGridEditor: function(row) {
-        if(row.ref_type && row.ref_name) {
-          if(!row.grid_width) row.grid_width = 150;
+      _setGridEditor: function (row) {
+        if (row.ref_type && row.ref_name) {
+          if (!row.grid_width) row.grid_width = 150;
           row.grid_editor = (row.ref_type == 'CommonCode') ? 'code-combo' : 'resource-selector';
 
-        } else if(row.col_type == 'boolean') {
+        } else if (row.col_type == 'boolean') {
           row.grid_editor = 'checkbox';
-          if(!row.grid_width) row.grid_width = 80;
+          if (!row.grid_width) row.grid_width = 80;
 
-        } else if(this.numberTypes.includes(row.col_type)) {
+        } else if (this.numberTypes.includes(row.col_type)) {
           row.grid_align = 'far';
           row.grid_editor = 'number';
-          if(!row.grid_width) row.grid_width = 80;
+          if (!row.grid_width) row.grid_width = 80;
 
         } else {
           row.grid_editor = 'text';
-          if(!row.grid_width) row.grid_width = (row.name == 'name') ? 150 : (row.name == 'description' ? 180 : 120);
+          if (!row.grid_width) row.grid_width = (row.name == 'name') ? 150 : (row.name == 'description' ? 180 : 120);
         }
       },
 
@@ -657,16 +652,16 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} row
        */
-      _setFormEditor: function(row) {
-        if(row.name == 'id') {
+      _setFormEditor: function (row) {
+        if (row.name == 'id') {
           row.form_editor = 'hidden';
-        } else if(row.ref_type && row.ref_name) {
-          row.form_editor =  (row.ref_type == 'CommonCode') ? 'code-combo' : 'resource-field';
+        } else if (row.ref_type && row.ref_name) {
+          row.form_editor = (row.ref_type == 'CommonCode') ? 'code-combo' : 'resource-field';
 
-        } else if(row.col_type == 'boolean') {
+        } else if (row.col_type == 'boolean') {
           row.form_editor = 'tristate-radio';
 
-        } else if(this.numberTypes.includes(row.col_type)) {
+        } else if (this.numberTypes.includes(row.col_type)) {
           row.form_editor = 'number';
 
         } else {
@@ -679,22 +674,22 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} row
        */
-      _setSearchEditor: function(row) {
-        if(row.ref_type && row.ref_name) {
-          row.search_editor =  (row.ref_type == 'CommonCode') ? 'code-combo' : 'resource-selector';
+      _setSearchEditor: function (row) {
+        if (row.ref_type && row.ref_name) {
+          row.search_editor = (row.ref_type == 'CommonCode') ? 'code-combo' : 'resource-selector';
 
-        } else if(row.col_type == 'boolean') {
+        } else if (row.col_type == 'boolean') {
           row.search_editor = 'tristate-radio';
 
-        } else if(this.numberTypes.includes(row.col_type)) {
+        } else if (this.numberTypes.includes(row.col_type)) {
           row.search_editor = 'number';
 
         } else {
           row.search_editor = 'text';
-          if(!row.search_oper && (row.name == 'name' || row.name == 'description')) row.search_oper = 'contains';
+          if (!row.search_oper && (row.name == 'name' || row.name == 'description')) row.search_oper = 'contains';
         }
 
-        if(!row.search_oper) row.search_oper = 'eq';
+        if (!row.search_oper) row.search_oper = 'eq';
       },
 
       /**
@@ -703,11 +698,11 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {Object} dataSet
        * @param {String} fieldName
        */
-      _isExistRow: function(dataSet, fieldName) {
+      _isExistRow: function (dataSet, fieldName) {
         var count = dataSet._values.length;
-        for(var i = 0 ; i < count ; i++) {
+        for (var i = 0; i < count; i++) {
           var row = dataSet.getRowObject(i);
-          if(row.name == fieldName) {
+          if (row.name == fieldName) {
             return true;
           }
         }
@@ -728,18 +723,18 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {Boolean} ignoreOnSave
        * @param {Boolean} gridCheck
        */
-      _newDefaultRow: function(name, term, colType, refType, refName, nullable, rank, ignoreOnSave, gridCheck) {
+      _newDefaultRow: function (name, term, colType, refType, refName, nullable, rank, ignoreOnSave, gridCheck) {
         return {
-          entity_id : this.resourceId,
-          rank : rank ? rank : 0,
-          name : name,
-          term : term,
-          col_type : colType,
-          ref_name : refName,
-          ref_type : refType,
-          nullable : nullable,
-          ignore_on_save : ignoreOnSave,
-          grid_check : gridCheck
+          entity_id: this.resourceId,
+          rank: rank ? rank : 0,
+          name: name,
+          term: term,
+          col_type: colType,
+          ref_name: refName,
+          ref_type: refType,
+          nullable: nullable,
+          ignore_on_save: ignoreOnSave,
+          grid_check: gridCheck
         };
       },
 
@@ -748,7 +743,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _addRow: function(e) {
+      _addRow: function (e) {
         e.preventDefault();
         var dataSet = this.$.grid.dataSet;
         var count = dataSet.rowCount() + 1;
@@ -760,27 +755,27 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} things-grid-resource-column-edit 이벤트
        */
-      _onGridColumnRefEdit: function(e) {
+      _onGridColumnRefEdit: function (e) {
         e.preventDefault();
         var index = e.detail.index;
         var grid = index._grid;
 
         var dataSet = this.$.grid.getGridDataSet();
         var row = dataSet.getRowObject(index.rowIndex);
-        if(!row.ref_type) return;
+        if (!row.ref_type) return;
 
-        if(!row.ref_name) {
+        if (!row.ref_name) {
           row.ref_name = '';
           dataSet.updateRow(index.rowIndex, row);
         }
 
         var resourceObj = {
-          resourceType : 'Entity',
-          resourceName : row.ref_type,
-          ownerField : 'ref_name'
+          resourceType: 'Entity',
+          resourceName: row.ref_type,
+          ownerField: 'ref_name'
         };
 
-        if(row.ref_type == 'Menu') {
+        if (row.ref_type == 'Menu') {
           resourceObj.initialParams = 'menu_type=SCREEN,routing_type=RESOURCE';
         }
 
@@ -792,9 +787,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      generateTable: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
+      generateTable: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(function () {
             var service = this.$['generate-service'];
             service.resourceUrl = 'code_generator/code/table/' + this.resourceId;
             service.generateRequest();
@@ -810,9 +805,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      generateEntity: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
+      generateEntity: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(function () {
             var service = this.$['generate-service'];
             service.resourceUrl = 'code_generator/code/entity/' + this.resourceId;
             service.generateRequest();
@@ -828,9 +823,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      generateService: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
+      generateService: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(function () {
             var service = this.$['generate-service'];
             service.resourceUrl = 'code_generator/code/controller/' + this.resourceId;
             service.generateRequest();
@@ -846,27 +841,27 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {String} func
        */
-      _confirmAndInvoke: function(func) {
+      _confirmAndInvoke: function (func) {
         this.openConfirmMsg({
-          type : 'info',
-          title : Things.DataGlobal.t('text.Sure to Generate'),
+          type: 'info',
+          title: Things.DataGlobal.t('text.Sure to Generate'),
           showCancelButton: true,
-          closeOnConfirm : true
+          closeOnConfirm: true
         }, func);
       },
 
       /**
        * 서비스 호출 준비가 안 된 상태라는 메시지 출력
        */
-      _warningNotReady: function() {
+      _warningNotReady: function () {
         var tableName = Things.DataGlobal.t('label.table_name');
-        var msg = Things.DataGlobal.t('error.SHOULD_NOT_BE_EMPTY', { value : tableName });
+        var msg = Things.DataGlobal.t('error.SHOULD_NOT_BE_EMPTY', { value: tableName });
 
         this.openInfoMsg({
-          type : 'warning',
-          title : msg,
+          type: 'warning',
+          title: msg,
           showCancelButton: true,
-          closeOnConfirm : true
+          closeOnConfirm: true
         });
       },
 
@@ -875,11 +870,11 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _generationSuccess: function(e) {
+      _generationSuccess: function (e) {
         this.openInfoMsg({
-          title : Things.DataGlobal.t('label.success'),
-          type : 'info',
-          text : Things.DataGlobal.t('text.Success to Process'),
+          title: Things.DataGlobal.t('label.success'),
+          type: 'info',
+          text: Things.DataGlobal.t('text.Success to Process'),
           closeOnConfirm: true
         });
       },
@@ -889,7 +884,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      createMenu: function(e) {
+      createMenu: function (e) {
         this.$['dialog'].open();
       },
 
@@ -898,9 +893,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _parentMenuSelected: function(e) {
+      _parentMenuSelected: function (e) {
         var parentMenuId = e.detail.value;
-        if(parentMenuId) {
+        if (parentMenuId) {
           this.generateMenu(parentMenuId);
         }
       },
@@ -910,7 +905,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {String} parentMenuId
        */
-      generateMenu: function(parentMenuId) {
+      generateMenu: function (parentMenuId) {
         var menu = {
           parent_id: parentMenuId,
           name: this.resource.name,
@@ -944,10 +939,10 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * 전달받은 isDetail를 통해 master/slave 여부를 확인한 뒤 버튼을 초기화 합니다.
        */
-      setupButtons: function() {
-        if(this.buttons && this.buttons.length > 1) return;
+      setupButtons: function () {
+        if (this.buttons && this.buttons.length > 1) return;
 
-        var buttons = [ {
+        var buttons = [{
           id: 'sync-btn',
           text: 'sync'
         }, {
@@ -968,9 +963,9 @@ Copyright © HatioLab Inc. All rights reserved.
         }, */{
           id: 'generate-entity-btn',
           text: 'generate_entity'
-        } ];
+        }];
 
-        if(!this.resource.master || !this.resource.master.name) {
+        if (!this.resource.master || !this.resource.master.name) {
           buttons.push({ id: 'generate-svc-btn', text: 'generate_service' });
           buttons.push({ id: 'create-menu-btn', text: 'create_menu' });
         }
