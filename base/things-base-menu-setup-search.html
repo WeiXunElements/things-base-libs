@@ -11,7 +11,7 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-grid/things-resource-grid.html">
 
 <!--
-  메뉴 검색 조건 설정 탭 
+  메뉴 검색 조건 설정 탭
 -->
 
 <dom-module id="things-base-menu-setup-search">
@@ -26,7 +26,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    <things-ajax 
+    <things-ajax
       id="column-ajax"
       method="GET"
       resource-url="menus/:id/menu_meta?no_trans_term=true"
@@ -34,10 +34,10 @@ Copyright © HatioLab Inc. All rights reserved.
       last-response="{{menuMeta}}">
     </things-ajax>
 
-    <things-resource-grid 
+    <things-resource-grid
       id="grid"
       config="[[gridConfig]]"
-      model="[[gridModel]]" 
+      model="[[gridModel]]"
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
@@ -48,7 +48,7 @@ Copyright © HatioLab Inc. All rights reserved.
   <script>
     Polymer({
       is: 'things-base-menu-setup-search',
-      
+
       properties: {
         /**
          * Menu Id
@@ -75,36 +75,36 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         /**
-         * Menu columns 조회 정보 
+         * Menu columns 조회 정보
          */
         items: {
           type: Array
-        }, 
+        },
 
         /**
          * Grid Model
          */
         gridModel: {
           type: Array,
-          value: [ { 
+          value: [ {
             fieldName: 'id'
-          }, { 
+          }, {
             fieldName: 'menu_id'
-          }, { 
+          }, {
             fieldName: 'search_rank'
-          }, { 
+          }, {
             fieldName: 'name'
-          }, { 
+          }, {
             fieldName: 'term'
-          }, { 
+          }, {
             fieldName: 'col_type'
-          }, { 
+          }, {
             fieldName: 'ref_type'
-          }, { 
+          }, {
             fieldName: 'ref_name'
-          }, { 
+          }, {
             fieldName: 'sort_rank'
-          }, { 
+          }, {
             fieldName: 'reverse_sort'
           }, {
             fieldName: 'search_editor'
@@ -116,7 +116,7 @@ Copyright © HatioLab Inc. All rights reserved.
             fieldName: 'search_init_val'
           } ]
         },
-        
+
         /**
          * Grid Columns
          */
@@ -125,111 +125,111 @@ Copyright © HatioLab Inc. All rights reserved.
           value: function() {
             var validators = document.querySelector('#validators').allValidators();
             var colTypes = [
-              '', 'binary', 'boolean', 'date', 'datetime','decimal','double', 
+              '', 'binary', 'boolean', 'date', 'datetime','decimal','double',
               'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'
             ];
             var editors = [
               '', 'hidden', 'readonly', 'checkbox', 'text', 'code-combo', 'resource-combo', 'number',
-              'textarea', 'resource-field', 'resource-selector', 'resource-format-selector', 'reference-query', 'date-picker', 
-              'time-picker', 'datetime-picker', 'date-from-to-picker', 'ranged-datetime-picker', 'tristate-radio'
+              'textarea', 'resource-field', 'resource-selector', 'resource-format-selector', 'resource-code', 'reference-query', 'date-picker',
+              'time-picker', 'time-input', 'datetime-picker', 'date-from-to-picker', 'ranged-datetime-picker', 'tristate-radio'
             ];
             var opers = [
-              '', 'contains', 'dnew', 'dnsw', 'eq', 'ew', 'gt', 'gte', 'between', 'in', 
-              'is_blank', 'is_false', 'is_not_false', 'is_not_null', 'is_not_true', 'is_null', 
+              '', 'contains', 'dnew', 'dnsw', 'eq', 'ew', 'gt', 'gte', 'between', 'in',
+              'is_blank', 'is_false', 'is_not_false', 'is_not_null', 'is_not_true', 'is_null',
               'is_present', 'is_true', 'like', 'lt', 'lte', 'nlike', 'noteq', 'notin', 'sw' ];
-              
-            return [ { 
-              fieldName: 'id', name: 'id', width: 0 
-            }, { 
-              fieldName: 'menu_id', name: 'menu_id', width: 0 
-            }, { 
+
+            return [ {
+              fieldName: 'id', name: 'id', width: 0
+            }, {
+              fieldName: 'menu_id', name: 'menu_id', width: 0
+            }, {
               fieldName: 'search_rank', name: 'search_rank', width: 50, type: 'number',
-              header: { 
+              header: {
                 text: Things.DataGlobal.t('label.rank')
               },
-              styles: { 
-                textAlignment: 'center' 
+              styles: {
+                textAlignment: 'center'
               }
-            }, { 
+            }, {
               fieldName: 'name', name: 'name', width: 135, editable: false,
-              header: { 
+              header: {
                 text: Things.DataGlobal.t('label.name')
               }
-            }, { 
+            }, {
               fieldName: 'term', name: 'term', width: 150, editable: false,
               valueType: 'text', type: 'calced',
-              header: { 
+              header: {
                 text: Things.DataGlobal.t('label.term')
               },
               valueCallback: function(column, row) {
                 var term = row.getValue('term');
                 return term ? Things.DataGlobal.t(term) : '';
               }
-            }, { 
+            }, {
               fieldName: 'ref_type', name: 'ref_type', width: 100, editable: false,
-              header: { 
-                text: Things.DataGlobal.t('label.ref_type') 
+              header: {
+                text: Things.DataGlobal.t('label.ref_type')
               }
-            }, { 
+            }, {
               fieldName: 'ref_name', name: 'ref_name', width: 150, editable: false,
               header: {
                 text: Things.DataGlobal.t('label.ref_name')
              }
-            }, { 
+            }, {
               name: 'col_type', fieldName: 'col_type', width: 80, editable: false,
-              header: { 
-                text: Things.DataGlobal.t('label.col_type') 
+              header: {
+                text: Things.DataGlobal.t('label.col_type')
               }
-            }, { 
+            }, {
               fieldName: 'sort_rank', name: 'sort_rank', width: 75, type: 'number',
-              header: { 
+              header: {
                 text: Things.DataGlobal.t('label.sort_rank')
               },
-              styles: { 
-                textAlignment: 'center' 
+              styles: {
+                textAlignment: 'center'
               }
-            }, { 
+            }, {
               fieldName: 'reverse_sort', name: 'reverse_sort', width: 80, editable: false,
-              header: { 
+              header: {
                 text: Things.DataGlobal.t('label.reverse_sort')
               },
               renderer: {
-                type: 'check', 
-                editable: true, 
-                threeStates: false, 
-                trueValues: 'true', 
+                type: 'check',
+                editable: true,
+                threeStates: false,
+                trueValues: 'true',
                 falseValues: 'false'
               }
-            }, { 
+            }, {
               name: 'search_editor', fieldName: 'search_editor', width: 150,
               lookupDisplay: true,
               lookupValues: editors,
               lookupLabels: editors,
-              header: { 
-                text: Things.DataGlobal.t('label.editor') 
+              header: {
+                text: Things.DataGlobal.t('label.editor')
               },
-              editor: { 
-                type: 'list', 
-                domainOnly: true 
+              editor: {
+                type: 'list',
+                domainOnly: true
               }
-            }, { 
+            }, {
               name: 'search_name', fieldName: 'search_name', width: 90,
-              header: { 
-                text: Things.DataGlobal.t('label.search_name') 
+              header: {
+                text: Things.DataGlobal.t('label.search_name')
               }
             }, {
               fieldName: 'search_oper', name: 'search_oper', width: 90,
               lookupDisplay: true,
               lookupValues: opers,
               lookupLabels: opers,
-              header: { 
-                text: Things.DataGlobal.t('label.search_oper') 
+              header: {
+                text: Things.DataGlobal.t('label.search_oper')
               },
-              editor: { 
-                type: 'list', 
-                domainOnly: true 
+              editor: {
+                type: 'list',
+                domainOnly: true
               }
-            }, { 
+            }, {
               fieldName: 'search_init_val', name: 'search_init_val', width: 90,
               header: {
                 text: Things.DataGlobal.t('label.search_init_val')
@@ -250,7 +250,7 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         /**
-         * 버튼 정보 
+         * 버튼 정보
          */
         buttons: {
           type: Array,
@@ -315,7 +315,7 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Search Column 저장 전
        *
-       * @param {Object} event menu-meta 저장 전 이벤트 
+       * @param {Object} event menu-meta 저장 전 이벤트
        */
       _beforeSearchColumnSave: function(event) {
         var grid = event.target;
@@ -338,9 +338,9 @@ Copyright © HatioLab Inc. All rights reserved.
       },
 
       /**
-       * Menu Meta Data 조회 후 
+       * Menu Meta Data 조회 후
        *
-       * @param {Object} event 
+       * @param {Object} event
        */
       _afterColumnsLoaded: function(event) {
         this.menuMeta = event.detail;

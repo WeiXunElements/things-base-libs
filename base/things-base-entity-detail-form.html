@@ -11,7 +11,7 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
 
 <!--
-  엔티티 컬럼 폼 화면 
+  엔티티 컬럼 폼 화면
 -->
 
 <dom-module id="things-base-entity-detail-form">
@@ -29,11 +29,11 @@ Copyright © HatioLab Inc. All rights reserved.
         @apply(--layout-flex);
       }
     </style>
-    
-    <things-resource-grid 
+
+    <things-resource-grid
       id="grid"
       config="[[gridConfig]]"
-      model="[[gridModel]]" 
+      model="[[gridModel]]"
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
@@ -53,7 +53,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       properties: {
         /**
-         * Entity 조회 정보 
+         * Entity 조회 정보
          */
         lastResponse: {
           type: Object,
@@ -77,21 +77,21 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         /**
-         * resourceColumns를 가공한 Grid에 표시할 실제 Entity Columns 데이터 
+         * resourceColumns를 가공한 Grid에 표시할 실제 Entity Columns 데이터
          */
         items: {
           type: Array
         },
 
         /**
-         * Grid Model 
+         * Grid Model
          */
         gridModel: {
           type: Array
         },
 
         /**
-         * Grid Column 
+         * Grid Column
          */
         gridColumns: {
           type: Array
@@ -113,101 +113,101 @@ Copyright © HatioLab Inc. All rights reserved.
           value: function() {
             var validators = document.querySelector('#validators').allValidators();
             var colTypes = ['', 'binary', 'boolean', 'date', 'datetime','decimal','double', 'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'];
-            var editors = ['', 'hidden', 'readonly','view-field', 'checkbox', 'text', 'number', 'password', 'tristate-radio', 'textarea', 'code-combo', 'resource-combo', 'resource-field', 'resource-selector', 'resource-format-selector', 'image-selector', 'date-picker', 'time-picker', 'datetime-picker', 'positive-number', 'negative-number', 'ranged-date-picker'];
+            var editors = ['', 'hidden', 'readonly','view-field', 'checkbox', 'text', 'number', 'password', 'tristate-radio', 'textarea', 'code-combo', 'resource-combo', 'resource-code', 'resource-field', 'resource-selector', 'resource-format-selector', 'image-selector', 'date-picker', 'time-picker', 'datetime-picker', 'time-input', 'positive-number', 'negative-number', 'ranged-date-picker'];
 
-            return [ { 
-                fieldName: 'id', name: 'id', width: 0 
-              }, { 
-                fieldName: 'menu_id', name: 'menu_id', width: 0 
-              }, { 
+            return [ {
+                fieldName: 'id', name: 'id', width: 0
+              }, {
+                fieldName: 'menu_id', name: 'menu_id', width: 0
+              }, {
                 fieldName: 'rank', name: 'rank', width: 50, type: 'number',
-                header: { 
+                header: {
                   text: Things.DataGlobal.t('label.rank')
                 },
-                styles: { 
-                  textAlignment: 'center' 
+                styles: {
+                  textAlignment: 'center'
                 }
-              }, { 
+              }, {
                 fieldName: 'name', name: 'name', width: 135,
-                header: { 
+                header: {
                   text: Things.DataGlobal.t('label.name')
                 }
-              }, { 
+              }, {
                 fieldName: 'term', name: 'term', width: 135, editable: false,
                 valueType: 'text', type: 'calced',
-                header: { 
+                header: {
                   text: Things.DataGlobal.t('label.term')
                 },
                 valueCallback: function(column, row) {
                   var term = row.getValue('term');
                   return term ? Things.DataGlobal.t(term) : '';
                 }
-              }, { 
+              }, {
                 name: 'col_type', fieldName: 'col_type', width: 80, editable: false,
-                header: { 
-                  text: Things.DataGlobal.t('label.col_type') 
+                header: {
+                  text: Things.DataGlobal.t('label.col_type')
                 }
-              }, { 
+              }, {
                 fieldName: 'ref_type', name: 'ref_type', width: 100, editable: false,
-                header: { 
-                  text: Things.DataGlobal.t('label.ref_type') 
+                header: {
+                  text: Things.DataGlobal.t('label.ref_type')
                 }
-              }, { 
+              }, {
                 fieldName: 'ref_name', name: 'ref_name', width: 150, editable: false,
                 header: {
                   text: Things.DataGlobal.t('label.ref_name')
                }
-              }, { 
+              }, {
                 name: 'form_editor', fieldName: 'form_editor', width: 150, lookupDisplay: true,
-                header: { 
-                  text: Things.DataGlobal.t('label.editor') 
+                header: {
+                  text: Things.DataGlobal.t('label.editor')
                 },
-                editor: { 
-                  type: 'list', 
-                  domainOnly: true 
+                editor: {
+                  type: 'list',
+                  domainOnly: true
                 },
                 lookupValues: editors,
                 lookupLabels: editors
-              }, { 
+              }, {
                 fieldName: 'form_format', name: 'form_format', width: 125,
                 header: {
                   text: Things.DataGlobal.t('label.format')
                }
-              }, { 
+              }, {
                 name: 'form_validator', fieldName: 'form_validator', width: 120,
                 lookupDisplay: true,
                 lookupValues: validators,
                 lookupLabels: validators,
-                header: { 
-                  text: Things.DataGlobal.t('label.validator') 
+                header: {
+                  text: Things.DataGlobal.t('label.validator')
                 },
-                editor: { 
-                  type: 'list', 
-                  domainOnly: true 
-                }          
-              }, { 
+                editor: {
+                  type: 'list',
+                  domainOnly: true
+                }
+              }, {
                 fieldName: 'def_val', name: 'def_val', width: 100,
                 header: {
                   text: Things.DataGlobal.t('label.def_val')
                }
-              }, { 
+              }, {
                 fieldName: 'uniq_rank', name: 'uniq_rank', width: 65, type: 'number',
-                header: { 
+                header: {
                   text: Things.DataGlobal.t('label.uniq_rank')
                 },
-                styles: { 
-                  textAlignment: 'center' 
+                styles: {
+                  textAlignment: 'center'
                 }
-              }, { 
+              }, {
                 fieldName: 'ignore_on_save', name: 'ignore_on_save', width: 100, editable: false,
                 header: {
                   text: Things.DataGlobal.t('label.ignore_on_save')
                 },
                 renderer: {
-                  type:'check', 
-                  editable: true, 
-                  threeStates: false, 
-                  trueValues: 'true', 
+                  type:'check',
+                  editable: true,
+                  threeStates: false,
+                  trueValues: 'true',
                   falseValues: 'false'
                 }
               } ];
@@ -215,11 +215,11 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         /**
-         * 버튼 정보 
+         * 버튼 정보
          */
         buttons: {
           type: Array,
-          value: [ {            
+          value: [ {
             id: 'save-btn',
             text: 'save'
           }, {
@@ -242,7 +242,7 @@ Copyright © HatioLab Inc. All rights reserved.
        */
       _myTabSelected: function(e) {
         this.$.grid.resizeGrid();
-      },      
+      },
 
       /**
        * Entity Id로 Entity Column Save URL 생성
@@ -264,7 +264,7 @@ Copyright © HatioLab Inc. All rights reserved.
       },
 
       /**
-       * resourceColumns 변경시 
+       * resourceColumns 변경시
        *
        * @param {Object} lastResponse
        */
@@ -289,7 +289,7 @@ Copyright © HatioLab Inc. All rights reserved.
         list.sort(function(a, b) {
           return (a[sortField] > b[sortField]) ? 1 : ((b[sortField] > a[sortField]) ? -1 : 0);
         });
-      },      
+      },
 
       /**
        * Grid에서 업데이트할 writeData 셋업이 완료된 후 writeData 조작
@@ -319,9 +319,9 @@ Copyright © HatioLab Inc. All rights reserved.
       },
 
       /**
-       * Entity Column 관련 트랜잭션 성공 후 
+       * Entity Column 관련 트랜잭션 성공 후
        *
-       * @param {Object} e 트랜잭션 성공 이벤트 
+       * @param {Object} e 트랜잭션 성공 이벤트
        */
       _responseTransaction: function(e) {
         this.lastResponse = e.detail;
