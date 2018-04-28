@@ -73,14 +73,6 @@
 			last-response="{{subItems}}">
 		</things-ajax>
 
-		<things-ajax
-			id="deploy-ajax"
-			method="POST"
-			resource-url="/apps/client/deploy"
-			with-credentials="[[withCredentials]]"
-			last-response="{{deployResponse}}">
-		</things-ajax>
-
 		<things-search-form
 			id="search-form"
 			title="[[menuInfo.title]]"
@@ -360,18 +352,8 @@
 				subGridButtons: {
 					type: Array,
 					value: function() {
-						return [ {
-							id: 'deploy-client-btn',
-							text: 'deploy-client'
-						} ];
+						return [];
 					}
-				},
-
-				/**
-				 * deploy response
-				 */
-				deployResponse: {
-					type: Object
 				}
 			},
 
@@ -379,13 +361,11 @@
 				'grid.things-grid-configured': '_gridConfigured',
 				'grid.things-grid-row-data-select': 'showApplications',
 				'sub-grid.things-grid-detail-tap': 'showApplicationDetails',
-				'sub-grid.things-grid-cell-data-select': '_appCellSelectionChanged',
-				'deploy-client-btn-tap': 'deployClient'
+				'sub-grid.things-grid-cell-data-select': '_appCellSelectionChanged'
 			},
 
 			observers: [
-				'_gridModelChanged(gridModel)',
-				'_deployResponseChange(deployResponse)'
+				'_gridModelChanged(gridModel)'
 			],
 
 			/**
@@ -593,44 +573,6 @@
 				viewElement.addEventListener('things-resource-form-saved', function(e) {
 					viewElement.closePopupView();
 				}.bind(this));
-			},
-
-			/**
-			 * client 배포 버튼 클릭시 실행
-			 *********
-			 * @param {Object} event
-			 */
-			deployClient: function(event) {
-				if(this.resource) {
-					var text = '[' + this.resource.name + ']에 클라이언트를 배포하시겠습니까?'
-					this.openConfirmMsg({
-						type : 'info',
-						title : '배포',
-						text : text,
-						showCancelButton: true
-					}, function() {
-						var deployAjax = this.$['deploy-ajax'];
-						deployAjax.resourceUrl = this.resource.managementUrl + '/apps/client/deploy';
-						deployAjax.generateRequest();
-					}.bind(this));
-
-				} else {
-					this.openConfirmMsg({
-						type : 'info',
-						title : '서버 선택',
-						text : '서버를 먼저 선택하세요.',
-						showCancelButton: false
-					});
-				}
-			},
-
-			/**
-			 * client 배포 응답 이 후
-			 *********
-			 * @param {Object} deployResponse
-			 */
-			_deployResponseChange: function(deployResponse) {
-				console.log(deployResponse);
 			},
 
 			/**
