@@ -66,6 +66,11 @@ Copyright © HatioLab Inc. All rights reserved.
             last-response="{{metaData}}">
         </things-ajax>
 
+        <things-entity-meta
+            id="code-detail-meta"
+            resource-name="CodeDetail">
+        </things-entity-meta>
+
         <things-search-form
             id="search-form"
             title="[[menuInfo.title]]"
@@ -236,33 +241,12 @@ Copyright © HatioLab Inc. All rights reserved.
             /**
              * Code Detail Grid Model
              */
-            detailModel: {
-                type: Array,
-                value: [ {
-                    fieldName: 'id'
-                }, {
-                    fieldName: 'parent_id'
-                }, {
-                    fieldName: 'rank',
-                    dataType: 'number',
-                    rank: true,
-                    increment: 10
-                }, {
-                    fieldName: 'name'
-                }, {
-                    fieldName: 'description'
-                } ]
-            },
+            detailModel: Array,
 
             /**
              * common code detail grid columns
              */
-            detailColumns: {
-                type: Array,
-                value: function() {
-                    return [];
-                }
-            },
+            detailColumns: Array,
 
             /**
              * sub-grid 버튼 정보
@@ -286,43 +270,7 @@ Copyright © HatioLab Inc. All rights reserved.
          * Column 번역을 위하여 Attached로 바꿈
          */
         attached: function() {
-            this.detailColumns = [ {
-                name: 'id',
-                fieldName: 'id',
-                width: 0
-            }, {
-                name: 'rank',
-                fieldName: 'rank',
-                width: 60,
-                nullable: false,
-                header: {
-                    text: Things.DataGlobal.t('label.rank')
-                },
-                styles: {
-                    textAlignment: 'center'
-                }
-            }, {
-                name: 'name',
-                fieldName: 'name',
-                width: 150,
-                nullable: false,
-                header: {
-                    text: Things.DataGlobal.t('label.name')
-                },
-                editor: {
-                    maxLength: 64
-                }
-            }, {
-                name: 'description',
-                fieldName: 'description',
-                width: 450,
-                header: {
-                    text: Things.DataGlobal.t('label.description')
-                },
-                editor: {
-                    maxLength: 255
-                }
-            } ];
+            this.$['code-detail-meta'].loadMeta();
         },
 
         listeners: {
@@ -331,7 +279,8 @@ Copyright © HatioLab Inc. All rights reserved.
             'grid.things-grid-configured': '_reloadMainMenus',
             'sub-grid.things-grid-detail-tap': '_showMenuDetail',
             'sub-grid.things-grid-save-success': '_reloadSubMenus',
-            'sub-grid.things-grid-handle-save': '_beforeSubMenuSave'
+            'sub-grid.things-grid-handle-save': '_beforeSubMenuSave',
+            'code-detail-meta.things-entity-meta-configured': '_onCodeDetailEntityMetaConfigured'
         },
 
         /**
@@ -434,6 +383,20 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         _subCodeChanged: function(response) {
             this.subCodeItems = response.items ? response.items : [];
+        },
+
+        /**
+         * Get code detail meta data from CodeDetail entity
+         *
+         * @param {Object} e
+         */
+        _onCodeDetailEntityMetaConfigured: function(e) {
+            var codeDetailMeta = e.target;
+
+            if (codeDetailMeta) {
+                this.detailModel = codeDetailMeta.gridModel;
+                this.detailColumns = codeDetailMeta.gridColumns;
+            }
         }
     });
     </script>
