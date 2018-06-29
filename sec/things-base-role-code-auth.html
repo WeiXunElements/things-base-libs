@@ -1,0 +1,251 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../iron-icon/iron-icon.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html">
+<link rel="import" href="../../things-grid/things-resource-grid.html">
+
+<!--
+  역할 - 사용자 Assign 탭
+-->
+
+<dom-module id="things-base-role-code-auth">
+    <template>
+    <style>
+      :host{
+        display:block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
+      things-resource-grid {
+        @apply(--layout-flex);
+      }
+    </style>
+    <things-ajax
+      auto
+      id="resource-search"
+      method="GET"
+      resource-url="[[gridSearchUrl]]"
+      last-response="{{codes}}"
+      auto>
+    </things-ajax>
+
+    <things-resource-grid
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data$="[[items]]"
+      grid-save-action="[[gridSaveUrl]]"
+      fixed-column-count="2"
+      buttons="[[buttons]]">
+    </things-resource-grid>
+  </template>
+
+    <script>
+        Polymer({
+
+            is: 'things-base-role-code-auth',
+
+            behaviors: [
+                Things.ViewOpenBehavior
+            ],
+
+            properties: {
+                /**
+                 * Role Id
+                 */
+                roleId: {
+                    type: String
+                },
+
+                /**
+                 * User resource
+                 */
+                resource: {
+                    type: Object,
+                    observer: '_onResourceChanged'
+                },
+                items: Array,
+                /**
+                 * role detail user columns 조회 정보
+                 */
+                codes: {
+                    type: Array,
+                    observer: '_rolesCodesChanged'
+                },
+
+                /**
+                 * Grid model
+                 */
+                gridModel: {
+                    type: Array,
+                    value: [{
+                        fieldName: 'id'
+                    }, {
+                        fieldName: 'code_id'
+                    }, {
+                        fieldName: 'common_code',
+                        dataType: 'object'
+                    }, {
+                        fieldName: 'auth',
+                        dataType: 'boolean'
+                    }]
+                },
+
+                /**
+                 * Grid columns
+                 */
+                gridColumns: {
+                    type: Array,
+                    value: []
+                },
+
+                /**
+                 * Role detail User searching URL
+                 */
+                gridSearchUrl: {
+                    type: String,
+                    computed: '_computeCodeSearchUrl(roleId)',
+                },
+
+                /**
+                 * Role detail User Save URL
+                 */
+                gridSaveUrl: {
+                    type: String,
+                    computed: '_computeCodeSaveUrl(roleId)'
+                },
+
+                /**
+                 * 버튼 정보
+                 */
+                buttons: {
+                    type: Array,
+                    value: [{
+                        id: 'save-btn',
+                        text: 'save',
+                        icon: 'icons:save'
+                    }]
+                }
+            },
+
+            listeners: {
+                'grid.things-grid-save-success': 'reloadGrid'
+                // 'grid.things-grid-handle-save': '_beforeColumnsSave'
+            },
+
+            /**
+             * Life Cycle - Attached
+             */
+            attached: function() {
+                this.gridColumns = [{
+                    fieldName: 'id',
+                    width: 0
+                }, {
+                    fieldName: 'code_id',
+                    width: 0
+                }, {
+                    fieldName: 'common_code',
+                    name: 'common_code',
+                    width: 600,
+                    editable: false,
+                    header: {
+                        text: Things.DataGlobal.t('label.code')
+                    },
+                    styles: {
+                        iconIndex: 'resource-column'
+                    },
+                    userData: {
+                        resourceType: 'Entity',
+                        resourceName: 'Code',
+                        ownerField: 'common_code'
+                    },
+                    displayCallback: function(index, value) {
+                        var rowObj = index.getRow().getRowObject();
+                        var userObj = rowObj.common_code;
+                        return userObj ? userObj.name+'('+userObj.description+')' : '';
+                    }
+                }, {
+                    fieldName: 'auth',
+                    width: 80,
+                    header: {
+                        text: Things.DataGlobal.t('label.auth')
+                    },
+                    editable: false,
+                    renderer: {
+                      type: 'check', 
+                      editable: true, 
+                      editOnClick: true, 
+                      threeStates: false, 
+                      trueValues: 'true', 
+                      falseValues: 'false'
+                    }
+                }];
+            },
+
+            /**
+             * Resource 변경시
+             *
+             * @param {Object} resource
+             */
+            _onResourceChanged: function(resource) {
+                this.roleId = resource.id;
+            },
+
+            /**
+             * Role code detail 정보가 변경 되었을 시 Role Id와 Role Name을 초기화
+             *
+             * @param {Object} items
+             */
+            _rolesCodesChanged: function(items) {
+              if (items && items.length > 0) {
+                  this.items = items.map(function(item) {
+                      item.common_code = {
+                          id: item.id,
+                          name: item.name,
+                          description: item.description
+                      };
+                      item.code_id = item.id;
+                      item.auth = item.action_name?true:false;
+
+                      return item;
+                  });
+              } else {
+                  this.items = [];
+              }
+            },
+            /**
+             * Role code Search URL
+             *
+             * @param {Object} roleId
+             */
+            _computeCodeSearchUrl: function(roleId) {
+                return 'roles/' + roleId + '/permitted_codes/';
+            },
+
+            /**
+             * Role Id로 Role code Column Save URL 생성
+             *
+             * @param {Object} roleId
+             */
+            _computeCodeSaveUrl: function(roleId) {
+                return 'roles/' + roleId + '/update_code_permissions';
+            },
+
+            /**
+             * Reload grid data
+             *
+             * @param {Object} e
+             */
+            reloadGrid: function(e) {
+                this.$['resource-search'].generateRequest();
+            },
+
+        });
+    </script>
+</dom-module>
