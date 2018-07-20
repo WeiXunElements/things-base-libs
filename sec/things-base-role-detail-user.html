@@ -10,11 +10,11 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../things-grid/things-resource-grid.html">
 
 <!--
-  역할 - 사용자 Assign 탭 
+  역할 - 사용자 Assign 탭
 -->
 
 <dom-module id="things-base-role-detail-user">
-  <template>
+    <template>
     <style>
       :host{
         display:block;
@@ -30,7 +30,7 @@ Copyright © HatioLab Inc. All rights reserved.
     </style>
 
     <div class="[[layout]]" id="layout-flex">
-      <things-ajax 
+      <things-ajax
         auto
         id="resource-search"
         method="GET"
@@ -39,10 +39,10 @@ Copyright © HatioLab Inc. All rights reserved.
         auto>
       </things-ajax>
 
-      <things-resource-grid 
+      <things-resource-grid
         id="grid"
         config="[[gridConfig]]"
-        model="[[gridModel]]" 
+        model="[[gridModel]]"
         columns="[[gridColumns]]"
         data="[[items]]"
         grid-save-action="[[gridSaveUrl]]"
@@ -52,284 +52,312 @@ Copyright © HatioLab Inc. All rights reserved.
     </div>
   </template>
 
-  <script>
-    Polymer({
+    <script>
+        Polymer({
 
-      is: 'things-base-role-detail-user',
+            is: 'things-base-role-detail-user',
 
-      behaviors: [ 
-        Things.ResourceSelectorBehavior,
-        Things.ViewOpenBehavior
-      ],
+            behaviors: [
+                Things.ResourceSelectorBehavior,
+                Things.ViewOpenBehavior
+            ],
 
-      properties: {
-        /**
-         * Role Id
-         */
-        roleId: {
-          type: String
-        },
+            properties: {
+                /**
+                 * Role Id
+                 */
+                roleId: {
+                    type: String
+                },
 
-        /**
-         * User resource
-         */
-        resource: {
-          type: Object,
-          observer: '_onResourceChanged'
-        },
+                /**
+                 * User resource
+                 */
+                resource: {
+                    type: Object,
+                    observer: '_onResourceChanged'
+                },
 
-        /**
-         * role detail user columns 조회 정보 
-         */
-        lastResponse: {
-          type: Array,
-          observer: '_rolesUsersChanged'
-        },        
+                /**
+                 * role detail user columns 조회 정보
+                 */
+                lastResponse: {
+                    type: Array,
+                    observer: '_rolesUsersChanged'
+                },
 
-        /**
-         * Grid model
-         */
-        gridModel: {
-          type: Array,
-          value: [ {
-            fieldName: 'id'
-          }, {
-            fieldName: 'user',
-            dataType: 'object'
-          }, {
-            fieldName: 'login'
-          }, {
-            fieldName: 'email'
-          }, {
-            fieldName: 'name'
-          } ]
-        },
+                /**
+                 * Grid model
+                 */
+                gridModel: {
+                    type: Array,
+                    value: [{
+                        fieldName: 'id'
+                    }, {
+                        fieldName: 'user',
+                        dataType: 'object'
+                    }, {
+                        fieldName: 'login'
+                    }, {
+                        fieldName: 'name'
+                    }, {
+                        fieldName: 'dept'
+                    }, {
+                        fieldName: 'division'
+                    }]
+                },
 
-        /**
-         * Grid columns
-         */
-        gridColumns: {
-          type: Array,
-          value: []
-        },
+                /**
+                 * Grid columns
+                 */
+                gridColumns: {
+                    type: Array,
+                    value: []
+                },
 
-        /**
-         * Role detail User searching URL
-         */
-        gridSearchUrl: {
-          type: String,
-          computed: '_computeUserSearchUrl(roleId)',
-        },
+                /**
+                 * Role detail User searching URL
+                 */
+                gridSearchUrl: {
+                    type: String,
+                    computed: '_computeUserSearchUrl(roleId)',
+                },
 
-        /**
-         * Role detail User Save URL
-         */
-        gridSaveUrl: {
-          type: String,
-          computed: '_computeUserColumnSaveUrl(roleId)'
-        },
+                /**
+                 * Role detail User Save URL
+                 */
+                gridSaveUrl: {
+                    type: String,
+                    computed: '_computeUserColumnSaveUrl(roleId)'
+                },
 
-        /**
-         * 버튼 정보 
-         */
-        buttons: {
-          type: Array,
-          value: [ {
-            id: 'add-btn',
-            text: 'add',
-            icon: 'icons:add'
-          }, {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete',
-            icon: 'icons:delete'
-          } ]
-        }
-      },
+                /**
+                 * 버튼 정보
+                 */
+                buttons: {
+                    type: Array,
+                    value: [{
+                        id: 'add-btn',
+                        text: 'add',
+                        icon: 'icons:add'
+                    }, {
+                        id: 'save-btn',
+                        text: 'save',
+                        icon: 'icons:save'
+                    }, {
+                        id: 'delete-btn',
+                        text: 'delete',
+                        icon: 'icons:delete'
+                    }]
+                }
+            },
 
-      listeners: {
-        'things-resource-selector-selected' : '_onResourceSelectorSelected',
-        'grid.things-grid-save-success' : 'reloadGrid',
-        'grid.things-grid-resource-column-edit' : '_openResourceSelector',
-        'grid.things-grid-handle-addrow' : '_addRow',
-        'grid.things-grid-handle-save' : '_beforeColumnsSave'
-      },
+            listeners: {
+                'things-resource-selector-selected': '_onResourceSelectorSelected',
+                'grid.things-grid-save-success': 'reloadGrid',
+                'grid.things-grid-resource-column-edit': '_openResourceSelector',
+                'grid.things-grid-handle-addrow': '_addRow',
+                'grid.things-grid-handle-save': '_beforeColumnsSave'
+            },
 
-      /**
-       * Life Cycle - Attached
-       */
-      attached: function() {
-        this.gridColumns = [ {
-          fieldName: 'id',
-          width: 0
-        }, {
-          fieldName: 'user',
-          name: 'user',
-          width: 200,
-          editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.user') 
-          },
-          styles: { 
-            iconIndex : 'resource-selector' 
-          },
-          userData: {
-            resourceType: 'Entity',
-            resourceName: 'User',
-            ownerField: 'user'
-          },
-          displayCallback : function(index, value) {
-            var rowObj = index.getRow().getRowObject();
-            var userObj = rowObj.user;
-            return userObj ? userObj.name : '';
-          }
-        }, {
-          fieldName: 'login',
-          width: 300,
-          header: {
-            text: Things.DataGlobal.t('label.login')
-          }
-        }, {
-          fieldName: 'email',
-          width: 300,
-          header: {
-            text: Things.DataGlobal.t('label.email')
-          }
-        }, {
-          fieldName: 'name',
-          width: 0
-        } ];
-      },
+            /**
+             * Life Cycle - Attached
+             */
+            attached: function() {
+                this.gridColumns = [{
+                    fieldName: 'id',
+                    width: 0
+                }, {
+                    fieldName: 'user',
+                    name: 'user',
+                    width: 200,
+                    editable: false,
+                    header: {
+                        text: Things.DataGlobal.t('label.user')
+                    },
+                    styles: {
+                        iconIndex: 'resource-selector'
+                    },
+                    userData: {
+                        resourceType: 'Entity',
+                        resourceName: 'User',
+                        ownerField: 'user'
+                    },
+                    displayCallback: function(index, value) {
+                        var rowObj = index.getRow().getRowObject();
+                        var userObj = rowObj.user;
+                        return userObj ? userObj.name : '';
+                    }
+                }, {
+                    fieldName: 'login',
+                    width: 200,
+                    header: {
+                        text: Things.DataGlobal.t('label.login')
+                    }
+                }, {
+                    fieldName: 'name',
+                    width: 200,
+                    header: {
+                        text: Things.DataGlobal.t('label.name')
+                    }
+                }, {
+                    fieldName: 'dept',
+                    width: 200,
+                    header: {
+                        text: Things.DataGlobal.t('label.dept')
+                    }
+                }, {
+                    fieldName: 'division',
+                    width: 200,
+                    header: {
+                        text: Things.DataGlobal.t('label.division')
+                    }
+                }];
+            },
 
-      /**
-       * Resource 변경시
-       *
-       * @param {Object} resource
-       */
-      _onResourceChanged: function(resource) {
-        this.roleId = resource.id;
-      },      
+            /**
+             * Resource 변경시
+             *
+             * @param {Object} resource
+             */
+            _onResourceChanged: function(resource) {
+                this.roleId = resource.id;
+            },
 
-      /**
-       * Resource Selector의 선택된 detail 정보
-       *
-       * @param {Object} event
-       */
-      _onResourceSelectorSelected: function(event) {
-        var resource = event.detail.resource;
-        var rowObj = event.detail.rowObj;
-        rowObj.login = resource.login;
-        rowObj.email = resource.email;
-        rowObj.id = resource.id;
-        rowObj.name = resource.name;
-      },
+            /**
+             * Resource Selector의 선택된 detail 정보
+             *
+             * @param {Object} event
+             */
+            _onResourceSelectorSelected: function(event) {
+                var resource = event.detail.resource;
+                var rowObj = event.detail.rowObj;
+                rowObj.id = resource.id;
+                rowObj.login = resource.login;
+                rowObj.name = resource.name;
+                rowObj.dept = resource.dept;
+                rowObj.division = resource.division;
+            },
 
-      /**
-       * Open Resource Selector Dialog
-       *
-       * @param {Object} event
-       */
-      _openResourceSelector: function(event) {
-        event.preventDefault();
-        var index = event.detail.index;
-        var grid = index._grid;
-        var rowObj = grid.focusedRow().getRowObject();
-        if(!rowObj.id) {
-          this.openResourceSelectorByGrid(index._grid, index.rowIndex, event.detail.userData, true);  
-        }
-      },      
+            /**
+             * Open Resource Selector Dialog
+             *
+             * @param {Object} event
+             */
+            _openResourceSelector: function(event) {
+                event.preventDefault();
+                var index = event.detail.index;
+                var grid = index._grid;
+                var rowObj = grid.focusedRow().getRowObject();
+                if (!rowObj.id) {
+                    this.openResourceSelectorByGrid(index._grid, index.rowIndex, event.detail.userData, true);
+                }
+            },
 
-      /**
-       * Role users detail 정보가 변경 되었을 시 Role Id와 Role Name을 초기화 
-       *
-       * @param {Object} lastResponse
-       */
-      _rolesUsersChanged: function(lastResponse) {
-        if(lastResponse && lastResponse.length > 0) {
-          this.items = lastResponse.map(function(item) {
-            item.user = { id : item.id, name : item.name };
-            return item;
-          });
-        } else {
-          this.items = [];
-        }
-      },
+            /**
+             * Role users detail 정보가 변경 되었을 시 Role Id와 Role Name을 초기화
+             *
+             * @param {Object} lastResponse
+             */
+            _rolesUsersChanged: function(lastResponse) {
+                if (lastResponse && lastResponse.length > 0) {
+                    this.items = lastResponse.map(function(item) {
+                        item.user = {
+                            id: item.id,
+                            name: item.name
+                        };
+                        return item;
+                    });
+                } else {
+                    this.items = [];
+                }
+            },
 
-      /**
-       * Add grid row
-       *
-       * @param {Object} e
-       */
-      _addRow: function(e) {
-        e.preventDefault();
-        this.$.grid.dataSet.insertRow(0, {id: null, name : '', login : '', email : this.resourceType, user : { id: null, name : '' }});
-      },
+            /**
+             * Add grid row
+             *
+             * @param {Object} e
+             */
+            _addRow: function(e) {
+                e.preventDefault();
+                this.$.grid.dataSet.insertRow(0, {
+                    id: null,
+                    name: '',
+                    login: '',
+                    dept: '',
+                    division: '',
+                    user: {
+                        id: null,
+                        name: ''
+                    }
+                });
+            },
 
-      /**
-       * Role User Search URL
-       *
-       * @param {Object} roleId
-       */
-      _computeUserSearchUrl: function(roleId) {
-        return 'roles/' + roleId + '/role_users.json';
-      },
+            /**
+             * Role User Search URL
+             *
+             * @param {Object} roleId
+             */
+            _computeUserSearchUrl: function(roleId) {
+                return 'roles/' + roleId + '/role_users.json';
+            },
 
-      /**
-       * Role Id로 Role User Column Save URL 생성
-       *
-       * @param {Object} roleId
-       */
-      _computeUserColumnSaveUrl: function(roleId) {
-        return 'roles/' + roleId + '/update_users.json';
-      },
+            /**
+             * Role Id로 Role User Column Save URL 생성
+             *
+             * @param {Object} roleId
+             */
+            _computeUserColumnSaveUrl: function(roleId) {
+                return 'roles/' + roleId + '/update_users.json';
+            },
 
-      /**
-       * Role User Column 저장 전에...
-       *
-       * @param {Object} event
-       */
-      _beforeColumnsSave: function(event) {
-        var grid = event.target;
-        var changedList = grid.writeData;
+            /**
+             * Role User Column 저장 전에...
+             *
+             * @param {Object} event
+             */
+            _beforeColumnsSave: function(event) {
+                var grid = event.target;
+                var changedList = grid.writeData;
 
-        if(changedList && changedList.length > 0) {
-          grid.writeData = changedList.map(function(changedData) {
-            return { id : changedData.user.id, cud_flag_ : changedData.cud_flag_ };
-          });
-        }
-      },
+                if (changedList && changedList.length > 0) {
+                    grid.writeData = changedList.map(function(changedData) {
+                        return {
+                            id: changedData.user.id,
+                            cud_flag_: changedData.cud_flag_
+                        };
+                    });
+                }
+            },
 
-      /**
-       * Reload grid data
-       *
-       * @param {Object} e
-       */
-      reloadGrid: function(e) {
-        this.$['resource-search'].generateRequest();
-      },
+            /**
+             * Reload grid data
+             *
+             * @param {Object} e
+             */
+            reloadGrid: function(e) {
+                this.$['resource-search'].generateRequest();
+            },
 
-      /***************************************************************************************
-       *                            Start detail item view interface
-       ***************************************************************************************/
+            /***************************************************************************************
+             *                            Start detail item view interface
+             ***************************************************************************************/
 
-      /**
-       * detail item view를 구성하기 위한 필수 함수 - item view를 구성한다.
-       *
-       * @return {Object} resource 리소스 데이터 (Object) 혹은 리소스 아이디 (Number)
-       */
-      loadDetailData: function(resource) {
-        if(resource) {
-          this.resource = resource;
-          this.roleId = resource.id;
-        }
-      }
+            /**
+             * detail item view를 구성하기 위한 필수 함수 - item view를 구성한다.
+             *
+             * @return {Object} resource 리소스 데이터 (Object) 혹은 리소스 아이디 (Number)
+             */
+            loadDetailData: function(resource) {
+                if (resource) {
+                    this.resource = resource;
+                    this.roleId = resource.id;
+                }
+            }
 
-      /***************************************************************************************
-       *                            End detail item view interface
-       ***************************************************************************************/       
-    });
-  </script>
+            /***************************************************************************************
+             *                            End detail item view interface
+             ***************************************************************************************/
+        });
+    </script>
 </dom-module>
