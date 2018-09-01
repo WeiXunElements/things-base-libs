@@ -30,9 +30,22 @@ Copyright © HatioLab Inc. All rights reserved.
       id="resource-search"
       method="GET"
       resource-url="[[gridSearchUrl]]"
-      last-response="{{codes}}"
-      auto>
+      last-response="{{codes}}">
     </things-ajax>
+
+    <things-entity-meta
+        id="code-meta"
+        resource-name="Code"
+        on-things-entity-meta-configured="entityMetaConfigured">
+    </things-entity-meta>
+
+    <things-search-form
+        id="search-form"
+        form-fields="[[searchFormFields]]"
+        action-url="[[gridSearchUrl]]"
+        last-response="{{lastResponse}}"
+        on-things-form-search="formSearch">
+    </things-search-form>
 
     <things-resource-grid
       id="grid"
@@ -131,7 +144,11 @@ Copyright © HatioLab Inc. All rights reserved.
                         text: 'save',
                         icon: 'icons:save'
                     }]
-                }
+                },
+
+                searchFormFields: String,
+                selectFields: String,
+                sortFields: String
             },
 
             listeners: {
@@ -143,6 +160,8 @@ Copyright © HatioLab Inc. All rights reserved.
              * Life Cycle - Attached
              */
             attached: function() {
+                this.$['code-meta'].loadMeta();
+
                 this.gridColumns = [{
                     fieldName: 'id',
                     width: 0
@@ -178,11 +197,11 @@ Copyright © HatioLab Inc. All rights reserved.
                     },
                     editable: false,
                     renderer: {
-                      type: 'check', 
-                      editable: true, 
-                      editOnClick: true, 
-                      threeStates: false, 
-                      trueValues: 'true', 
+                      type: 'check',
+                      editable: true,
+                      editOnClick: true,
+                      threeStates: false,
+                      trueValues: 'true',
                       falseValues: 'false'
                     }
                 }];
@@ -246,6 +265,22 @@ Copyright © HatioLab Inc. All rights reserved.
                 this.$['resource-search'].generateRequest();
             },
 
+            entityMetaConfigured: function(e) {
+                this.searchFormFields = this.$['code-meta'].searchFormFields;
+            },
+
+            formSearch: function(e) {
+                e.preventDefault();
+
+                var searchFormObj = this.$['search-form'].serializeMyForm();
+
+                var resourceSearchAjax = this.$['resource-search'];
+                resourceSearchAjax.params = {
+                    bundle: searchFormObj.bundle || '',
+                    name: searchFormObj.name || ''
+                };
+                resourceSearchAjax.generateRequest();
+            }
         });
     </script>
 </dom-module>

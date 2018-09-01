@@ -34,6 +34,9 @@ Copyright © HatioLab Inc. All rights reserved.
       .things-resource-grid-sub {
         @apply(--layout-flex-2);
       }
+      #grid {
+          padding-bottom: 5px;
+      }
     </style>
 
     <!-- flex를 위해 id에  layout-flex 추가  -->
@@ -44,9 +47,9 @@ Copyright © HatioLab Inc. All rights reserved.
         method="GET"
         resource-url="menus"
         resource-action="index"
-        select-fields="id,rank,name,description,menu_type,category",
-        query-fields="[[mainMenuQueryFields]]",
-        sort-fields="[[manuSortFields]]",
+        select-fields="id,rank,name,description,menu_type,category"
+        query-fields="[[mainMenuQueryFields]]"
+        sort-fields="[[manuSortFields]]"
         last-response="{{mainList}}">
       </things-ajax>
 
@@ -61,7 +64,9 @@ Copyright © HatioLab Inc. All rights reserved.
         data="[[mainList.items]]"
         total-count="[[mainList.total]]"
         fixed-column-count="0"
-        enable-detail-column>
+        enable-detail-column
+        buttons=""
+        !enable-toolbar>
       </things-resource-grid>
 
       <things-ajax 
