@@ -54,7 +54,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			.things-resource-grid-main {
 				@apply(--layout-flex);
-				min-height: 250px;
+				min-height: 200px;
 			}
 
 			.things-resource-grid-sub {
@@ -581,7 +581,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				e.preventDefault();
 				var baseUrl = this.get('globals.baseUrl');
 				var parentId = this.selectedRow ? this.selectedRow.id : 'all';
-				
+
 				this.openConfirmMsg({
 					type : 'info',
 					title : Things.DataGlobal.t('text.Want to download file'),
