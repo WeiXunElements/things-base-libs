@@ -192,7 +192,7 @@ Copyright © HatioLab Inc. All rights reserved.
        * token-input-field의 value를 클립보드에 copy
        */
       _copyToken: function(event) {
-        var tokenInput = this.$['token-input-field'];
+        var tokenInput = this.$['token-input-field'].querySelector('input');
         tokenInput.select();
         document.execCommand('Copy');
       }
