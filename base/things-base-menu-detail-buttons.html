@@ -15,220 +15,254 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <dom-module id="things-base-menu-detail-buttons">
-  <template>
-    <style>
-      :host {
-        display:block;
-        @apply(--layout-vertical);
-      }
-      things-resource-grid {
-        @apply(--layout-flex);
-      }
-    </style>
+    <template>
+        <style>
+            :host {
+                display: block;
+                @apply(--layout-vertical);
+            }
 
-    <things-ajax
-      id="button-ajax"
-      method="GET"
-      resource-id="[[resourceId]]"
-      resource-url="menu_details/:id/menu_detail_buttons"
-      last-response="{{menuDetailButtons}}">
-    </things-ajax>
+            things-resource-grid {
+                @apply(--layout-flex);
+            }
+        </style>
 
-    <things-resource-grid 
-      id="grid"
-      config="[[gridConfig]]"
-      model="[[gridModel]]" 
-      columns="[[gridColumns]]"
-      data="[[menuDetailButtons]]"
-      fixed-column-count="0"
-      grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
-    </things-resource-grid>
-  </template>
+        <things-ajax 
+            id="button-ajax" 
+            method="GET" 
+            resource-id="[[resourceId]]"
+            resource-url="menu_details/:id/menu_detail_buttons" 
+            last-response="{{menuDetailButtons}}">
+        </things-ajax>
 
-  <script>
-    Polymer({
+        <things-resource-grid 
+            id="grid" 
+            config="[[gridConfig]]" 
+            model="[[gridModel]]" 
+            columns="[[gridColumns]]"
+            data="[[menuDetailButtons]]" 
+            fixed-column-count="0" 
+            grid-save-action="[[gridSaveUrl]]"
+            buttons="[[buttons]]">
+        </things-resource-grid>
+    </template>
 
-      is: 'things-base-menu-detail-buttons',
+    <script>
+        Polymer({
 
-      properties: {
-        /**
-         * Menu Detail ID
-         */
-        resourceId: {
-          type: String,
-          observer: '_menuDetailChanged'
-        },
+            is: 'things-base-menu-detail-buttons',
 
-        /**
-         * Menu Buttons Save URL
-         */
-        gridSaveUrl: {
-          type: String,
-          computed: '_computeButtonSaveUrl(resourceId)'
-        },        
+            properties: {
+                /**
+                 * Menu Detail ID
+                 */
+                resourceId: {
+                    type: String,
+                    observer: '_menuDetailChanged'
+                },
 
-        /**
-         * Menu Detail Data
-         */
-        resource: {
-          type: Object
-        },
+                /**
+                 * Menu Buttons Save URL
+                 */
+                gridSaveUrl: {
+                    type: String,
+                    computed: '_computeButtonSaveUrl(resourceId)'
+                },
 
-        /**
-         * Menu Detail Buttons
-         */
-        menuDetailButtons: {
-          type: Object,
-          notify: true
-        },      
+                /**
+                 * Menu Detail Data
+                 */
+                resource: {
+                    type: Object
+                },
 
-        /**
-         * grid model
-         */
-        gridModel: {
-          type: Array,
-          value: [ { 
-            fieldName: 'id' 
-          }, { 
-            fieldName: 'menu_detail_id' 
-          }, { 
-            fieldName: 'name' 
-          }, { 
-            fieldName: 'term' 
-          }, { 
-            fieldName: 'icon' 
-          }, { 
-            fieldName: 'style' 
-          } ]
-        },
-        
-        /**
-         * grid columns
-         */
-        gridColumns: {
-          type: Array,
-          value: function() {
-            return [ { 
-              fieldName: 'id', name: 'id', width: 0 
-            }, { 
-              fieldName: 'menu_detail_id', name: 'menu_detail_id', width: 0 
-            }, { 
-              fieldName: 'name', name: 'name', width: 135, nullable: false,
-              header: { 
-                text: Things.DataGlobal.t('label.name')
-              },
-              editor: { 
-                maxLength : 32 
-              }
-            }, { 
-              fieldName: 'term', name: 'term', width: 135,
-              header: { 
-                text: Things.DataGlobal.t('label.term')
-              },
-              valueType: 'text', type: 'calced',
-              valueCallback: function(column, row) {
-                var text = row.getValue('name');
-                return text ? Things.DataGlobal.t('button.' + text) : '';
-              }
-            }, { 
-              fieldName: 'icon', name: 'icon', width: 135,
-              header: { 
-                text: Things.DataGlobal.t('label.icon')
-              },
-              editor: { 
-                maxLength : 32
-              }
-            }, { 
-              fieldName: 'style', name: 'style', width: 135,
-              header: { 
-                text: Things.DataGlobal.t('label.style')
-              },
-              editor: { 
-                maxLength : 64
-              }
-            } ];
-          }
-        },
+                /**
+                 * Menu Detail Buttons
+                 */
+                menuDetailButtons: {
+                    type: Object,
+                    notify: true
+                },
 
-        /**
-         * 버튼 정보 
-         */
-        buttons: {
-          type: Array,
-          value: [ {
-            id: 'add-btn',
-            text: 'add'
-          }, {
-            id: 'save-btn',
-            text: 'save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete'
-          } ]
-        }
-      },
+                /**
+                 * grid model
+                 */
+                gridModel: {
+                    type: Array,
+                    value: [{
+                        fieldName: 'id'
+                    }, {
+                        fieldName: 'menu_detail_id'
+                    }, {
+                        fieldName: 'rank',
+                        rank: true,
+                        increment: 10
+                    }, {
+                        fieldName: 'text'
+                    }, {
+                        fieldName: 'term'
+                    }, {
+                        fieldName: 'icon'
+                    }, {
+                        fieldName: 'style'
+                    }]
+                },
 
-      listeners: {
-        'things-detail-view-selected' : '_detailTabSelected',
-        'grid.things-grid-handle-save' : '_beforeButtonSave',
-        'grid.things-grid-save-success' : '_onButtonsSaveSuccess',
-      },
+                /**
+                 * grid columns
+                 */
+                gridColumns: {
+                    type: Array,
+                    value: function () {
+                        return [{
+                            fieldName: 'id',
+                            name: 'id',
+                            width: 0
+                        }, {
+                            fieldName: 'menu_detail_id',
+                            name: 'menu_detail_id',
+                            width: 0
+                        }, {
+                            name: 'rank',
+							fieldName: 'rank',
+							width: 65,
+							nullable: false,
+							header: {
+								text: Things.DataGlobal.t('label.rank')
+							},
+							styles: {
+								textAlignment: 'center',
+								numberFormat: '#,##0'
+							},
+							editor : {
+								type: 'number'
+							}
+                        }, {
+                            fieldName: 'text',
+                            name: 'text',
+                            width: 135,
+                            nullable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.name')
+                            },
+                            editor: {
+                                maxLength: 32
+                            }
+                        }, {
+                            fieldName: 'term',
+                            name: 'term',
+                            width: 135,
+                            header: {
+                                text: Things.DataGlobal.t('label.term')
+                            },
+                            valueType: 'text',
+                            type: 'calced',
+                            valueCallback: function (column, row) {
+                                var text = row.getValue('text');
+                                return text ? Things.DataGlobal.t('button.' + text) : '';
+                            }
+                        }, {
+                            fieldName: 'icon',
+                            name: 'icon',
+                            width: 135,
+                            header: {
+                                text: Things.DataGlobal.t('label.icon')
+                            },
+                            editor: {
+                                maxLength: 32
+                            }
+                        }, {
+                            fieldName: 'style',
+                            name: 'style',
+                            width: 135,
+                            header: {
+                                text: Things.DataGlobal.t('label.style')
+                            },
+                            editor: {
+                                maxLength: 64
+                            }
+                        }];
+                    }
+                },
 
-      /**
-       * 상세 탭 선택시 ...
-       *
-       * @param {Object} e 탭 선택 이벤트 
-       */
-      _detailTabSelected: function(e) {
-        this.$.grid.resizeGrid();
-      },
+                /**
+                 * 버튼 정보 
+                 */
+                buttons: {
+                    type: Array,
+                    value: [{
+                        id: 'add-btn',
+                        text: 'add'
+                    }, {
+                        id: 'delete-btn',
+                        text: 'delete'
+                    }, {
+                        id: 'save-btn',
+                        text: 'save'
+                    }]
+                }
+            },
 
-      /**
-       * Menu Detail Id Changed
-       *
-       * @param {String} menuDetailId
-       */
-      _menuDetailChanged: function(menuDetailId) {
-        this.$['button-ajax'].resourceId = menuDetailId;
-        this.$['button-ajax'].generateRequest();
-      },      
+            listeners: {
+                'things-detail-view-selected': '_detailTabSelected',
+                'grid.things-grid-handle-save': '_beforeButtonSave',
+                'grid.things-grid-save-success': '_onButtonsSaveSuccess',
+            },
 
-      /**
-       * Button Search URL 데이터로 Button Save URL 생성
-       *
-       * @param {String} resourceId
-       * @return {String} Button Search URL
-       */
-      _computeButtonSaveUrl: function(resourceId) {
-        return 'menu_details/' + resourceId + '/menu_detail_buttons/update_multiple';
-      },
+            /**
+             * 상세 탭 선택시 ...
+             *
+             * @param {Object} e 탭 선택 이벤트 
+             */
+            _detailTabSelected: function (e) {
+                this.$.grid.resizeGrid();
+            },
 
-      /**
-       * Button Grid 저장 전 
-       *
-       * @param {Object} event 버튼 클릭 이벤트 
-       */
-      _beforeButtonSave: function(event) {
-        var grid = event.target;
+            /**
+             * Menu Detail Id Changed
+             *
+             * @param {String} menuDetailId
+             */
+            _menuDetailChanged: function (menuDetailId) {
+                this.$['button-ajax'].resourceId = menuDetailId;
+                this.$['button-ajax'].generateRequest();
+            },
 
-        if(grid.writeData && grid.writeData.length > 0) {
-          var menuDetailId = this.resourceId;
-          grid.writeData.forEach(function(changedData) {
-            delete changedData['term'];
-            changedData.menu_detail_id = menuDetailId;
-          });
-        }
-      },
+            /**
+             * Button Search URL 데이터로 Button Save URL 생성
+             *
+             * @param {String} resourceId
+             * @return {String} Button Search URL
+             */
+            _computeButtonSaveUrl: function (resourceId) {
+                return 'menu_details/' + resourceId + '/menu_detail_buttons/update_multiple';
+            },
 
-      /**
-       * Menu Detail Buttons 저장 후 
-       *
-       * @param {Object} event 
-       */
-      _onButtonsSaveSuccess: function(event) {
-        this.menuDetailButtons = event.detail;
-      }
-    });
-  </script>
+            /**
+             * Button Grid 저장 전 
+             *
+             * @param {Object} event 버튼 클릭 이벤트 
+             */
+            _beforeButtonSave: function (event) {
+                var grid = event.target;
+
+                if (grid.writeData && grid.writeData.length > 0) {
+                    var menuDetailId = this.resourceId;
+                    grid.writeData.forEach(function (changedData) {
+                        delete changedData['term'];
+                        changedData.menu_detail_id = menuDetailId;
+                    });
+                }
+            },
+
+            /**
+             * Menu Detail Buttons 저장 후 
+             *
+             * @param {Object} event 
+             */
+            _onButtonsSaveSuccess: function (event) {
+                this.menuDetailButtons = event.detail;
+            }
+        });
+    </script>
 </dom-module>

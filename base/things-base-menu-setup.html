@@ -25,152 +25,150 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <dom-module id="things-base-menu-setup">
-  <template>
-    <style>
-      :host {
-        display: block;
-        height: 100%;
-        width: 100%;
-        @apply(--layout-vertical);
-        --paper-header-panel-container: {
-          height: 100%;
-          width: 100%;
-          @apply(--layout-vertical);
-        };
-      }
-      paper-header-panel {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-      }
-      .iron-pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-      }
-      .detail-flex {
-        @apply(--layout-flex);
-      }
-    </style>
+    <template>
+        <style>
+            :host {
+                display: block;
+                height: 100%;
+                width: 100%;
+                @apply(--layout-vertical);
 
-    <paper-header-panel mode="standard" class="green">
-      <paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
-        <template is="dom-repeat" items="{{_panels}}">
-          <paper-tab id="{{item.elementId}}">{{item.title}}</paper-tab>
-        </template>
-      </paper-tabs>
+                --paper-header-panel-container: {
+                    height: 100%;
+                    width: 100%;
+                    @apply(--layout-vertical);
+                }
+            }
 
-      <things-ajax 
-        auto
-        id="get-resource"
-        method="GET"
-        resource-url="menus/:id/menu_meta?no_trans_term=true"
-        resource-id="[[resourceId]]"
-        last-response="{{menuMeta}}">
-      </things-ajax>
+            paper-header-panel {
+                @apply(--layout-flex);
+                @apply(--layout-vertical);
+            }
 
-      <iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
-        <things-resource-form
-          id="resource-form" 
-          resource-url="[[resourceUrl]]"
-          resource="{{menuMeta.menu}}"
-          form-fields="[[formFields]]"
-          remove-fields-on-save="[[removeFieldsOnSave]]">
-        </things-resource-form>
+            .iron-pages {
+                @apply(--layout-flex);
+                @apply(--layout-vertical);
+            }
 
-        <things-base-menu-setup-columns
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-columns>
+            .detail-flex {
+                @apply(--layout-flex);
+            }
+        </style>
 
-        <things-base-menu-setup-search
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-search>
+        <paper-header-panel mode="standard" class="green">
+            <paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
+                <template is="dom-repeat" items="{{_panels}}">
+                    <paper-tab id="{{item.elementId}}">{{item.title}}</paper-tab>
+                </template>
+            </paper-tabs>
 
-        <things-base-menu-setup-grid
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-grid>
+            <things-ajax auto id="get-resource" method="GET" resource-url="menus/:id/menu_meta?no_trans_term=true"
+                resource-id="[[resourceId]]" last-response="{{menuMeta}}">
+            </things-ajax>
 
-        <things-base-menu-setup-form
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-form>
+            <iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
+                <things-resource-form 
+                    id="resource-form" 
+                    resource-url="[[resourceUrl]]" 
+                    resource="{{menuMeta.menu}}"
+                    form-fields="[[formFields]]" 
+                    remove-fields-on-save="[[removeFieldsOnSave]]">
+                </things-resource-form>
 
-        <things-base-menu-setup-buttons
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-buttons>
+                <things-base-menu-setup-columns 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]"
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-columns>
 
-        <things-base-menu-setup-params
-          class="detail-flex"
-          resource-id="[[resourceId]]"
-          menu-meta="{{menuMeta}}">
-        </things-base-menu-setup-params>
-      </iron-pages>
-    </paper-header-panel>
-  </template>
+                <things-base-menu-setup-search 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]"
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-search>
 
-  <script>
-    Polymer({
+                <things-base-menu-setup-grid 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]" 
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-grid>
 
-      is: 'things-base-menu-setup',
+                <things-base-menu-setup-form 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]"
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-form>
 
-      behaviors: [ 
-        Things.DetailTabViewBahavior
-      ],
+                <things-base-menu-setup-buttons 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]"
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-buttons>
 
-      properties: {
-        /**
-         * Menu Meta Data
-         * 데이터 형식 : { menu : Object, buttons: Array, columns: Array }
-         */
-        menuMeta: {
-          type: Object,
-          notify: true
-        },
+                <things-base-menu-setup-params 
+                    class="detail-flex" 
+                    resource-id="[[resourceId]]"
+                    menu-meta="{{menuMeta}}">
+                </things-base-menu-setup-params>
+            </iron-pages>
+        </paper-header-panel>
+    </template>
 
-        /**
-         * Save 하기 전에 폼에는 있지만 Save하는데 필요 없는 필드를 삭제하기 위한 필드명
-         */
-        removeFieldsOnSave: {
-          type: Array,
-          value: ['creator', 'updater', 'creator_id', 'updater_id', 'created_at', 'updated_at']
-        }
-      },
+    <script>
+        Polymer({
+            is: 'things-base-menu-setup',
 
-      /**
-       * Life cycle - Element Ready
-       */
-      ready: function() {
-        this._panels = [ {
-          title: Things.DataGlobal.t('title.basic_info'), 
-          elementId: 'things-resource-form'
-        }, {
-          title: Things.DataGlobal.t('title.setup_columns'), 
-          elementId: 'things-base-menu-setup-columns'
-        }, {
-          title: Things.DataGlobal.t('title.setup_searching'), 
-          elementId: 'things-base-menu-setup-search'
-        }, {
-          title: Things.DataGlobal.t('title.setup_grid'), 
-          elementId: 'things-base-menu-setup-grid'
-        }, {
-          title: Things.DataGlobal.t('title.setup_form'), 
-          elementId: 'things-base-menu-setup-form'
-        }, {
-          title: Things.DataGlobal.t('title.setup_button'), 
-          elementId: 'things-base-menu-setup-buttons'
-        }, {
-          title: Things.DataGlobal.t('title.setup_param'),
-          elementId: 'things-base-menu-setup-params'
-        } ];
-      }
+            behaviors: [
+                Things.DetailTabViewBahavior
+            ],
 
-    });
-  </script>
+            properties: {
+                /**
+                 * Menu Meta Data
+                 * 데이터 형식 : { menu : Object, buttons: Array, columns: Array }
+                 */
+                menuMeta: {
+                    type: Object,
+                    notify: true
+                },
+
+                /**
+                 * Save 하기 전에 폼에는 있지만 Save하는데 필요 없는 필드를 삭제하기 위한 필드명
+                 */
+                removeFieldsOnSave: {
+                    type: Array,
+                    value: ['creator', 'updater', 'creator_id', 'updater_id', 'created_at', 'updated_at']
+                }
+            },
+
+            /**
+             * Life cycle - Element Ready
+             */
+            ready: function () {
+                this._panels = [{
+                    title: Things.DataGlobal.t('title.basic_info'),
+                    elementId: 'things-resource-form'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_columns'),
+                    elementId: 'things-base-menu-setup-columns'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_searching'),
+                    elementId: 'things-base-menu-setup-search'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_grid'),
+                    elementId: 'things-base-menu-setup-grid'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_form'),
+                    elementId: 'things-base-menu-setup-form'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_button'),
+                    elementId: 'things-base-menu-setup-buttons'
+                }, {
+                    title: Things.DataGlobal.t('title.setup_param'),
+                    elementId: 'things-base-menu-setup-params'
+                }];
+            }
+
+        });
+    </script>
 </dom-module>

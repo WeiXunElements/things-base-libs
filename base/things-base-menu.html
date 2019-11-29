@@ -329,6 +329,7 @@ Copyright © Weixun Inc. All rights reserved.
 				'sub-grid.things-grid-handle-save' : '_beforeSubMenuSave',
 				'sub-grid.things-grid-handle-addrow' : '_addSubMenu',
 				'sub-grid.things-grid-handle-export': '_exportExcel',
+				'sub-grid.things-grid-row-data-select': '_rowDataSelect',
 				'detail-btn-tap' : '_showSetupDetail',
 				'detail-layout-btn-tap':'_showSetupDetailLayout'
 			},
@@ -590,7 +591,45 @@ Copyright © Weixun Inc. All rights reserved.
 				}, function() {
 					window.location = baseUrl + '/menus/' + parentId + '/export/';
 				});
-			}
+			},
+
+			/**
+			 * 그리드 선택시 이벤트
+			 *********
+			 * @param {Object} event
+			 */
+			_rowDataSelect: function(event) {
+				this._cancelAllCheck(event.target.id);
+				this._gridSelectCheck(event.target.id);
+			},
+
+			/**
+			 * 그리드 선택시 체크
+			 *********
+			 * @param {String} gridId
+			 */
+			_gridSelectCheck: function(gridId) {
+                let gridObj = this.$[gridId].getGridObject();
+                let focusedCell = gridObj.getFocusedCellView();
+                if (focusedCell.getIcon() && !focusedCell.value()) {
+                    return;
+                }
+
+                let focusedRow = gridObj.focusedRow();
+                let currentStatus = focusedRow.$_checked;
+                gridObj.setChecked(focusedRow, !currentStatus);
+            },
+
+			/**
+			 * 선택된 그리드 모두 취소
+			 *********
+			 * @param {String} gridId
+			 */
+            _cancelAllCheck: function(gridId) {
+                if (this.$[gridId].getGridObject()) {
+                    this.$[gridId].getGridObject().checkAll(false);
+                }
+            }
 		});
 	</script>
 </dom-module>

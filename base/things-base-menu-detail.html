@@ -33,7 +33,7 @@ Copyright © Weixun Inc. All rights reserved.
                 --paper-card-header-text: {
                     font-size: 14px;
                     @apply(--things-detail-header-text);
-                };
+                }
             }
 
             .container {
@@ -81,10 +81,9 @@ Copyright © Weixun Inc. All rights reserved.
                 content: '';
                 @apply(--things-subtitle-icon);
             }
-
             .subtitle {
-                @apply(--things-default-padding);
-                padding-bottom: 7px;
+                padding-top: 5px;
+                padding-left: 20px;
                 @apply(--things-subtitle);
             }
         </style>
@@ -93,22 +92,34 @@ Copyright © Weixun Inc. All rights reserved.
             <!-- left -->
             <div id="left">
                 <!-- top -->
-                <paper-card id="left-top" heading="[[leftTopContentTitle]]" elevation="1" animated-shadow="false">
-                    <things-base-menu-detail-main class="detail-flex" resource-id="[[resourceId]]"
+                <paper-card id="left-top" elevation="1" animated-shadow="false">
+                    <things-i18n-msg msg="{{leftTopContentTitle}}" msgid="label.menu_detail" auto hidden>Menu Detail</things-i18n-msg>
+                    <span class="subtitle">[[leftTopContentTitle]]</span>
+                    <things-base-menu-detail-main 
+                        class="detail-flex" 
+                        resource-id="[[resourceId]]"
                         menu-detail-id="{{menuDetailId}}">
                     </things-base-menu-detail-main>
                 </paper-card>
 
                 <!-- bottom -->
-                <paper-card id="left-bottom" heading="[[leftBottomContentTitle]]" elevation="1" animated-shadow="false">
-                    <things-base-menu-detail-buttons class="detail-flex" resource-id="{{menuDetailId}}">
+                <paper-card id="left-bottom" elevation="1" animated-shadow="false">
+                    <things-i18n-msg msg="{{leftBottomContentTitle}}" msgid="label.menu_detail_buttons" auto hidden>Menu Detail Buttons</things-i18n-msg>
+                    <span class="subtitle">[[leftBottomContentTitle]]</span>
+                    <things-base-menu-detail-buttons 
+                        class="detail-flex" 
+                        resource-id="{{menuDetailId}}">
                     </things-base-menu-detail-buttons>
                 </paper-card>
             </div>
 
             <!-- right -->
-            <paper-card id="right" heading="[[rightContentTitle]]" elevation="1" animated-shadow="false">
-                <things-base-menu-detail-columns class="detail-flex" resource-id="{{menuDetailId}}">
+            <paper-card id="right" elevation="1" animated-shadow="false">
+                <things-i18n-msg msg="{{rightContentTitle}}" msgid="label.menu_detail_columns" auto hidden>Menu Detail Columns</things-i18n-msg>
+                <span class="subtitle">[[rightContentTitle]]</span>
+                <things-base-menu-detail-columns 
+                    class="detail-flex" 
+                    resource-id="{{menuDetailId}}">
                 </things-base-menu-detail-columns>
             </paper-card>
         </div>
@@ -128,30 +139,6 @@ Copyright © Weixun Inc. All rights reserved.
                  */
                 title: {
                     type: String
-                },
-
-                /**
-                 * Title Of Left Top Content
-                 */
-                leftTopContentTitle: {
-                    type: String,
-                    value: 'Menu Details'
-                },
-
-                /**
-                 * Title Of Left Bottom Content
-                 */
-                leftBottomContentTitle: {
-                    type: String,
-                    value: 'Menu Detail Buttons'
-                },
-
-                /**
-                 * Title Of Right Content
-                 */
-                rightContentTitle: {
-                    type: String,
-                    value: 'Menu Detail Columns'
                 },
 
                 /**
@@ -183,7 +170,6 @@ Copyright © Weixun Inc. All rights reserved.
 
                 this.openPopupView(this, true);
             }
-
         });
     </script>
 </dom-module>

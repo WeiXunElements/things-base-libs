@@ -16,557 +16,633 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <dom-module id="things-base-menu-setup-columns">
-  <template>
-    <style>
-      :host {
-        display:block;
-        @apply(--layout-vertical);
-      }
-      things-resource-grid {
-        @apply(--layout-flex);
-      }
-    </style>
+    <template>
+        <style>
+            :host {
+                display: block;
+                @apply(--layout-vertical);
+            }
 
-    <things-ajax
-      id="columns-sync-ajax"
-      method="POST"
-      resource-url="menus/:id/sync_menu_columns"
-      resource-id="[[resourceId]]"
-      last-response="{{menuMeta}}">
-    </things-ajax>
+            things-resource-grid {
+                @apply(--layout-flex);
+            }
+        </style>
 
-    <things-ajax
-      id="column-ajax"
-      method="GET"
-      resource-url="menus/:id/menu_meta?no_trans_term=true"
-      resource-id="[[resourceId]]"
-      last-response="{{menuMeta}}">
-    </things-ajax>
+        <things-ajax 
+            id="columns-sync-ajax" 
+            method="POST" 
+            resource-url="menus/:id/sync_menu_columns"
+            resource-id="[[resourceId]]" 
+            last-response="{{menuMeta}}">
+        </things-ajax>
 
-    <things-resource-grid
-      id="grid"
-      config="[[gridConfig]]"
-      model="[[gridModel]]"
-      columns="[[gridColumns]]"
-      data="[[items]]"
-      grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
-    </things-resource-grid>
-  </template>
+        <things-ajax 
+            id="column-ajax" 
+            method="GET" 
+            resource-url="menus/:id/menu_meta?no_trans_term=true"
+            resource-id="[[resourceId]]" 
+            last-response="{{menuMeta}}">
+        </things-ajax>
 
-  <script>
-    Polymer({
+        <things-resource-grid 
+            id="grid" 
+            config="[[gridConfig]]" 
+            model="[[gridModel]]" 
+            columns="[[gridColumns]]"
+            data="[[items]]" 
+            grid-save-action="[[gridSaveUrl]]" 
+            buttons="[[buttons]]">
+        </things-resource-grid>
+    </template>
 
-      is: 'things-base-menu-setup-columns',
+    <script>
+        Polymer({
+            is: 'things-base-menu-setup-columns',
 
-      behaviors: [
-        Things.ResourceSelectorBehavior,
-        Things.MsgBoxBehavior,
-        Things.ViewOpenBehavior
-      ],
+            behaviors: [
+                Things.ResourceSelectorBehavior,
+                Things.MsgBoxBehavior,
+                Things.ViewOpenBehavior
+            ],
 
-      properties: {
+            properties: {
 
-        /**
-         * Menu Id
-         */
-        resourceId: {
-          type: String
-        },
+                /**
+                 * Menu Id
+                 */
+                resourceId: {
+                    type: String
+                },
 
-        /**
-         * Menu Data
-         */
-        resource: {
-          type: Object
-        },
+                /**
+                 * Menu Data
+                 */
+                resource: {
+                    type: Object
+                },
 
-        /**
-         * Menu Meta Data
-         * 데이터 형식 : { menu : Object, buttons: Array, columns: Array }
-         */
-        menuMeta: {
-          type: Object,
-          notify: true,
-          observer: '_onMenuMetaChanged'
-        },
+                /**
+                 * Menu Meta Data
+                 * 데이터 형식 : { menu : Object, buttons: Array, columns: Array }
+                 */
+                menuMeta: {
+                    type: Object,
+                    notify: true,
+                    observer: '_onMenuMetaChanged'
+                },
 
-        /**
-         * Menu columns 조회 정보
-         */
-        items: {
-          type: Array
-        },
+                /**
+                 * Menu columns 조회 정보
+                 */
+                items: {
+                    type: Array
+                },
 
-        /**
-         * Grid Model
-         */
-        gridModel: {
-          type: Array,
-          value: [ {
-            fieldName: 'id'
-          }, {
-            fieldName: 'menu_id'
-          }, {
-            fieldName: 'rank',
-            rank: true,
-            increment: 10
-          }, {
-            fieldName: 'name'
-          }, {
-            fieldName: 'term'
-          }, {
-            fieldName: 'trans'
-          }, {
-            fieldName: 'col_type',
-            defaultValue: 'string'
-          }, {
-            fieldName: 'col_size'
-          }, {
-            fieldName: 'virtual_field'
-          }, {
-            fieldName: 'nullable'
-          }, {
-            fieldName: 'uniq_rank'
-          }, {
-            fieldName: 'search_rank'
-          }, {
-            fieldName: 'sort_rank'
-          }, {
-            fieldName: 'reverse_sort'
-          }, {
-            fieldName: 'grid_rank'
-          }, {
-            fieldName: 'ref_type'
-          }, {
-            fieldName: 'ref_name'
-          }, {
-            fieldName: 'ref_name_editor'
-          }, {
-            fieldName: 'ref_url'
-          }, {
-            fieldName: 'ref_params'
-          }, {
-            fieldName: 'ref_related'
-          }, {
-            fieldName: 'def_val'
-          }, {
-            fieldName: 'range_val'
-          }, {
-            fieldName: 'search_check'
-          }, {
-            fieldName: 'grid_check'
-          }, {
-            fieldName: 'ext_field'
-          } ]
-        },
+                /**
+                 * Grid Model
+                 */
+                gridModel: {
+                    type: Array,
+                    value: [{
+                        fieldName: 'id'
+                    }, {
+                        fieldName: 'menu_id'
+                    }, {
+                        fieldName: 'rank',
+                        rank: true,
+                        increment: 10
+                    }, {
+                        fieldName: 'name'
+                    }, {
+                        fieldName: 'term'
+                    }, {
+                        fieldName: 'trans'
+                    }, {
+                        fieldName: 'col_type',
+                        defaultValue: 'string'
+                    }, {
+                        fieldName: 'col_size'
+                    }, {
+                        fieldName: 'virtual_field'
+                    }, {
+                        fieldName: 'nullable'
+                    }, {
+                        fieldName: 'uniq_rank'
+                    }, {
+                        fieldName: 'search_rank'
+                    }, {
+                        fieldName: 'sort_rank'
+                    }, {
+                        fieldName: 'reverse_sort'
+                    }, {
+                        fieldName: 'grid_rank'
+                    }, {
+                        fieldName: 'ref_type'
+                    }, {
+                        fieldName: 'ref_name'
+                    }, {
+                        fieldName: 'ref_name_editor'
+                    }, {
+                        fieldName: 'ref_url'
+                    }, {
+                        fieldName: 'ref_params'
+                    }, {
+                        fieldName: 'ref_related'
+                    }, {
+                        fieldName: 'def_val'
+                    }, {
+                        fieldName: 'range_val'
+                    }, {
+                        fieldName: 'search_check'
+                    }, {
+                        fieldName: 'grid_check'
+                    }, {
+                        fieldName: 'ext_field'
+                    }]
+                },
 
-        /**
-         * Grid Columns
-         */
-        gridColumns: {
-          type: Array,
-          value: function() {
-            var colTypes = [
-              '', 'binary', 'boolean', 'date', 'datetime', 'decimal', 'double',
-              'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'
-            ];
+                /**
+                 * Grid Columns
+                 */
+                gridColumns: {
+                    type: Array,
+                    value: function () {
+                        var colTypes = [
+                            '', 'binary', 'boolean', 'date', 'datetime', 'decimal', 'double',
+                            'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'
+                        ];
 
-            return [ {
-              fieldName: 'id', name: 'id', width: 0
-            }, {
-              fieldName: 'menu_id', name: 'menu_id', width: 0
-            }, {
-              fieldName: 'rank', name: 'rank', width: 50, type: 'number', nullable: false,
-              header: {
-                text: Things.DataGlobal.t('label.rank')
-              },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              fieldName: 'name', name: 'name', width: 135, nullable: false,
-              header: {
-                text: Things.DataGlobal.t('label.name')
-              },
-              editor: {
-                maxLength : 32
-              }
-            }, {
-              fieldName: 'term', name: 'term', width: 150,
-              header: {
-                text: Things.DataGlobal.t('label.term') + ' (from)'
-              }
-            }, {
-              fieldName: 'trans', name: 'trans', width: 135, editable: false,
-              valueType: 'text', type: 'calced',
-              header: {
-                text: Things.DataGlobal.t('label.term') + ' (to)'
-              },
-              valueCallback: function(column, row) {
-                var term = row.getValue('term');
-                return term ? Things.DataGlobal.t(term) : '';
-              }
-            }, {
-              name: 'col_type', fieldName: 'col_type', nullable: false, width: 75,
-              lookupDisplay: true,
-              lookupValues: colTypes,
-              lookupLabels: colTypes,
-              header: {
-                text: Things.DataGlobal.t('label.col_type')
-              },
-              editor: {
-                type: 'list',
-                domainOnly: true
-              }
-            }, {
-              fieldName: 'col_size', name: 'col_size', width: 50, type: 'number',
-              header: {
-                text: Things.DataGlobal.t('label.size')
-              },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              name: 'nullable', fieldName: 'nullable', width: 60, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.nullable')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              fieldName: 'uniq_rank', name: 'uniq_rank', width: 65, type: 'number',
-              header: {
-                text: Things.DataGlobal.t('label.uniq_rank')
-              },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              name: 'ext_field', fieldName: 'ext_field', width: 60, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.ext_field')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              name: 'virtual_field', fieldName: 'virtual_field', width: 60, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.virtual')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              fieldName: 'search_check', name: 'search_check', width: 100, editable: false,
-              header: {
-                text: Things.DataGlobal.t('title.search_condition')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              fieldName: 'grid_check', name: 'grid_check', width: 60, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.list')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              fieldName: 'sort_rank', name: 'sort_rank', width: 65, type: 'number',
-              header: {
-                text: Things.DataGlobal.t('label.sort_rank')
-              },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              fieldName: 'reverse_sort', name: 'reverse_sort', width: 80, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.reverse_sort')
-              },
-              renderer: {
-                type: 'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              fieldName: 'ref_type', name: 'ref_type', width: 90,
-              lookupDisplay: true,
-              lookupValues: [ '', 'CommonCode', 'Entity', 'Menu' ],
-              lookupLabels: [ '', 'Code', 'Entity', 'Menu' ],
-              header: {
-                text: Things.DataGlobal.t('label.ref_type')
-              },
-              editor: {
-                type: 'list',
-                domainOnly: true
-              }
-            }, {
-              fieldName: 'ref_name', name: 'ref_name', width: 150,
-              header: {
-                text: Things.DataGlobal.t('label.ref_name')
-              },
-              editor: {
-                maxLength: 32
-              }
-            }, {
-              fieldName: 'ref_params', name: 'ref_params', width: 180,
-              header: {
-                text: Things.DataGlobal.t('label.ref_params')
-              },
-              editor: {
-                maxLength: 128
-              }
-            }, {
-              fieldName: 'ref_related', name: 'ref_related', width: 180,
-              header: {
-                text: Things.DataGlobal.t('label.ref_related')
-              },
-              editor: {
-                maxLength: 128
-              }
-            }, {
-              fieldName: 'range_val', name: 'range_val', width: 120,
-              header: {
-                text: Things.DataGlobal.t('label.range_val')
-              },
-              editor: {
-                maxLength: 128
-              }
-            } ];
-          }
-        },
+                        return [{
+                            fieldName: 'id',
+                            name: 'id',
+                            width: 0
+                        }, {
+                            fieldName: 'menu_id',
+                            name: 'menu_id',
+                            width: 0
+                        }, {
+                            fieldName: 'rank',
+                            name: 'rank',
+                            width: 50,
+                            type: 'number',
+                            nullable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.rank')
+                            },
+                            styles: {
+                                textAlignment: 'center'
+                            }
+                        }, {
+                            fieldName: 'name',
+                            name: 'name',
+                            width: 135,
+                            nullable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.name')
+                            },
+                            editor: {
+                                maxLength: 32
+                            }
+                        }, {
+                            fieldName: 'term',
+                            name: 'term',
+                            width: 150,
+                            header: {
+                                text: Things.DataGlobal.t('label.term') + ' (from)'
+                            }
+                        }, {
+                            fieldName: 'trans',
+                            name: 'trans',
+                            width: 135,
+                            editable: false,
+                            valueType: 'text',
+                            type: 'calced',
+                            header: {
+                                text: Things.DataGlobal.t('label.term') + ' (to)'
+                            },
+                            valueCallback: function (column, row) {
+                                var term = row.getValue('term');
+                                return term ? Things.DataGlobal.t(term) : '';
+                            }
+                        }, {
+                            name: 'col_type',
+                            fieldName: 'col_type',
+                            nullable: false,
+                            width: 75,
+                            lookupDisplay: true,
+                            lookupValues: colTypes,
+                            lookupLabels: colTypes,
+                            header: {
+                                text: Things.DataGlobal.t('label.col_type')
+                            },
+                            editor: {
+                                type: 'list',
+                                domainOnly: true
+                            }
+                        }, {
+                            fieldName: 'col_size',
+                            name: 'col_size',
+                            width: 50,
+                            type: 'number',
+                            header: {
+                                text: Things.DataGlobal.t('label.size')
+                            },
+                            styles: {
+                                textAlignment: 'center'
+                            }
+                        }, {
+                            name: 'nullable',
+                            fieldName: 'nullable',
+                            width: 60,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.nullable')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            fieldName: 'uniq_rank',
+                            name: 'uniq_rank',
+                            width: 65,
+                            type: 'number',
+                            header: {
+                                text: Things.DataGlobal.t('label.uniq_rank')
+                            },
+                            styles: {
+                                textAlignment: 'center'
+                            }
+                        }, {
+                            name: 'ext_field',
+                            fieldName: 'ext_field',
+                            width: 60,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.ext_field')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            name: 'virtual_field',
+                            fieldName: 'virtual_field',
+                            width: 60,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.virtual')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            fieldName: 'search_check',
+                            name: 'search_check',
+                            width: 100,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('title.search_condition')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            fieldName: 'grid_check',
+                            name: 'grid_check',
+                            width: 60,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.list')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            fieldName: 'sort_rank',
+                            name: 'sort_rank',
+                            width: 65,
+                            type: 'number',
+                            header: {
+                                text: Things.DataGlobal.t('label.sort_rank')
+                            },
+                            styles: {
+                                textAlignment: 'center'
+                            }
+                        }, {
+                            fieldName: 'reverse_sort',
+                            name: 'reverse_sort',
+                            width: 80,
+                            editable: false,
+                            header: {
+                                text: Things.DataGlobal.t('label.reverse_sort')
+                            },
+                            renderer: {
+                                type: 'check',
+                                editable: true,
+                                threeStates: false,
+                                trueValues: 'true',
+                                falseValues: 'false'
+                            }
+                        }, {
+                            fieldName: 'ref_type',
+                            name: 'ref_type',
+                            width: 90,
+                            lookupDisplay: true,
+                            lookupValues: ['', 'CommonCode', 'Entity', 'Menu'],
+                            lookupLabels: ['', 'Code', 'Entity', 'Menu'],
+                            header: {
+                                text: Things.DataGlobal.t('label.ref_type')
+                            },
+                            editor: {
+                                type: 'list',
+                                domainOnly: true
+                            }
+                        }, {
+                            fieldName: 'ref_name',
+                            name: 'ref_name',
+                            width: 150,
+                            header: {
+                                text: Things.DataGlobal.t('label.ref_name')
+                            },
+                            editor: {
+                                maxLength: 32
+                            }
+                        }, {
+                            fieldName: 'ref_params',
+                            name: 'ref_params',
+                            width: 180,
+                            header: {
+                                text: Things.DataGlobal.t('label.ref_params')
+                            },
+                            editor: {
+                                maxLength: 128
+                            }
+                        }, {
+                            fieldName: 'ref_related',
+                            name: 'ref_related',
+                            width: 180,
+                            header: {
+                                text: Things.DataGlobal.t('label.ref_related')
+                            },
+                            editor: {
+                                maxLength: 128
+                            }
+                        }, {
+                            fieldName: 'range_val',
+                            name: 'range_val',
+                            width: 120,
+                            header: {
+                                text: Things.DataGlobal.t('label.range_val')
+                            },
+                            editor: {
+                                maxLength: 128
+                            }
+                        }];
+                    }
+                },
 
-        /**
-         * Grid Column Save URL
-         */
-        gridSaveUrl: {
-          type: String,
-          computed: '_computeColumnSaveUrl(resourceId)'
-        },
+                /**
+                 * Grid Column Save URL
+                 */
+                gridSaveUrl: {
+                    type: String,
+                    computed: '_computeColumnSaveUrl(resourceId)'
+                },
 
-        /**
-         * 버튼 정보
-         */
-        buttons: {
-          type: Array,
-          value: [ {
-            id: 'add-btn',
-            text: 'add',
-            icon: 'icons:add'
-          }, {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete',
-            icon: 'icons:delete'
-          }, {
-            id: 'sync-btn',
-            text: 'sync',
-            icon: 'icons:sync'
-          },{
-            id : 'print-btn',
-            text : 'print',
-            icon: 'icons:print'
-          }  ]
-        }
-      },
+                /**
+                 * 버튼 정보
+                 */
+                buttons: {
+                    type: Array,
+                    value: [{
+                        id: 'add-btn',
+                        text: 'add',
+                        icon: 'icons:add'
+                    }, {
+                        id: 'save-btn',
+                        text: 'save',
+                        icon: 'icons:save'
+                    }, {
+                        id: 'delete-btn',
+                        text: 'delete',
+                        icon: 'icons:delete'
+                    }, {
+                        id: 'sync-btn',
+                        text: 'sync',
+                        icon: 'icons:sync'
+                    }, {
+                        id: 'print-btn',
+                        text: 'print',
+                        icon: 'icons:print'
+                    }]
+                }
+            },
 
-      listeners: {
-        'grid.things-grid-handle-addrow' : '_addRow',
-        'grid.things-grid-handle-save' : '_beforeSearchColumnSave',
-        'grid.things-grid-save-success' : '_reloadGrid',
-        'grid.things-grid-resource-column-edit' : '_onGridColumnRefEdit',
-        'column-ajax.things-ajax-response': '_afterColumnsLoaded',
-        'things-detail-view-selected' : '_detailTabSelected',
-        'sync-btn-tap' : '_syncColumns'
-      },
+            listeners: {
+                'grid.things-grid-handle-addrow': '_addRow',
+                'grid.things-grid-handle-save': '_beforeSearchColumnSave',
+                'grid.things-grid-save-success': '_reloadGrid',
+                'grid.things-grid-resource-column-edit': '_onGridColumnRefEdit',
+                'column-ajax.things-ajax-response': '_afterColumnsLoaded',
+                'things-detail-view-selected': '_detailTabSelected',
+                'sync-btn-tap': '_syncColumns'
+            },
 
-      /**
-       * 상세 탭 선택시 ...
-       *
-       * @param {Object} e
-       */
-      _detailTabSelected: function(e) {
-        this.$.grid.resizeGrid();
-      },
+            /**
+             * 상세 탭 선택시 ...
+             *
+             * @param {Object} e
+             */
+            _detailTabSelected: function (e) {
+                this.$.grid.resizeGrid();
+            },
 
-      /**
-       * MenuMeta 변경시
-       *
-       * @param {Object} menuMeta
-       */
-      _onMenuMetaChanged: function(menuMeta) {
-        var columns = menuMeta.columns;
-        this._sortColumns(columns);
+            /**
+             * MenuMeta 변경시
+             *
+             * @param {Object} menuMeta
+             */
+            _onMenuMetaChanged: function (menuMeta) {
+                var columns = menuMeta.columns;
+                this._sortColumns(columns);
 
-        for(var i = 0 ; i < columns.length ; i++) {
-          var column = columns[i];
-          column.search_check = (typeof column.search_rank != 'undefined' && column.search_rank > 0);
-          column.grid_check = (typeof column.grid_rank != 'undefined' && column.grid_rank > 0);
-        }
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    column.search_check = (typeof column.search_rank != 'undefined' && column.search_rank > 0);
+                    column.grid_check = (typeof column.grid_rank != 'undefined' && column.grid_rank > 0);
+                }
 
-        this.items = columns;
-      },
+                this.items = columns;
+            },
 
-      /**
-       * List sorting
-       *
-       * @param {Array} list
-       */
-      _sortColumns: function(list) {
-        list.sort(function(a, b) {
-          if(!a.rank) a.rank = 0;
-          if(!b.rank) b.rank = 0;
-          return (a.rank > b.rank) ? 1 : ((b.rank > a.rank) ? -1 : 0);
+            /**
+             * List sorting
+             *
+             * @param {Array} list
+             */
+            _sortColumns: function (list) {
+                list.sort(function (a, b) {
+                    if (!a.rank) a.rank = 0;
+                    if (!b.rank) b.rank = 0;
+                    return (a.rank > b.rank) ? 1 : ((b.rank > a.rank) ? -1 : 0);
+                });
+            },
+
+            /**
+             * Grid Column Save URL
+             *
+             * @param {String} resourceId
+             * @return {String} Grid Column Save URL
+             */
+            _computeColumnSaveUrl: function (resourceId) {
+                return 'menus/' + resourceId + '/menu_columns/update_multiple';
+            },
+
+            /**
+             * Sync Columns
+             *
+             * @param {Object} e 버튼 클릭 이벤트
+             */
+            _syncColumns: function (e) {
+                let self = this;
+
+                let gridData = self.$.grid.getGridDataSet().getRowObjects();
+                if (gridData && gridData.length > 0) {
+                    this.openConfirmMsg({
+                        type: 'info',
+                        title: Things.DataGlobal.t('title.info'),
+                        text: Things.DataGlobal.t('error.Common_delete_meta_data')
+                    });
+
+                    return;
+                }
+
+                this.openConfirmMsg({
+                    title: Things.DataGlobal.t('title.confirm'),
+                    text: Things.DataGlobal.t('text.Common_sure_to_sync'),
+                    showCancelButton: true
+                }, () => {
+                    this.$['columns-sync-ajax'].generateRequest();
+                });
+            },
+
+            /**
+             * Add Grid Row
+             *
+             * @param {Object} e
+             */
+            _addRow: function (e) {
+                e.preventDefault();
+                var grid = this.$.grid;
+                var count = grid.dataSet.rowCount();
+                var data = grid.newRowData();
+                data.menu_id = this.resourceId;
+                grid.dataSet.insertRow(count, data);
+            },
+
+            /**
+             * Grid Column 저장 전
+             *
+             * @param {Object} event menu-meta 저장 전 이벤트
+             */
+            _beforeSearchColumnSave: function (event) {
+                var grid = event.target;
+
+                if (grid.writeData && grid.writeData.length > 0) {
+                    var menuId = this.resourceId;
+
+                    grid.writeData.forEach(function (changedData) {
+                        changedData.menu_id = menuId;
+                        if (!changedData.uniq_rank) changedData.uniq_rank = 0;
+
+                        if (!changedData.search_check || 'false' === changedData.search_check) {
+                            changedData.search_rank = 0;
+                        } else {
+                            if (!changedData.search_rank || changedData.search_rank <= 0) {
+                                changedData.search_rank = changedData.rank;
+                            }
+                        }
+
+                        if (!changedData.grid_check || 'false' === changedData.grid_check) {
+                            changedData.grid_rank = 0;
+                        } else {
+                            if (!changedData.grid_rank || changedData.grid_rank <= 0) {
+                                changedData.grid_rank = changedData.rank;
+                            }
+                        }
+
+                        delete changedData['ref_name_editor'];
+                        delete changedData['trans'];
+                        delete changedData['search_check'];
+                        delete changedData['grid_check'];
+                    });
+                }
+            },
+
+            /**
+             * Reload Grid Data
+             *
+             * @param {Object} e
+             */
+            _reloadGrid: function (e) {
+                this.$['column-ajax'].generateRequest();
+            },
+
+            /**
+             * Menu Meta Data 조회 후
+             *
+             * @param {Object} event
+             */
+            _afterColumnsLoaded: function (event) {
+                this.menuMeta = event.detail;
+            },
+
+            /**
+             * Entity Ref Column Edit
+             *
+             * @param {Object} e things-grid-resource-column-edit 이벤트
+             */
+            _onGridColumnRefEdit: function (e) {
+                e.preventDefault();
+                var index = e.detail.index;
+                var grid = index._grid;
+                var dataSet = grid.getGridDataSet();
+                var row = dataSet.getRowObject(index.rowIndex);
+                if (!row.ref_type) return;
+
+                if (!row.ref_name) {
+                    row.ref_name = '';
+                    dataSet.updateRow(index.rowIndex, row);
+                }
+
+                var resourceObj = {
+                    // TODO valueField가 한 개 이상일 필요가 있다.
+                    resourceType: 'Entity',
+                    resourceName: row.ref_type,
+                    ownerField: 'ref_name'
+                };
+
+                this.openResourceSelectorByGrid(index._grid, index.rowIndex, resourceObj, true);
+            }
         });
-      },
-
-      /**
-       * Grid Column Save URL
-       *
-       * @param {String} resourceId
-       * @return {String} Grid Column Save URL
-       */
-      _computeColumnSaveUrl: function(resourceId) {
-        return 'menus/' + resourceId + '/menu_columns/update_multiple';
-      },
-
-      /**
-       * Sync Columns
-       *
-       * @param {Object} e 버튼 클릭 이벤트
-       */
-      _syncColumns: function(e) {
-        this.$['columns-sync-ajax'].generateRequest();
-      },
-
-      /**
-       * Add Grid Row
-       *
-       * @param {Object} e
-       */
-      _addRow: function(e) {
-        e.preventDefault();
-        var grid = this.$.grid;
-        var count = grid.dataSet.rowCount();
-        var data = grid.newRowData();
-        data.menu_id = this.resourceId;
-        grid.dataSet.insertRow(count, data);
-      },
-
-      /**
-       * Grid Column 저장 전
-       *
-       * @param {Object} event menu-meta 저장 전 이벤트
-       */
-      _beforeSearchColumnSave: function(event) {
-        var grid = event.target;
-
-        if(grid.writeData && grid.writeData.length > 0) {
-          var menuId = this.resourceId;
-
-          grid.writeData.forEach(function(changedData) {
-            changedData.menu_id = menuId;
-            if(!changedData.uniq_rank) changedData.uniq_rank = 0;
-
-            if(!changedData.search_check || 'false' === changedData.search_check) {
-              changedData.search_rank = 0;
-            } else {
-              if(!changedData.search_rank || changedData.search_rank <= 0) {
-                changedData.search_rank = changedData.rank;
-              }
-            }
-
-            if(!changedData.grid_check || 'false' === changedData.grid_check) {
-              changedData.grid_rank = 0;
-            } else {
-              if(!changedData.grid_rank || changedData.grid_rank <= 0) {
-                changedData.grid_rank = changedData.rank;
-              }
-            }
-
-            delete changedData['ref_name_editor'];
-            delete changedData['trans'];
-            delete changedData['search_check'];
-            delete changedData['grid_check'];
-          });
-        }
-      },
-
-      /**
-       * Reload Grid Data
-       *
-       * @param {Object} e
-       */
-      _reloadGrid: function(e) {
-        this.$['column-ajax'].generateRequest();
-      },
-
-      /**
-       * Menu Meta Data 조회 후
-       *
-       * @param {Object} event
-       */
-      _afterColumnsLoaded: function(event) {
-        this.menuMeta = event.detail;
-      },
-
-      /**
-       * Entity Ref Column Edit
-       *
-       * @param {Object} e things-grid-resource-column-edit 이벤트
-       */
-      _onGridColumnRefEdit: function(e) {
-        e.preventDefault();
-        var index = e.detail.index;
-        var grid = index._grid;
-        var dataSet = grid.getGridDataSet();
-        var row = dataSet.getRowObject(index.rowIndex);
-        if(!row.ref_type) return;
-
-        if(!row.ref_name) {
-          row.ref_name = '';
-          dataSet.updateRow(index.rowIndex, row);
-        }
-
-        var resourceObj = {
-          // TODO valueField가 한 개 이상일 필요가 있다.
-          resourceType : 'Entity',
-          resourceName : row.ref_type,
-          ownerField : 'ref_name'
-        };
-
-        this.openResourceSelectorByGrid(index._grid, index.rowIndex, resourceObj, true);
-      }
-    });
-  </script>
+    </script>
 </dom-module>
