@@ -41,8 +41,7 @@ Copyright © Weixun Inc. All rights reserved.
 			}
 
 			.subtitle {
-				@apply(--things-default-padding);
-				padding-bottom:7px;
+				padding: 7px 15px 7px 15px;
 				@apply(--things-subtitle);
 			}
 
@@ -53,7 +52,7 @@ Copyright © Weixun Inc. All rights reserved.
 			}
 
 			.things-resource-grid-main {
-				@apply(--layout-flex);
+				@apply(--layout-flex-2);
 				min-height: 200px;
 			}
 
@@ -80,7 +79,8 @@ Copyright © Weixun Inc. All rights reserved.
 			action-url="[[resourceUrl]]"
 			page=1
 			limit=1000
-			last-response="{{mainMenus}}">
+			last-response="{{mainMenus}}"
+			on-things-search-form-configured="onSearchFormConfigured">
 		</things-search-form>
 
 		<span class="subtitle">
@@ -629,7 +629,16 @@ Copyright © Weixun Inc. All rights reserved.
                 if (this.$[gridId].getGridObject()) {
                     this.$[gridId].getGridObject().checkAll(false);
                 }
-            }
+            },
+
+			/**
+			 * 기본 조회조건을 닫아버림
+			 *********
+			 * @param {Object} event
+			 */
+			 onSearchFormConfigured: function(event) {
+				event.target.$$('#content').opened = false;
+			}
 		});
 	</script>
 </dom-module>
