@@ -1,210 +1,255 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
 <dom-module id="things-base-agent-manager">
   <template>
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
-
     </style>
 
     <things-ajax auto id="getAgentsInfos" method="GET" resource-url="agent_infos" last-response="{{agents}}">
     </things-ajax>
 
     <things-layout-zeus class="flex" top-content-title="Agent info" bottom-content-title="Printer info">
-      <things-resource-grid class="flex" fixed-column-count="1" top id="agentGrid" model="[[agentGridModel]]" columns="[[agentGridColumns]]" data="[[agents]]">
+      <things-resource-grid
+        class="flex"
+        fixed-column-count="1"
+        top
+        id="agentGrid"
+        model="[[agentGridModel]]"
+        columns="[[agentGridColumns]]"
+        data="[[agents]]"
+      >
       </things-resource-grid>
-      <things-resource-grid class="flex" fixed-column-count="1" bottom id="printerGrid" model="[[printerGridModel]]" columns="[[printerGridColumns]]" data="[[agent.printer_infos]]" buttons="[[printerButtons]]">
+      <things-resource-grid
+        class="flex"
+        fixed-column-count="1"
+        bottom
+        id="printerGrid"
+        model="[[printerGridModel]]"
+        columns="[[printerGridColumns]]"
+        data="[[agent.printer_infos]]"
+        buttons="[[printerButtons]]"
+      >
       </things-resource-grid>
     </things-layout-zeus>
   </template>
   <script>
     Polymer({
-      is: 'things-base-agent-manager',
+      is: "things-base-agent-manager",
 
       properties: {
         agents: {
           type: Object,
-          observer: '_onAgentChange'
+          observer: "_onAgentChange",
         },
 
         agent: {
-          type: Object
+          type: Object,
         },
 
         agentGridModel: {
           type: Array,
-          value: function() {
-            return [{
-              fieldName: 'id'
-            }, {
-              fieldName: 'name'
-            }, {
-              fieldName: 'manager_server_host'
-            }, {
-              fieldName: 'manager_server_port'
-            }, {
-              fieldName: 'printer_infos',
-              dataType: 'object'
-            }]
+          value: function () {
+            return [
+              {
+                fieldName: "id",
+              },
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "manager_server_host",
+              },
+              {
+                fieldName: "manager_server_port",
+              },
+              {
+                fieldName: "printer_infos",
+                dataType: "object",
+              },
+            ];
           },
-          readOnly: true
+          readOnly: true,
         },
 
         agentGridColumns: {
           type: Array,
-          value: function() {
-            return [{
-              fieldName: 'id',
-              header: {
-                text: Things.DataGlobal.t('label.id')
+          value: function () {
+            return [
+              {
+                fieldName: "id",
+                header: {
+                  text: Things.DataGlobal.t("label.id"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'name',
-              header: {
-                text: Things.DataGlobal.t('label.name')
+              {
+                fieldName: "name",
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'manager_server_host',
-              header: {
-                text: Things.DataGlobal.t('label.manager_server_host')
+              {
+                fieldName: "manager_server_host",
+                header: {
+                  text: Things.DataGlobal.t("label.manager_server_host"),
+                },
+                width: 350,
               },
-              width: 350
-            }, {
-              fieldName: 'manager_server_port',
-              header: {
-                text: Things.DataGlobal.t('label.manager_server_port')
+              {
+                fieldName: "manager_server_port",
+                header: {
+                  text: Things.DataGlobal.t("label.manager_server_port"),
+                },
+                width: 200,
               },
-              width: 200
-            }]
+            ];
           },
-          readOnly: true
+          readOnly: true,
         },
 
         printerButtons: {
           type: Array,
-          value: [{
-            id: 'refresh-btn',
-            text: 'refresh'
-          }]
+          value: [
+            {
+              id: "refresh-btn",
+              text: "refresh",
+            },
+          ],
         },
 
         printers: {
-          type: Array
+          type: Array,
         },
 
         printerGridModel: {
           type: Array,
-          value: function() {
-            return [{
-              fieldName: 'name'
-            }, {
-              fieldName: 'char_set'
-            }, {
-              fieldName: 'agent_name'
-            }, {
-              fieldName: 'color_supported'
-            }, {
-              fieldName: 'queued_job_count'
-            }, {
-              fieldName: 'description'
-            }, {
-              fieldName: 'command'
-            }, {
-              fieldName: 'model'
-            }]
+          value: function () {
+            return [
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "char_set",
+              },
+              {
+                fieldName: "agent_name",
+              },
+              {
+                fieldName: "color_supported",
+              },
+              {
+                fieldName: "queued_job_count",
+              },
+              {
+                fieldName: "description",
+              },
+              {
+                fieldName: "command",
+              },
+              {
+                fieldName: "model",
+              },
+            ];
           },
-          readOnly: true
+          readOnly: true,
         },
 
         printerGridColumns: {
           type: Array,
-          value: function() {
-            return [{
-              fieldName: 'name',
-              header: {
-                text: Things.DataGlobal.t('label.name')
+          value: function () {
+            return [
+              {
+                fieldName: "name",
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+                width: 250,
               },
-              width: 250
-            }, {
-              fieldName: 'description',
-              header: {
-                text: Things.DataGlobal.t('label.description')
+              {
+                fieldName: "description",
+                header: {
+                  text: Things.DataGlobal.t("label.description"),
+                },
+                width: 250,
               },
-              width: 250
-            }, {
-              fieldName: 'agent_name',
-              header: {
-                text: Things.DataGlobal.t('label.agent_name')
+              {
+                fieldName: "agent_name",
+                header: {
+                  text: Things.DataGlobal.t("label.agent_name"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'char_set',
-              header: {
-                text: Things.DataGlobal.t('label.char_set')
+              {
+                fieldName: "char_set",
+                header: {
+                  text: Things.DataGlobal.t("label.char_set"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'command',
-              header: {
-                text: Things.DataGlobal.t('label.command')
+              {
+                fieldName: "command",
+                header: {
+                  text: Things.DataGlobal.t("label.command"),
+                },
+                width: 250,
               },
-              width: 250
-            }, {
-              fieldName: 'model',
-              header: {
-                text: Things.DataGlobal.t('label.model')
+              {
+                fieldName: "model",
+                header: {
+                  text: Things.DataGlobal.t("label.model"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'color_supported',
-              header: {
-                text: Things.DataGlobal.t('label.color_supported')
+              {
+                fieldName: "color_supported",
+                header: {
+                  text: Things.DataGlobal.t("label.color_supported"),
+                },
+                width: 100,
               },
-              width: 100
-            }, {
-              fieldName: 'queued_job_count',
-              header: {
-                text: Things.DataGlobal.t('label.queued_job_count')
+              {
+                fieldName: "queued_job_count",
+                header: {
+                  text: Things.DataGlobal.t("label.queued_job_count"),
+                },
+                width: 100,
               },
-              width: 100
-            }]
+            ];
           },
-          readOnly: true
-        }
+          readOnly: true,
+        },
       },
 
       listeners: {
-        'agentGrid.things-grid-row-data-select': '_onAgentSelected',
-        'printerGrid.things-grid-row-data-select': '_onPrinterSelected',
-        'printerGrid.refresh-btn-tap': '_onRefresh'
+        "agentGrid.things-grid-row-data-select": "_onAgentSelected",
+        "printerGrid.things-grid-row-data-select": "_onPrinterSelected",
+        "printerGrid.refresh-btn-tap": "_onRefresh",
       },
 
-      _onAgentSelected: function(e) {
-        this.set('agent', e.detail);
+      _onAgentSelected: function (e) {
+        this.set("agent", e.detail);
       },
-      
-      _onPrinterSelected: function() {
 
-      },
-      
-      _onRefresh: function() {
+      _onPrinterSelected: function () {},
+
+      _onRefresh: function () {
         this.$.getAgentsInfos.generateRequest();
       },
-      
-      _onAgentChange: function(agents) {
+
+      _onAgentChange: function (agents) {
         if (agents && agents.length > 0) {
-          this.set('agent', agents[0]);
+          this.set("agent", agents[0]);
         }
-      }
+      },
     });
   </script>
 </dom-module>

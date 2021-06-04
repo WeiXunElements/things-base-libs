@@ -1,50 +1,47 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 <!--
 로그인 첫페이지에 나오는 화면
 -->
 
 <dom-module id="things-home">
-    <style>
-      :host {
-        display: block;
-        @apply(--layout-vertical);
-        background-color:#eceae5
+  <style>
+    :host {
+      display: block;
+      @apply (--layout-vertical);
+      background-color: #eceae5;
+    }
+    iron-image {
+      @apply (--things-home-image);
+      background-image: var(--things-home-image-url);
+      background-position: var(--things-home-image-position);
+    }
+    @media screen and (max-width: 999px) {
+      iron-image {
+        @apply (--things-home-image-small);
+        margin: 90px 58px 0 58px !important;
       }
-      iron-image{
-        @apply(--things-home-image);
-        background-image : var(--things-home-image-url);
-        background-position : var(--things-home-image-position);
-      }
-      @media screen and (max-width:999px) {
-        iron-image{
-          @apply(--things-home-image-small);
-          margin:90px 58px 0 58px !important
-        }
-      }
-    </style>
-	<template>
-		<iron-image id="image" class="flex" sizing="cover"></iron-image>
-	</template>
-	<script>
-		Polymer({
-			is: 'things-home',
+    }
+  </style>
+  <template>
+    <iron-image id="image" class="flex" sizing="cover"></iron-image>
+  </template>
+  <script>
+    Polymer({
+      is: "things-home",
       properties: {
         dataRoute: {
           type: Object,
-          observer: 'routingChange'
-        }
+          observer: "routingChange",
+        },
       },
-      behaviors: [
-        Things.MenuContentBehavior
-      ],
+      behaviors: [Things.MenuContentBehavior],
       /**
        * menu info 변경시 풀스크린 이벤트 리스너 등록
        */
-      routingChange: function(menuInfo) {
-      }
-		});
-	</script>
+      routingChange: function (menuInfo) {},
+    });
+  </script>
 </dom-module>

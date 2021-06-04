@@ -1,15 +1,15 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-icon/iron-icon.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../iron-icon/iron-icon.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-form/things-resource-form.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-form/things-resource-form.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
 <!--
 공통 코드 디테일 화면 
@@ -20,26 +20,26 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
       #layout-flex {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--layout-flex);
-        padding-top:0;
+        @apply (--layout-flex);
+        padding-top: 0;
       }
       .subtitle:before {
-        content:"";
-        @apply(--things-subtitle-icon);
+        content: "";
+        @apply (--things-subtitle-icon);
       }
 
       .subtitle {
-        @apply(--things-default-padding);
-        padding-top:0;
-        padding-bottom:7px;
-        @apply(--things-subtitle);
+        @apply (--things-default-padding);
+        padding-top: 0;
+        padding-bottom: 7px;
+        @apply (--things-subtitle);
       }
     </style>
 
@@ -52,97 +52,99 @@ Copyright © HatioLab Inc. All rights reserved.
         resource-id="{{resourceId}}"
         query-fields="[[queryFields]]"
         sort-fields="[[sortFields]]"
-        last-response="{{lastResponse}}">
+        last-response="{{lastResponse}}"
+      >
       </things-ajax>
 
       <things-resource-form
-        id='resource-form'
+        id="resource-form"
         title="[[title]]"
         resource-type="CommonCode"
         resource-url="[[codeDetailUrl]]"
         resource-id="[[resourceId]]"
-        form-fields="[[formFields]]">
+        form-fields="[[formFields]]"
+      >
       </things-resource-form>
 
       <span class="subtitle">
         <things-i18n-msg msgid="label.sub_codes"></things-i18n-msg>
       </span>
 
-      <things-resource-grid 
+      <things-resource-grid
         id="grid"
         config="[[gridConfig]]"
-        model="[[gridModel]]" 
+        model="[[gridModel]]"
         columns="[[gridColumns]]"
         data="[[items]]"
         grid-save-action="[[gridSaveUrl]]"
-        buttons="[[buttons]]">
+        buttons="[[buttons]]"
+      >
       </things-resource-grid>
     </div>
   </template>
 
   <script>
     Polymer({
+      is: "things-base-code-detail",
 
-      is: 'things-base-code-detail',
-
-      behaviors: [ 
-        Things.ViewOpenBehavior
-      ],
+      behaviors: [Things.ViewOpenBehavior],
 
       properties: {
         /**
          * code id
          */
         resourceId: {
-          type: String
+          type: String,
         },
 
         /**
          * code resource
          */
         resource: {
-          type: Object
+          type: Object,
         },
 
         /**
-         * 화면 타이틀 
+         * 화면 타이틀
          */
         title: {
-          type: String
+          type: String,
         },
 
         /**
          * code list
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         /**
-         * code 조회 결과 (response) 정보 
+         * code 조회 결과 (response) 정보
          */
         lastResponse: {
           type: Object,
-          observer: '_codeMasterChanged'
+          observer: "_codeMasterChanged",
         },
 
         /**
          * grid search fields
          */
-        searchFields : {
+        searchFields: {
           type: String,
-          value: 'id,parent_id,name,description'
+          value: "id,parent_id,name,description",
         },
 
         /**
          * grid sort fields
          */
-        sortFields : {
+        sortFields: {
           type: Array,
-          value: [ {
-            field : 'name',
-            ascending : true
-          } ]
+          value: [
+            {
+              field: "name",
+              ascending: true,
+            },
+          ],
         },
 
         /**
@@ -150,23 +152,28 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridModel: {
           type: Array,
-          value: [ {
-            fieldName : 'id'
-          }, {
-            fieldName : 'parent_id'
-          }, { 
-            fieldName : 'name' 
-          }, { 
-            fieldName : 'description' 
-          } ]
+          value: [
+            {
+              fieldName: "id",
+            },
+            {
+              fieldName: "parent_id",
+            },
+            {
+              fieldName: "name",
+            },
+            {
+              fieldName: "description",
+            },
+          ],
         },
-        
+
         /**
          * grid columns
          */
         gridColumns: {
           type: Array,
-          value: []
+          value: [],
         },
 
         /**
@@ -174,7 +181,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         codeDetailUrl: {
           type: String,
-          value: 'common_codes/:id'
+          value: "common_codes/:id",
         },
 
         /**
@@ -182,63 +189,72 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: '_computeCodeListSaveUrl(resourceId)'
+          computed: "_computeCodeListSaveUrl(resourceId)",
         },
 
         /**
-         * 버튼 정보 
+         * 버튼 정보
          */
         buttons: {
           type: Array,
-          value: [ {
-            id: 'add-btn',
-            text: 'add'
-          }, {
-            id: 'save-btn',
-            text: 'save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete'
-          } ]
-        }
+          value: [
+            {
+              id: "add-btn",
+              text: "add",
+            },
+            {
+              id: "save-btn",
+              text: "save",
+            },
+            {
+              id: "delete-btn",
+              text: "delete",
+            },
+          ],
+        },
       },
 
       listeners: {
-        'grid.things-grid-handle-addrow' : 'addRow',
-        'grid.things-grid-save-success' : 'reloadGrid'
+        "grid.things-grid-handle-addrow": "addRow",
+        "grid.things-grid-save-success": "reloadGrid",
       },
 
       /**
        * Column 번역을 위하여 Attached로 바꿈
        */
-      attached: function() {
-        this.gridColumns = [ {
-          fieldName: 'id',
-          width: 0
-        }, {
-          fieldName: 'parent_id',
-          width: 0
-        }, {
-          fieldName: 'name',
-          header: {
-            text: Things.DataGlobal.t('label.name')
+      attached: function () {
+        this.gridColumns = [
+          {
+            fieldName: "id",
+            width: 0,
           },
-          width: 250
-        }, {
-          fieldName: 'description',
-          header: {
-            text: Things.DataGlobal.t('label.description')
+          {
+            fieldName: "parent_id",
+            width: 0,
           },
-          width: 350
-        } ];
+          {
+            fieldName: "name",
+            header: {
+              text: Things.DataGlobal.t("label.name"),
+            },
+            width: 250,
+          },
+          {
+            fieldName: "description",
+            header: {
+              text: Things.DataGlobal.t("label.description"),
+            },
+            width: 350,
+          },
+        ];
       },
 
       /**
-       * 코드 정보 변경시 
+       * 코드 정보 변경시
        *
        * @param {Object} lastResponse
        */
-      _codeMasterChanged: function(lastResponse) {
+      _codeMasterChanged: function (lastResponse) {
         this.items = lastResponse.items;
         this.resource = lastResponse;
       },
@@ -249,8 +265,8 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} code save url
        */
-      _computeCodeListSaveUrl: function(resourceId) {
-        return 'common_codes/' + resourceId + '/update_multiple_codes.json';
+      _computeCodeListSaveUrl: function (resourceId) {
+        return "common_codes/" + resourceId + "/update_multiple_codes.json";
       },
 
       /**
@@ -258,7 +274,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      addRow: function(e) {
+      addRow: function (e) {
         e.preventDefault();
         var grid = this.$.grid;
         var count = grid.dataSet.rowCount();
@@ -272,8 +288,8 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      reloadGrid: function(e) {
-        this.$['subcode-list'].generateRequest();
+      reloadGrid: function (e) {
+        this.$["subcode-list"].generateRequest();
       },
 
       /**
@@ -282,13 +298,13 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @param {Object} resource
        */
-      showDetailView: function(resourceId, resource) {
-        if(this.resourceId != resourceId) {
+      showDetailView: function (resourceId, resource) {
+        if (this.resourceId != resourceId) {
           this.resourceId = resourceId;
         }
 
         this.openPopupView(this, true);
-      }
+      },
     });
   </script>
 </dom-module>

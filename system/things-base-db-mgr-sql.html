@@ -1,257 +1,261 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-code-editor/things-code-editor.html">
-<link rel="import" href="../../things-input-field/things-textarea.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-code-editor/things-code-editor.html" />
+<link rel="import" href="../../things-input-field/things-textarea.html" />
 
-<link rel="import" href="./things-base-random-query-grid.html">
+<link rel="import" href="./things-base-random-query-grid.html" />
 
 <!--
 	쿼리 실행기
 -->
 
 <dom-module id="things-base-db-mgr-sql">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-layout-zeus {
-				@apply(--layout-flex);
-				@apply(--layout-vertical);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-			things-code-editor {
-				@apply(--layout-flex);
-			}
-			things-base-random-query-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-layout-zeus {
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+      things-code-editor {
+        @apply (--layout-flex);
+      }
+      things-base-random-query-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- 상하 1:3 분할 레이아웃 -->
-		<things-layout-zeus hide-top-subtitle hide-bottom-subtitle bottom-ratio="ratio2">
-			<!-- top area -->
-			<things-code-editor
-				top
-				id="sql-editor"
-				theme="ace/theme/monokai"
-				resource="{{sqlObject}}"
-				code-field="sql"
-				mode="ace/mode/sql"
-				buttons="[[buttons]]">
-			</things-code-editor>
+    <!-- 상하 1:3 분할 레이아웃 -->
+    <things-layout-zeus hide-top-subtitle hide-bottom-subtitle bottom-ratio="ratio2">
+      <!-- top area -->
+      <things-code-editor
+        top
+        id="sql-editor"
+        theme="ace/theme/monokai"
+        resource="{{sqlObject}}"
+        code-field="sql"
+        mode="ace/mode/sql"
+        buttons="[[buttons]]"
+      >
+      </things-code-editor>
 
-			<!-- bottom area -->
-			<things-base-random-query-grid
-				bottom
-				id="grid">
-			</things-base-random-query-grid>
-		</things-layout-zeus>
-	</template>
+      <!-- bottom area -->
+      <things-base-random-query-grid bottom id="grid"> </things-base-random-query-grid>
+    </things-layout-zeus>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'things-base-db-mgr-sql',
+  <script>
+    Polymer({
+      is: "things-base-db-mgr-sql",
 
-			properties: {
-				/**
-				 * Resource
-				 */
-				resource: {
-					type: Object
-				},
+      properties: {
+        /**
+         * Resource
+         */
+        resource: {
+          type: Object,
+        },
 
-				/**
-				 * sql 구문이 포함되어 있는 object
-				 */
-				sqlObject: {
-					type: Object,
-					value: {
-						sql: null
-					}
-				},
+        /**
+         * sql 구문이 포함되어 있는 object
+         */
+        sqlObject: {
+          type: Object,
+          value: {
+            sql: null,
+          },
+        },
 
-				/**
-				 * 그리드 모델
-				 */
-				tableColumns: {
-					type: Array
-				},
+        /**
+         * 그리드 모델
+         */
+        tableColumns: {
+          type: Array,
+        },
 
-				/**
-				 * buttons
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [ {
-							id: 'select-btn',
-							text: 'select-query'
-						}, {
-							id: 'insert-btn',
-							text: 'insert-query'
-						}, {
-							id: 'update-btn',
-							text: 'update-query'
-						}, {
-							id: 'clear-btn',
-							text: 'reset'
-						}, {
-							id: 'invoke-btn',
-							text: 'invoke'
-						} ];
-					}
-				},
+        /**
+         * buttons
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "select-btn",
+                text: "select-query",
+              },
+              {
+                id: "insert-btn",
+                text: "insert-query",
+              },
+              {
+                id: "update-btn",
+                text: "update-query",
+              },
+              {
+                id: "clear-btn",
+                text: "reset",
+              },
+              {
+                id: "invoke-btn",
+                text: "invoke",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * 탭 문자열
-				 */
-				tabStr: {
-					type: String,
-					value: '	'
-				},
+        /**
+         * 탭 문자열
+         */
+        tabStr: {
+          type: String,
+          value: "	",
+        },
 
-				/**
-				 * 라인 문자열
-				 */
-				lineStr: {
-					type: String,
-					value: '\n'
-				}
-			},
+        /**
+         * 라인 문자열
+         */
+        lineStr: {
+          type: String,
+          value: "\n",
+        },
+      },
 
-			listeners: {
-				'select-btn-tap': 'selectQuery',
-				'insert-btn-tap': 'insertQuery',
-				'update-btn-tap': 'updateQuery',
-				'clear-btn-tap': 'clearEditor',
-				'invoke-btn-tap': 'executeQuery'
-			},
+      listeners: {
+        "select-btn-tap": "selectQuery",
+        "insert-btn-tap": "insertQuery",
+        "update-btn-tap": "updateQuery",
+        "clear-btn-tap": "clearEditor",
+        "invoke-btn-tap": "executeQuery",
+      },
 
-			/**
-			 * Select Query를 생성
-			 *********
-			 * @param {Object} event
-			 */
-			selectQuery: function(event) {
-				if(this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
-					var sql = 'SELECT' + this.lineStr;
-					sql += this.tabStr + this._queryColumns() + this.lineStr;
-					sql += 'FROM' + this.lineStr;
-					sql += this.tabStr + this.resource.table_name;
-					this.sqlObject = { sql : sql };
-				}
-			},
+      /**
+       * Select Query를 생성
+       *********
+       * @param {Object} event
+       */
+      selectQuery: function (event) {
+        if (this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
+          var sql = "SELECT" + this.lineStr;
+          sql += this.tabStr + this._queryColumns() + this.lineStr;
+          sql += "FROM" + this.lineStr;
+          sql += this.tabStr + this.resource.table_name;
+          this.sqlObject = { sql: sql };
+        }
+      },
 
-			/**
-			 * Insert Query를 생성
-			 *********
-			 * @param {Object} event
-			 */
-			insertQuery: function(event) {
-				if(this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
-					var sql = 'INSERT INTO ' + this.resource.table_name + ' (' + this.lineStr;
-					sql += this.tabStr + this._queryColumns() + this.lineStr;
-					sql += ') VALUES (' + this.lineStr;
-					sql += this.tabStr + this._queryParams() + this.lineStr;
-					sql += ')';
-					this.sqlObject = { sql : sql };
-				}
-			},
+      /**
+       * Insert Query를 생성
+       *********
+       * @param {Object} event
+       */
+      insertQuery: function (event) {
+        if (this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
+          var sql = "INSERT INTO " + this.resource.table_name + " (" + this.lineStr;
+          sql += this.tabStr + this._queryColumns() + this.lineStr;
+          sql += ") VALUES (" + this.lineStr;
+          sql += this.tabStr + this._queryParams() + this.lineStr;
+          sql += ")";
+          this.sqlObject = { sql: sql };
+        }
+      },
 
-			/**
-			 * Update Query를 생성
-			 *********
-			 * @param {Object} event
-			 */
-			updateQuery: function(event) {
-				if(this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
-					var sql = 'UPDATE ' + this.lineStr;
-					sql += this.tabStr + this.resource.table_name + this.lineStr;
-					sql += 'SET ' + this.lineStr;
-					sql += this.tabStr + this._queryBindColumns() + this.lineStr;
-					sql += 'WHERE' + this.lineStr;
-					sql += this.tabStr + '<condition>';
-					this.sqlObject = { sql : sql };
-				}
-			},
+      /**
+       * Update Query를 생성
+       *********
+       * @param {Object} event
+       */
+      updateQuery: function (event) {
+        if (this.resource && this.resource.table_name && this.tableColumns && this.tableColumns.length > 0) {
+          var sql = "UPDATE " + this.lineStr;
+          sql += this.tabStr + this.resource.table_name + this.lineStr;
+          sql += "SET " + this.lineStr;
+          sql += this.tabStr + this._queryBindColumns() + this.lineStr;
+          sql += "WHERE" + this.lineStr;
+          sql += this.tabStr + "<condition>";
+          this.sqlObject = { sql: sql };
+        }
+      },
 
-			/**
-			 * invoke 버튼 클릭시 에디터의 sql 문으로 쿼리를 수행
-			 *********
-			 * @param {Object} event
-			 */
-			executeQuery: function(event) {
-				var sql = this.sqlObject ? this.sqlObject.sql : null;
-				sql = sql ? sql.trim() : null;
+      /**
+       * invoke 버튼 클릭시 에디터의 sql 문으로 쿼리를 수행
+       *********
+       * @param {Object} event
+       */
+      executeQuery: function (event) {
+        var sql = this.sqlObject ? this.sqlObject.sql : null;
+        sql = sql ? sql.trim() : null;
 
-				if(sql && sql.length > 7) {
-					this.$.grid.executeQuery(sql);
-				}
-			},
+        if (sql && sql.length > 7) {
+          this.$.grid.executeQuery(sql);
+        }
+      },
 
-			/**
-			 * clear 버튼 클릭시 에디터 클리어
-			 *********
-			 * @param {Object} event
-			 */
-			clearEditor: function(event) {
-				this.sqlObject = { sql : '' };
-			},
+      /**
+       * clear 버튼 클릭시 에디터 클리어
+       *********
+       * @param {Object} event
+       */
+      clearEditor: function (event) {
+        this.sqlObject = { sql: "" };
+      },
 
-			/**
-			 * 쿼리에 컬럼 정보 추가
-			 *********
-			 */
-			_queryColumns: function() {
-				var columns = '';
+      /**
+       * 쿼리에 컬럼 정보 추가
+       *********
+       */
+      _queryColumns: function () {
+        var columns = "";
 
-				for(var i = 0 ; i < this.tableColumns.length; i++) {
-					if(i > 0) columns += ', ';
-					columns += this.tableColumns[i].name;
-				}
+        for (var i = 0; i < this.tableColumns.length; i++) {
+          if (i > 0) columns += ", ";
+          columns += this.tableColumns[i].name;
+        }
 
-				return columns;
-			},
+        return columns;
+      },
 
-			/**
-			 * 쿼리에 파라미터 정보 추가
-			 *********
-			 */
-			_queryParams: function() {
-				var params = '';
+      /**
+       * 쿼리에 파라미터 정보 추가
+       *********
+       */
+      _queryParams: function () {
+        var params = "";
 
-				for(var i = 0 ; i < this.tableColumns.length; i++) {
-					if(i > 0) params += ', ';
-					params += '?';
-				}
+        for (var i = 0; i < this.tableColumns.length; i++) {
+          if (i > 0) params += ", ";
+          params += "?";
+        }
 
-				return params;
-			},
+        return params;
+      },
 
-			/**
-			 * 쿼리와 파라미터 바인딩 쿼리
-			 *********
-			 */
-			_queryBindColumns: function() {
-				var columns = '';
+      /**
+       * 쿼리와 파라미터 바인딩 쿼리
+       *********
+       */
+      _queryBindColumns: function () {
+        var columns = "";
 
-				for(var i = 0 ; i < this.tableColumns.length; i++) {
-					if(i > 0) columns += ', ';
-					columns += this.tableColumns[i].name + ' = ?';
-				}
+        for (var i = 0; i < this.tableColumns.length; i++) {
+          if (i > 0) columns += ", ";
+          columns += this.tableColumns[i].name + " = ?";
+        }
 
-				return columns;
-			}
-		})
-	</script>
+        return columns;
+      },
+    });
+  </script>
 </dom-module>

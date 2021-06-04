@@ -1,241 +1,258 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
-<link rel="import" href="../common/things-text-viewer.html">
+<link rel="import" href="../common/things-text-viewer.html" />
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Trace 화면
 -->
 
 <dom-module id="admin-app-trace">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- Trace 내용 조회 -->
-		<things-ajax
-			id="app-trace-ajax"
-			resource-action="find">
-		</things-ajax>
+    <!-- Trace 내용 조회 -->
+    <things-ajax id="app-trace-ajax" resource-action="find"> </things-ajax>
 
-		<things-resource-grid
-			left
-			id="grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[items]]"
-			total-count="[[itemCount]]"
-			current-page="{{page}}"
-			limit="{{limit}}"
-			fixed-column-count="0"
-			enable-detail-column>
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      left
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[items]]"
+      total-count="[[itemCount]]"
+      current-page="{{page}}"
+      limit="{{limit}}"
+      fixed-column-count="0"
+      enable-detail-column
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-app-trace',
+  <script>
+    Polymer({
+      is: "admin-app-trace",
 
-			properties: {
-				/**
-				 * Admin Base Url
-				 */
-				adminBaseUrl: {
-					type: String
-				},
+      properties: {
+        /**
+         * Admin Base Url
+         */
+        adminBaseUrl: {
+          type: String,
+        },
 
-				/**
-				 * Application 선택 후 ...
-				 */
-				resource: {
-					type: Object,
-					observer: 'resourceChanged'
-				},
+        /**
+         * Application 선택 후 ...
+         */
+        resource: {
+          type: Object,
+          observer: "resourceChanged",
+        },
 
-				/**
-				 * Trace List
-				 */
-				items: {
-					type: Array,
-				},
+        /**
+         * Trace List
+         */
+        items: {
+          type: Array,
+        },
 
-				/**
-				 * Grid Config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									visible: false
-								}
-							}
-						}
-					}
-				},
+        /**
+         * Grid Config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  visible: false,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Grid Model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'status'
-						}, {
-							fieldName: 'path'
-						}, {
-							fieldName: 'method'
-						}, {
-							fieldName: 'query'
-						}, {
-							fieldName: 'remote'
-						}, {
-							fieldName: 'timestamp'
-						}, {
-							fieldName: 'info',
-							dataType: 'object'
-						} ];
-					}
-				},
+        /**
+         * Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "status",
+              },
+              {
+                fieldName: "path",
+              },
+              {
+                fieldName: "method",
+              },
+              {
+                fieldName: "query",
+              },
+              {
+                fieldName: "remote",
+              },
+              {
+                fieldName: "timestamp",
+              },
+              {
+                fieldName: "info",
+                dataType: "object",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * Grid Columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'status',
-							fieldName: 'status',
-							width: 75,
-							header: {
-								text: Things.DataGlobal.t('label.status')
-							},
-							styles: {
-								textAlignment: 'center'
-							}/*,
+        /**
+         * Grid Columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "status",
+                fieldName: "status",
+                width: 75,
+                header: {
+                  text: Things.DataGlobal.t("label.status"),
+                },
+                styles: {
+                  textAlignment: "center",
+                } /*,
 							dynamicStyles: [ {
 								expression: "values['status'] != '200' && values['status'] != '201'",
 								styles: {
 									background: '#ffcccc'
 								}
-							} ]*/
-						}, {
-							name: 'path',
-							fieldName: 'path',
-							width: 400,
-							header: {
-								text: Things.DataGlobal.t('label.path')
-							},
-							editable: false
-						}, {
-							name: 'method',
-							fieldName: 'method',
-							width: 85,
-							header: {
-								text: Things.DataGlobal.t('label.method')
-							}
-						}, {
-							name: 'timestamp',
-							fieldName: 'timestamp',
-							width: 140,
-							header: {
-								text: Things.DataGlobal.t('label.created_at')
-							}
-						} ];
-					}
-				}
-			},
+							} ]*/,
+              },
+              {
+                name: "path",
+                fieldName: "path",
+                width: 400,
+                header: {
+                  text: Things.DataGlobal.t("label.path"),
+                },
+                editable: false,
+              },
+              {
+                name: "method",
+                fieldName: "method",
+                width: 85,
+                header: {
+                  text: Things.DataGlobal.t("label.method"),
+                },
+              },
+              {
+                name: "timestamp",
+                fieldName: "timestamp",
+                width: 140,
+                header: {
+                  text: Things.DataGlobal.t("label.created_at"),
+                },
+              },
+            ];
+          },
+        },
+      },
 
-			listeners: {
-				'grid.things-grid-detail-tap': '_detailButtonSelected',
-				'app-trace-ajax.things-ajax-response': '_traceListArrived',
-				'app-trace-ajax.things-ajax-error': '_errorHandler'
-			},
+      listeners: {
+        "grid.things-grid-detail-tap": "_detailButtonSelected",
+        "app-trace-ajax.things-ajax-response": "_traceListArrived",
+        "app-trace-ajax.things-ajax-error": "_errorHandler",
+      },
 
-			/**
-			 * 상세 버튼 클릭시 ...
-			 *
-			 * @param {Object} event
-			 */
-			_detailButtonSelected: function(event) {
-				var view = document.createElement('things-text-viewer');
-				view.title = 'Request & Response';
-				view.content = event.detail.info ? JSON.stringify(event.detail.info, null, 4) : JSON.stringify(event.detail, null, 4);
-				var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
-				var event = new CustomEvent('things-open-popup-view', { 'detail': eventDetail });
-				document.dispatchEvent(event);
-			},
+      /**
+       * 상세 버튼 클릭시 ...
+       *
+       * @param {Object} event
+       */
+      _detailButtonSelected: function (event) {
+        var view = document.createElement("things-text-viewer");
+        view.title = "Request & Response";
+        view.content = event.detail.info
+          ? JSON.stringify(event.detail.info, null, 4)
+          : JSON.stringify(event.detail, null, 4);
+        var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
+        var event = new CustomEvent("things-open-popup-view", { detail: eventDetail });
+        document.dispatchEvent(event);
+      },
 
-			/**
-			 * Trace 데이터 조회 완료 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_traceListArrived: function(event) {
-				var traceList = event.detail;
+      /**
+       * Trace 데이터 조회 완료 이후 ...
+       *
+       * @param {Object} event
+       */
+      _traceListArrived: function (event) {
+        var traceList = event.detail;
 
-				if(traceList && traceList.length > 0) {
-					this.items = traceList.map(function(item) {
-						item.path = item.path ? item.path : (item.info ? item.info.path : '');
-						item.path = item.path ? item.path : '/';
-						item.method = item.method ? item.method : (item.info ? item.info.method : '');
-						item.status = item.response ? item.response.status : (item.info.headers && item.info.headers.response ? item.info.headers.response.status : '');
-						return item;
-					});
-				} else {
-					this.items = [];
-				}
+        if (traceList && traceList.length > 0) {
+          this.items = traceList.map(function (item) {
+            item.path = item.path ? item.path : item.info ? item.info.path : "";
+            item.path = item.path ? item.path : "/";
+            item.method = item.method ? item.method : item.info ? item.info.method : "";
+            item.status = item.response
+              ? item.response.status
+              : item.info.headers && item.info.headers.response
+              ? item.info.headers.response.status
+              : "";
+            return item;
+          });
+        } else {
+          this.items = [];
+        }
 
-				this.itemCount = this.items.length;
-			},
+        this.itemCount = this.items.length;
+      },
 
-			/**
-			 * Error 핸들링 ...
-			 *
-			 * @param {Object} event
-			 */
-			_errorHandler: function(event) {
-				this.items = [];
-				this.itemCount = 0;
-			},
+      /**
+       * Error 핸들링 ...
+       *
+       * @param {Object} event
+       */
+      _errorHandler: function (event) {
+        this.items = [];
+        this.itemCount = 0;
+      },
 
-			/**
-			 * Application 선택이 변경된 경우 trace list 호출
-			 */
-			resourceChanged: function(resource) {
-				var traceListAjax = this.$['app-trace-ajax'];
-				traceListAjax.withCredentials = false;
-				traceListAjax.resourceUrl = this.adminBaseUrl + '/:id/trace';
-				traceListAjax.resourceId = resource.id;
-				traceListAjax.generateRequest();
-			},
+      /**
+       * Application 선택이 변경된 경우 trace list 호출
+       */
+      resourceChanged: function (resource) {
+        var traceListAjax = this.$["app-trace-ajax"];
+        traceListAjax.withCredentials = false;
+        traceListAjax.resourceUrl = this.adminBaseUrl + "/:id/trace";
+        traceListAjax.resourceId = resource.id;
+        traceListAjax.generateRequest();
+      },
 
-			/**
-			 * Data Refresh ...
-			 */
-			refresh: function() {
-				if(this.resource) {
-					this.$['app-trace-ajax'].generateRequest();
-				}
-			}
-		});
-	</script>
+      /**
+       * Data Refresh ...
+       */
+      refresh: function () {
+        if (this.resource) {
+          this.$["app-trace-ajax"].generateRequest();
+        }
+      },
+    });
+  </script>
 </dom-module>

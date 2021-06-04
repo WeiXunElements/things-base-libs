@@ -1,10 +1,10 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-code-editor/things-code-editor.html">
+<link rel="import" href="../../things-code-editor/things-code-editor.html" />
 
 <!--
   텍스트 정보를 보여주는 상세 화면
@@ -15,11 +15,11 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
       }
       things-code-editor {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
@@ -29,13 +29,14 @@ Copyright © HatioLab Inc. All rights reserved.
       resource="[[resource]]"
       code-field="content"
       mode="ace/mode/json"
-      buttons='[]'>
+      buttons="[]"
+    >
     </things-code-editor>
   </template>
 
   <script>
     Polymer({
-      is: 'things-text-viewer',
+      is: "things-text-viewer",
 
       properties: {
         /**
@@ -43,7 +44,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         title: {
           type: String,
-          value: 'Detail'
+          value: "Detail",
         },
 
         /**
@@ -51,23 +52,23 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         content: {
           type: String,
-          observer: '_contentChagned'
+          observer: "_contentChagned",
         },
 
         /**
          * 코드 에디터에서 사용할 Resource
          */
         resource: {
-          type: Object
-        }
+          type: Object,
+        },
       },
 
       /**
        * 상세 내용 변경 시
        */
-      _contentChagned: function(content) {
-        this.resource = { id : 1, content : content };
-      }
-    })
+      _contentChagned: function (content) {
+        this.resource = { id: 1, content: content };
+      },
+    });
   </script>
 </dom-module>

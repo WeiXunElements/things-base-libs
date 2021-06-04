@@ -1,366 +1,380 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Logging 화면
 -->
 
 <dom-module id="admin-app-logging">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- MBean 조회 -->
-		<things-ajax
-			id="app-logger-mbean-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- MBean 조회 -->
+    <things-ajax
+      id="app-logger-mbean-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      resource-action="create"
+    >
+    </things-ajax>
 
-		<!-- Logger List 조회 -->
-		<things-ajax
-			id="app-logger-list-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- Logger List 조회 -->
+    <things-ajax
+      id="app-logger-list-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      resource-action="create"
+    >
+    </things-ajax>
 
-		<!-- Logger List의 값 조회 -->
-		<things-ajax
-			id="app-logger-value-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- Logger List의 값 조회 -->
+    <things-ajax
+      id="app-logger-value-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      resource-action="create"
+    >
+    </things-ajax>
 
-		<!-- set logger level -->
-		<things-ajax
-			id="app-set-logger-level-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- set logger level -->
+    <things-ajax
+      id="app-set-logger-level-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      resource-action="create"
+    >
+    </things-ajax>
 
-		<things-resource-grid
-			left
-			id="grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[items]]"
-			total-count="[[itemCount]]"
-			current-page="{{page}}"
-			limit="{{limit}}"
-			fixed-column-count="0">
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      left
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[items]]"
+      total-count="[[itemCount]]"
+      current-page="{{page}}"
+      limit="{{limit}}"
+      fixed-column-count="0"
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-app-logging',
+  <script>
+    Polymer({
+      is: "admin-app-logging",
 
-			properties: {
-				/**
-				 * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
-				 */
-				withCredentials: {
-					type: Boolean,
-					value: false
-				},
+      properties: {
+        /**
+         * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
+         */
+        withCredentials: {
+          type: Boolean,
+          value: false,
+        },
 
-				/**
-				 * Admin Base Url
-				 */
-				adminBaseUrl: {
-					type: String
-				},
+        /**
+         * Admin Base Url
+         */
+        adminBaseUrl: {
+          type: String,
+        },
 
-				/**
-				 * Application 선택 후 ...
-				 */
-				resource: {
-					type: Object,
-					observer: 'resourceChanged'
-				},
+        /**
+         * Application 선택 후 ...
+         */
+        resource: {
+          type: Object,
+          observer: "resourceChanged",
+        },
 
-				/**
-				 * Resource ID
-				 */
-				resourceId: {
-					type: String
-				},
+        /**
+         * Resource ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-				/**
-				 * Resource URL
-				 */
-				resourceUrl: {
-					type: String
-				},
+        /**
+         * Resource URL
+         */
+        resourceUrl: {
+          type: String,
+        },
 
-				/**
-				 * JMX List
-				 */
-				items: {
-					type: Array,
-				},
+        /**
+         * JMX List
+         */
+        items: {
+          type: Array,
+        },
 
-				/**
-				 * Grid Config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									visible: false
-								}
-							}
-						}
-					}
-				},
+        /**
+         * Grid Config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  visible: false,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Grid Model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'arguments',
-							dataType: 'object'
-						}, {
-							fieldName: 'mbean'
-						}, {
-							fieldName: 'operation'
-						}, {
-							fieldName: 'type'
-						}, {
-							fieldName: 'name'
-						}, {
-							fieldName: 'value'
-						} ];
-					}
-				},
+        /**
+         * Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "arguments",
+                dataType: "object",
+              },
+              {
+                fieldName: "mbean",
+              },
+              {
+                fieldName: "operation",
+              },
+              {
+                fieldName: "type",
+              },
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "value",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * Grid Columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'name',
-							fieldName: 'name',
-							width: 600,
-							header: {
-								text: Things.DataGlobal.t('label.name')
-							}
-						}, {
-							name: 'value',
-							fieldName: 'value',
-							width: 80,
-							header: { text: 'Level' },
-							styles: { textAlignment: 'center' },
-							validations: [],
-							editor: { type: 'search', domainOnly: true },
-							lookupDisplay: true,
-							lookupValues: ['TRACE','DEBUG','INFO','WARN','ERROR','OFF'],
-							lookupLabels: ['TRACE','DEBUG','INFO','WARN','ERROR','OFF']
-						} ];
-					}
-				}
-			},
+        /**
+         * Grid Columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "name",
+                fieldName: "name",
+                width: 600,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+              },
+              {
+                name: "value",
+                fieldName: "value",
+                width: 80,
+                header: { text: "Level" },
+                styles: { textAlignment: "center" },
+                validations: [],
+                editor: { type: "search", domainOnly: true },
+                lookupDisplay: true,
+                lookupValues: ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"],
+                lookupLabels: ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"],
+              },
+            ];
+          },
+        },
+      },
 
-			listeners: {
-				'grid.things-grid-configured': '_gridConfigured',
-				'app-logger-mbean-ajax.things-ajax-response': '_loggerMbeanArrived',
-				'app-logger-mbean-ajax.things-ajax-error': '_errorHandler',
-				'app-logger-list-ajax.things-ajax-response': '_loggerListArrived',
-				'app-logger-list-ajax.things-ajax-error': '_errorHandler',
-				'app-logger-value-ajax.things-ajax-response': '_loggerValueListArrived',
-				'app-logger-value-ajax.things-ajax-error': '_errorHandler',
-				'app-set-logger-level-ajax.things-ajax-response': '_afterSetLoggerLevel',
-				'app-set-logger-level-ajax.things-ajax-error': '_errorHandler'
-			},
+      listeners: {
+        "grid.things-grid-configured": "_gridConfigured",
+        "app-logger-mbean-ajax.things-ajax-response": "_loggerMbeanArrived",
+        "app-logger-mbean-ajax.things-ajax-error": "_errorHandler",
+        "app-logger-list-ajax.things-ajax-response": "_loggerListArrived",
+        "app-logger-list-ajax.things-ajax-error": "_errorHandler",
+        "app-logger-value-ajax.things-ajax-response": "_loggerValueListArrived",
+        "app-logger-value-ajax.things-ajax-error": "_errorHandler",
+        "app-set-logger-level-ajax.things-ajax-response": "_afterSetLoggerLevel",
+        "app-set-logger-level-ajax.things-ajax-error": "_errorHandler",
+      },
 
-			/**
-			 * 그리드 구성 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_gridConfigured: function(event) {
-				var gridObj = this.$.grid.grid;
+      /**
+       * 그리드 구성 이후 ...
+       *
+       * @param {Object} event
+       */
+      _gridConfigured: function (event) {
+        var gridObj = this.$.grid.grid;
 
-				gridObj.onEditCommitted = function(grid, index, newValue, oldValue) {
-					if(newValue != oldValue) {
-						var dataSet = grid.dataSource();
-						var rowObj = dataSet.getRowObject(index.rowIndex, '');
-						this.changeLoggerLevel(rowObj, newValue);
-					}
-				}.bind(this);
-			},
+        gridObj.onEditCommitted = function (grid, index, newValue, oldValue) {
+          if (newValue != oldValue) {
+            var dataSet = grid.dataSource();
+            var rowObj = dataSet.getRowObject(index.rowIndex, "");
+            this.changeLoggerLevel(rowObj, newValue);
+          }
+        }.bind(this);
+      },
 
-			/**
-			 * Logger MBean 데이터 조회 완료 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_loggerMbeanArrived: function(event) {
-				var loggerMbean = event.detail.value[0];
-				var loggerListAjax = this.$['app-logger-list-ajax'];
-				loggerListAjax.body = {
-					attribute : 'LoggerList',
-					mbean : loggerMbean,
-					type : 'read'
-				};
-				loggerListAjax.generateRequest();
-			},
+      /**
+       * Logger MBean 데이터 조회 완료 이후 ...
+       *
+       * @param {Object} event
+       */
+      _loggerMbeanArrived: function (event) {
+        var loggerMbean = event.detail.value[0];
+        var loggerListAjax = this.$["app-logger-list-ajax"];
+        loggerListAjax.body = {
+          attribute: "LoggerList",
+          mbean: loggerMbean,
+          type: "read",
+        };
+        loggerListAjax.generateRequest();
+      },
 
-			/**
-			 * Logger 데이터 조회 완료 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_loggerListArrived: function(event) {
-				var loggerReq = event.detail.request;
-				var loggerList = event.detail.value;
+      /**
+       * Logger 데이터 조회 완료 이후 ...
+       *
+       * @param {Object} event
+       */
+      _loggerListArrived: function (event) {
+        var loggerReq = event.detail.request;
+        var loggerList = event.detail.value;
 
-				if(loggerList && loggerList.length > 0) {
-					var loggerValueParams = loggerList.map(function(logger) {
-						return {
-							arguments: [logger],
-							mbean: loggerReq.mbean,
-							operation: 'getLoggerEffectiveLevel',
-							type: 'exec'
-						};
-					});
-					this._requestLoggerListValue(loggerValueParams);
+        if (loggerList && loggerList.length > 0) {
+          var loggerValueParams = loggerList.map(function (logger) {
+            return {
+              arguments: [logger],
+              mbean: loggerReq.mbean,
+              operation: "getLoggerEffectiveLevel",
+              type: "exec",
+            };
+          });
+          this._requestLoggerListValue(loggerValueParams);
+        } else {
+          this.items = [];
+          this.itemCount = 0;
+        }
+      },
 
-				} else {
-					this.items = [];
-					this.itemCount = 0;
-				}
-			},
+      /**
+       * Logger Value 데이터 조회 완료 이후 ...
+       *
+       * @param {Object} event
+       */
+      _loggerValueListArrived: function (event) {
+        var loggerList = event.detail;
 
-			/**
-			 * Logger Value 데이터 조회 완료 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_loggerValueListArrived: function(event) {
-				var loggerList = event.detail;
+        if (loggerList && loggerList.length > 0) {
+          this.items = loggerList.map(function (logger) {
+            var obj = logger.request;
+            obj.name = obj.arguments[0];
+            obj.value = logger.value;
+            return obj;
+          });
 
-				if(loggerList && loggerList.length > 0) {
-					this.items = loggerList.map(function(logger) {
-						var obj = logger.request;
-						obj.name = obj.arguments[0];
-						obj.value = logger.value;
-						return obj;
-					});
+          this.itemCount = this.items.length;
+        }
+      },
 
-					this.itemCount = this.items.length;
-				}
-			},
+      /**
+       * Logger 데이터 조회 완료 이후 ...
+       *
+       * @param {Object} items
+       */
+      _requestLoggerListValue: function (items) {
+        var loggerValueAjax = this.$["app-logger-value-ajax"];
+        loggerValueAjax.body = items;
+        loggerValueAjax.generateRequest();
+      },
 
-			/**
-			 * Logger 데이터 조회 완료 이후 ...
-			 *
-			 * @param {Object} items
-			 */
-			_requestLoggerListValue: function(items) {
-				var loggerValueAjax = this.$['app-logger-value-ajax'];
-				loggerValueAjax.body = items;
-				loggerValueAjax.generateRequest();
-			},
+      /**
+       * Logger Level 설정 이후 ...
+       *
+       * @param {Object} items
+       */
+      _afterSetLoggerLevel: function (event) {
+        this.refresh();
+      },
 
-			/**
-			 * Logger Level 설정 이후 ...
-			 *
-			 * @param {Object} items
-			 */
-			_afterSetLoggerLevel: function(event) {
-				this.refresh();
-			},
+      /**
+       * Error 핸들링 ...
+       *
+       * @param {Object} event
+       */
+      _errorHandler: function (event) {
+        this.items = [];
+        this.itemCount = 0;
+      },
 
-			/**
-			 * Error 핸들링 ...
-			 *
-			 * @param {Object} event
-			 */
-			_errorHandler: function(event) {
-				this.items = [];
-				this.itemCount = 0;
-			},
+      /**
+       * Application 선택이 변경된 경우 JMX List 호출
+       *
+       * @param {Object} resource
+       */
+      resourceChanged: function (resource) {
+        this.resourceUrl = this.adminBaseUrl + "/:id/jolokia";
+        this.resourceId = resource.id;
+        this.$["app-logger-mbean-ajax"].withCredentials = false;
+        this.$["app-logger-list-ajax"].withCredentials = false;
+        this.$["app-logger-value-ajax"].withCredentials = false;
+        this.$["app-set-logger-level-ajax"].withCredentials = false;
+        this.refresh();
+      },
 
-			/**
-			 * Application 선택이 변경된 경우 JMX List 호출
-			 *
-			 * @param {Object} resource
-			 */
-			resourceChanged: function(resource) {
-				this.resourceUrl = this.adminBaseUrl + '/:id/jolokia';
-				this.resourceId = resource.id;
-				this.$['app-logger-mbean-ajax'].withCredentials = false;
-				this.$['app-logger-list-ajax'].withCredentials = false;
-				this.$['app-logger-value-ajax'].withCredentials = false;
-				this.$['app-set-logger-level-ajax'].withCredentials = false;
-				this.refresh();
-			},
+      /**
+       * Data Refresh ...
+       */
+      refresh: function () {
+        if (this.resource) {
+          var loggerMbeanAjax = this.$["app-logger-mbean-ajax"];
+          loggerMbeanAjax.body = {
+            mbean: "ch.qos.logback.classic:Name=*,Type=ch.qos.logback.classic.jmx.JMXConfigurator",
+            type: "search",
+          };
 
-			/**
-			 * Data Refresh ...
-			 */
-			refresh: function() {
-				if(this.resource) {
-					var loggerMbeanAjax = this.$['app-logger-mbean-ajax'];
-					loggerMbeanAjax.body = {
-						mbean : 'ch.qos.logback.classic:Name=*,Type=ch.qos.logback.classic.jmx.JMXConfigurator',
-						type : 'search'
-					};
+          loggerMbeanAjax.generateRequest();
+        }
+      },
 
-					loggerMbeanAjax.generateRequest();
-				}
-			},
+      /**
+       * Logger Level을 변경한다.
+       *
+       * @param {Object} logger
+       * @param {String} level
+       */
+      changeLoggerLevel: function (logger, level) {
+        var param = {
+          arguments: [logger.arguments[0], level],
+          mbean: logger.mbean,
+          operation: "setLoggerLevel",
+          type: "exec",
+        };
 
-			/**
-			 * Logger Level을 변경한다.
-			 *
-			 * @param {Object} logger
-			 * @param {String} level
-			 */
-			changeLoggerLevel: function(logger, level) {
-				var param = {
-					arguments : [logger.arguments[0], level],
-					mbean : logger.mbean,
-					operation : 'setLoggerLevel',
-					type : 'exec'
-				};
-
-				var setLoggerLevelAjax = this.$['app-set-logger-level-ajax'];
-				setLoggerLevelAjax.body = param;
-				setLoggerLevelAjax.generateRequest();
-			}
-		});
-	</script>
+        var setLoggerLevelAjax = this.$["app-set-logger-level-ajax"];
+        setLoggerLevelAjax.body = param;
+        setLoggerLevelAjax.generateRequest();
+      },
+    });
+  </script>
 </dom-module>

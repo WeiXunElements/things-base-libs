@@ -1,614 +1,655 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<!--
+@license
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
+-->
+<link rel="import" href="../../../bower_components/polymer/polymer.html" />
 
-<link rel="import" href="../../../bower_components/things-ajax/things-ajax.html">
-<link rel="import" href="../../../bower_components/things-form/things-search-form.html">
-<link rel="import" href="../../../bower_components/things-grid/things-resource-grid.html">
-<link rel="import" href="../../../bower_components/things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../../bower_components/things-ajax/things-ajax.html" />
+<link rel="import" href="../../../bower_components/things-form/things-search-form.html" />
+<link rel="import" href="../../../bower_components/things-grid/things-resource-grid.html" />
+<link rel="import" href="../../../bower_components/things-content/things-resource-menu-content-behavior.html" />
 
-<link rel="import" href="./admin-apps-monitor.html">
+<link rel="import" href="./admin-apps-monitor.html" />
 
 <!--
 	서버 모니터링 화면
 -->
 
 <dom-module id="admin-apps-main">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
 
-			things-layout-hera {
-				@apply(--layout-flex);
-			}
+      things-layout-hera {
+        @apply (--layout-flex);
+      }
 
-			things-layout-hades {
-				@apply(--layout-flex);
-			}
+      things-layout-hades {
+        @apply (--layout-flex);
+      }
 
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
 
-			.things-resource-grid-main {
-				@apply(--layout-flex-3);
-			}
+      .things-resource-grid-main {
+        @apply (--layout-flex-3);
+      }
 
-			.things-resource-grid-sub {
-				@apply(--layout-flex-1);
-				min-height: 235px;
-			}
+      .things-resource-grid-sub {
+        @apply (--layout-flex-1);
+        min-height: 235px;
+      }
 
-			.container {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
+      .container {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
 
-			.subtitle:before {
-				content: '';
-				@apply(--things-subtitle-icon);
-			}
+      .subtitle:before {
+        content: "";
+        @apply (--things-subtitle-icon);
+      }
 
-			.subtitle {
-				@apply(--things-default-padding);
-				padding-bottom: 7px;
-				@apply(--things-subtitle);
-			}
-		</style>
+      .subtitle {
+        @apply (--things-default-padding);
+        padding-bottom: 7px;
+        @apply (--things-subtitle);
+      }
+    </style>
 
-		<things-ajax
-			auto
-			id="resource-meta"
-			method="GET"
-			resource-url="[[menuMetaUrl]]"
-			last-response="{{metaData}}">
-		</things-ajax>
+    <things-ajax auto id="resource-meta" method="GET" resource-url="[[menuMetaUrl]]" last-response="{{metaData}}">
+    </things-ajax>
 
-		<things-ajax
-			id="sub-ajax"
-			method="GET"
-			with-credentials="[[withCredentials]]"
-			last-response="{{subItems}}">
-		</things-ajax>
+    <things-ajax id="sub-ajax" method="GET" with-credentials="[[withCredentials]]" last-response="{{subItems}}">
+    </things-ajax>
 
-		<things-search-form
-			id="search-form"
-			title="[[menuInfo.title]]"
-			form-fields="[[searchFormFields]]"
-			select-fields="[[selectFields]]"
-			sort-fields="[[sortFields]]"
-			action-url="[[menuInfo.resource_url]]"
-			page="1"
-			limit="10000"
-			with-credentials="[[withCredentials]]"
-			last-response="{{lastResponse}}">
-		</things-search-form>
+    <things-search-form
+      id="search-form"
+      title="[[menuInfo.title]]"
+      form-fields="[[searchFormFields]]"
+      select-fields="[[selectFields]]"
+      sort-fields="[[sortFields]]"
+      action-url="[[menuInfo.resource_url]]"
+      page="1"
+      limit="10000"
+      with-credentials="[[withCredentials]]"
+      last-response="{{lastResponse}}"
+    >
+    </things-search-form>
 
-		<span class="subtitle">Servers</span>
+    <span class="subtitle">Servers</span>
 
-		<things-resource-grid
-			id="grid"
-			class="things-resource-grid-main"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[items]]"
-			total-count="[[itemCount]]"
-			buttons="[[buttons]]"
-			current-page="1"
-			limit="1000"
-			fixed-column-count="[[menuInfo.fixed_columns]]"
-			!paginatable
-			!show-paginator>
-		</things-resource-grid>
+    <things-resource-grid
+      id="grid"
+      class="things-resource-grid-main"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[items]]"
+      total-count="[[itemCount]]"
+      buttons="[[buttons]]"
+      current-page="1"
+      limit="1000"
+      fixed-column-count="[[menuInfo.fixed_columns]]"
+      !paginatable
+      !show-paginator
+    >
+    </things-resource-grid>
 
-		<span class="subtitle">[[serverName]] Applications</span>
+    <span class="subtitle">[[serverName]] Applications</span>
 
-		<things-resource-grid
-			id="sub-grid"
-			class="things-resource-grid-sub"
-			config="[[gridConfig]]"
-			model="[[subGridModel]]"
-			columns="[[subGridColumns]]"
-			data="[[subItems]]"
-			buttons="[[subGridButtons]]"
-			fixed-column-count="0"
-			enable-detail-column>
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      id="sub-grid"
+      class="things-resource-grid-sub"
+      config="[[gridConfig]]"
+      model="[[subGridModel]]"
+      columns="[[subGridColumns]]"
+      data="[[subItems]]"
+      buttons="[[subGridButtons]]"
+      fixed-column-count="0"
+      enable-detail-column
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-apps-main',
+  <script>
+    Polymer({
+      is: "admin-apps-main",
 
-			behaviors: [
-				Things.ResourceMenuContentBehavior
-			],
+      behaviors: [Things.ResourceMenuContentBehavior],
 
-			properties: {
-				/**
-				 * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
-				 */
-				withCredentials: {
-					type: Boolean,
-					value: false
-				},
+      properties: {
+        /**
+         * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
+         */
+        withCredentials: {
+          type: Boolean,
+          value: false,
+        },
 
-				/**
-				 * 선택된 Application
-				 */
-				resource: {
-					type: Object,
-					notify: true
-				},
+        /**
+         * 선택된 Application
+         */
+        resource: {
+          type: Object,
+          notify: true,
+        },
 
-				/**
-				 * 선택된 Application ID
-				 */
-				resourceId: {
-					type: String
-				},
+        /**
+         * 선택된 Application ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-				/**
-				 * 선택된 서버 이름
-				 */
-				serverName: {
-					type: String,
-					value: ''
-				},
+        /**
+         * 선택된 서버 이름
+         */
+        serverName: {
+          type: String,
+          value: "",
+        },
 
-				/**
-				 * Admin Management URL
-				 */
-				adminBaseUrl: {
-					type: String,
-					notify: true,
-					computed: '_computeAdminBaseUrl(globals.baseUrl)'
-				},
+        /**
+         * Admin Management URL
+         */
+        adminBaseUrl: {
+          type: String,
+          notify: true,
+          computed: "_computeAdminBaseUrl(globals.baseUrl)",
+        },
 
-				/**
-				 * 서브 그리드 모델
-				 */
-				subGridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'id'
-						}, {
-							fieldName: 'monitorId'
-						}, {
-							fieldName: 'name'
-						}, {
-							fieldName: 'version'
-						}, {
-							fieldName: 'stage'
-						}, {
-							fieldName: 'status'
-						}, {
-							fieldName: 'controlType'
-						}, {
-							fieldName: 'serverPort'
-						}, {
-							fieldName: 'monitorPort'
-						}, {
-							fieldName: 'controlPort'
-						}, {
-							fieldName: 'serviceUrl'
-						}, {
-							fieldName: 'monitorUrl'
-						}, {
-							fieldName: 'builtAt'
-						}, {
-							fieldName: 'updatedAt'
-						} ];
-					}
-				},
+        /**
+         * 서브 그리드 모델
+         */
+        subGridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "id",
+              },
+              {
+                fieldName: "monitorId",
+              },
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "version",
+              },
+              {
+                fieldName: "stage",
+              },
+              {
+                fieldName: "status",
+              },
+              {
+                fieldName: "controlType",
+              },
+              {
+                fieldName: "serverPort",
+              },
+              {
+                fieldName: "monitorPort",
+              },
+              {
+                fieldName: "controlPort",
+              },
+              {
+                fieldName: "serviceUrl",
+              },
+              {
+                fieldName: "monitorUrl",
+              },
+              {
+                fieldName: "builtAt",
+              },
+              {
+                fieldName: "updatedAt",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * 서브 그리드 컬럼
-				 */
-				subGridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'monitorId',
-							fieldName: 'monitorId',
-							width: 1,
-							header: {
-								text: 'Monitor ID'
-							}
-						}, {
-							name: 'id',
-							fieldName: 'id',
-							width: 135,
-							header: {
-								text: 'Application ID'
-							}
-						}, {
-							name: 'name',
-							fieldName: 'name',
-							width: 135,
-							header: {
-								text: Things.DataGlobal.t('label.name')
-							}
-						}, {
-							name: 'status',
-							fieldName: 'status',
-							width: 55,
-							header: {
-								text: Things.DataGlobal.t('label.status')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'version',
-							fieldName: 'version',
-							width: 65,
-							header: {
-								text: Things.DataGlobal.t('label.version')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'stage',
-							fieldName: 'stage',
-							width: 100,
-							header: {
-								text: Things.DataGlobal.t('label.stage')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'serverPort',
-							fieldName: 'serverPort',
-							width: 80,
-							header: {
-								text: Things.DataGlobal.t('label.service_port')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'monitorPort',
-							fieldName: 'monitorPort',
-							width: 80,
-							header: {
-								text: Things.DataGlobal.t('label.monitor_port')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'controlType',
-							fieldName: 'controlType',
-							width: 100,
-							header: {
-								text: Things.DataGlobal.t('label.type')
-							}
-						}, {
-							name: 'builtAt',
-							fieldName: 'builtAt',
-							width: 150,
-							header: {
-								text: Things.DataGlobal.t('label.built_at')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'updatedAt',
-							fieldName: 'updatedAt',
-							width: 145,
-							header: {
-								text: Things.DataGlobal.t('label.last_checked_at')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'serviceUrl',
-							fieldName: 'serviceUrl',
-							width: 0,
-							header: {
-								text: Things.DataGlobal.t('label.service_url')
-							}
-						}, {
-							fieldName: 'monitorUrl',
-							name: 'monitorUrl',
-							width: 80,
-							editable: false,
-							imageList: 'images',
-							header: {
-								text: Things.DataGlobal.t('label.resource_monitor')
-							},
-							renderer: {
-								type: 'icon'
-							},
-							styles: {
-								iconIndex: 'media_play.png',
-								iconLocation: 'center'
-							},
-							styleCallback: function(index, styles) {
-								var row = index.getRow();
-								var data = row.getRowObject();
-								if(!data.monitorUrl) {
-									styles.setIconIndex(null);
-								} else {
-									styles.setIconIndex('media_play.png');
-								}
-							}
-						} ];
-					}
-				},
+        /**
+         * 서브 그리드 컬럼
+         */
+        subGridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "monitorId",
+                fieldName: "monitorId",
+                width: 1,
+                header: {
+                  text: "Monitor ID",
+                },
+              },
+              {
+                name: "id",
+                fieldName: "id",
+                width: 135,
+                header: {
+                  text: "Application ID",
+                },
+              },
+              {
+                name: "name",
+                fieldName: "name",
+                width: 135,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+              },
+              {
+                name: "status",
+                fieldName: "status",
+                width: 55,
+                header: {
+                  text: Things.DataGlobal.t("label.status"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "version",
+                fieldName: "version",
+                width: 65,
+                header: {
+                  text: Things.DataGlobal.t("label.version"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "stage",
+                fieldName: "stage",
+                width: 100,
+                header: {
+                  text: Things.DataGlobal.t("label.stage"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "serverPort",
+                fieldName: "serverPort",
+                width: 80,
+                header: {
+                  text: Things.DataGlobal.t("label.service_port"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "monitorPort",
+                fieldName: "monitorPort",
+                width: 80,
+                header: {
+                  text: Things.DataGlobal.t("label.monitor_port"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "controlType",
+                fieldName: "controlType",
+                width: 100,
+                header: {
+                  text: Things.DataGlobal.t("label.type"),
+                },
+              },
+              {
+                name: "builtAt",
+                fieldName: "builtAt",
+                width: 150,
+                header: {
+                  text: Things.DataGlobal.t("label.built_at"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "updatedAt",
+                fieldName: "updatedAt",
+                width: 145,
+                header: {
+                  text: Things.DataGlobal.t("label.last_checked_at"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "serviceUrl",
+                fieldName: "serviceUrl",
+                width: 0,
+                header: {
+                  text: Things.DataGlobal.t("label.service_url"),
+                },
+              },
+              {
+                fieldName: "monitorUrl",
+                name: "monitorUrl",
+                width: 80,
+                editable: false,
+                imageList: "images",
+                header: {
+                  text: Things.DataGlobal.t("label.resource_monitor"),
+                },
+                renderer: {
+                  type: "icon",
+                },
+                styles: {
+                  iconIndex: "media_play.png",
+                  iconLocation: "center",
+                },
+                styleCallback: function (index, styles) {
+                  var row = index.getRow();
+                  var data = row.getRowObject();
+                  if (!data.monitorUrl) {
+                    styles.setIconIndex(null);
+                  } else {
+                    styles.setIconIndex("media_play.png");
+                  }
+                },
+              },
+            ];
+          },
+        },
 
-				/**
-				 * sub grid buttons
-				 */
-				subGridButtons: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				}
-			},
+        /**
+         * sub grid buttons
+         */
+        subGridButtons: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+        },
+      },
 
-			listeners: {
-				'grid.things-grid-configured': '_gridConfigured',
-				'grid.things-grid-row-data-select': 'showApplications',
-				'sub-grid.things-grid-detail-tap': 'showApplicationDetails',
-				'sub-grid.things-grid-cell-data-select': '_appCellSelectionChanged'
-			},
+      listeners: {
+        "grid.things-grid-configured": "_gridConfigured",
+        "grid.things-grid-row-data-select": "showApplications",
+        "sub-grid.things-grid-detail-tap": "showApplicationDetails",
+        "sub-grid.things-grid-cell-data-select": "_appCellSelectionChanged",
+      },
 
-			observers: [
-				'_gridModelChanged(gridModel)'
-			],
+      observers: ["_gridModelChanged(gridModel)"],
 
-			/**
-			 * Grid Model 변경시 - extensions 필드 타입을 object 타입으로 변경한다.
-			 ********
-			 * @param {String} gridModel
-			 */
-			_gridModelChanged: function(gridModel) {
-				gridModel.forEach(function(model) {
-					if(model.fieldName == 'extensions') {
-						model.dataType = 'object';
-					}
-				});
-			},
+      /**
+       * Grid Model 변경시 - extensions 필드 타입을 object 타입으로 변경한다.
+       ********
+       * @param {String} gridModel
+       */
+      _gridModelChanged: function (gridModel) {
+        gridModel.forEach(function (model) {
+          if (model.fieldName == "extensions") {
+            model.dataType = "object";
+          }
+        });
+      },
 
-			/**
-			 * Admin Base URL 설정
-			 ********
-			 * @param {String} baseUrl
-			 */
-			_computeAdminBaseUrl: function(baseUrl) {
-				return baseUrl.replace('/rest', '/admin/api/applications');
-			},
+      /**
+       * Admin Base URL 설정
+       ********
+       * @param {String} baseUrl
+       */
+      _computeAdminBaseUrl: function (baseUrl) {
+        return baseUrl.replace("/rest", "/admin/api/applications");
+      },
 
-			/**
-			 * 그리드 구성이 완료 되었을 때 리소스 사용량과 관련된 컬럼들의 renderer 속성을 추가함
-			 ***********
-			 * @param  Object event
-			 */
-			_gridConfigured: function(event) {
-				var rendererProp = {
-					type: 'linearGauge',
-					startValue: 0,
-					endValue: 100,
-					thickness: 5,
-					valueThickness: 1,
-					valueLocation: 'top',
-					rages: [{
-						label: '1',
-						endValue: 25,
-						background: '#080'
-					}, {
-						label: '2',
-						startValue: 25,
-						endValue: 50,
-						background: '#080'
-					}, {
-						label: '3',
-						startValue: 50,
-						endValue: 75,
-						background: '#080'
-					}, {
-						label: '4',
-						startValue: 75,
-						endValue: 100,
-						background: '#080'
-					}],
-					scale: {
-						ticks: [0, 25, 50, 75, 100],
-						tickLength: 0,
-						categoryStroke: null
-					}
-				};
+      /**
+       * 그리드 구성이 완료 되었을 때 리소스 사용량과 관련된 컬럼들의 renderer 속성을 추가함
+       ***********
+       * @param  Object event
+       */
+      _gridConfigured: function (event) {
+        var rendererProp = {
+          type: "linearGauge",
+          startValue: 0,
+          endValue: 100,
+          thickness: 5,
+          valueThickness: 1,
+          valueLocation: "top",
+          rages: [
+            {
+              label: "1",
+              endValue: 25,
+              background: "#080",
+            },
+            {
+              label: "2",
+              startValue: 25,
+              endValue: 50,
+              background: "#080",
+            },
+            {
+              label: "3",
+              startValue: 50,
+              endValue: 75,
+              background: "#080",
+            },
+            {
+              label: "4",
+              startValue: 75,
+              endValue: 100,
+              background: "#080",
+            },
+          ],
+          scale: {
+            ticks: [0, 25, 50, 75, 100],
+            tickLength: 0,
+            categoryStroke: null,
+          },
+        };
 
-				var dynamicStyleProp = [{
-					expressions: [
-						'value <= 90',
-						'value > 90'
-					],
-					styles: [ {
-						shapeColor: '#a000aa00',
-						color: '#080'
-					}, {
-						shapeColor: '#a0aa0000',
-						color: '#800'
-					} ]
-				}];
+        var dynamicStyleProp = [
+          {
+            expressions: ["value <= 90", "value > 90"],
+            styles: [
+              {
+                shapeColor: "#a000aa00",
+                color: "#080",
+              },
+              {
+                shapeColor: "#a0aa0000",
+                color: "#800",
+              },
+            ],
+          },
+        ];
 
-				var grid = event.detail;
-				grid.setDisplayOptions({ rowHeight: 40 });
+        var grid = event.detail;
+        grid.setDisplayOptions({ rowHeight: 40 });
 
-				['cpuUsage', 'memoryUsage', 'diskUsage'].forEach(function(usageField) {
-					var usageFieldCol = grid.columnByField(usageField);
-					if(usageFieldCol) {
-						usageFieldCol.setRenderer(rendererProp);
-						usageFieldCol.setDynamicStyles(dynamicStyleProp);
-					}
-				});
-			},
+        ["cpuUsage", "memoryUsage", "diskUsage"].forEach(function (usageField) {
+          var usageFieldCol = grid.columnByField(usageField);
+          if (usageFieldCol) {
+            usageFieldCol.setRenderer(rendererProp);
+            usageFieldCol.setDynamicStyles(dynamicStyleProp);
+          }
+        });
+      },
 
-			/**
-			 * 조회 데이터 변경시
-			 ********
-			 * @param {Object} lastResponse
-			 */
-			_responseChanged: function(lastResponse) {
-				this.itemCount = lastResponse ? lastResponse.length : 0;
+      /**
+       * 조회 데이터 변경시
+       ********
+       * @param {Object} lastResponse
+       */
+      _responseChanged: function (lastResponse) {
+        this.itemCount = lastResponse ? lastResponse.length : 0;
 
-				if(this.itemCount > 0) {
-					this.items = lastResponse.map(function(item) {
-						item.subCode = item.name;
-						item.status = item.statusInfo.status;
-						item.timestamp = moment(new Date(item.statusInfo.timestamp)).format('YYYY-MM-DD HH:mm:ss');
-						var mgmtUrl = item.managementUrl ? item.managementUrl : null;
-						item.serverIp = mgmtUrl ? mgmtUrl.substring(0, mgmtUrl.lastIndexOf(':')).replace('http://', '') : '';
+        if (this.itemCount > 0) {
+          this.items = lastResponse.map(
+            function (item) {
+              item.subCode = item.name;
+              item.status = item.statusInfo.status;
+              item.timestamp = moment(new Date(item.statusInfo.timestamp)).format("YYYY-MM-DD HH:mm:ss");
+              var mgmtUrl = item.managementUrl ? item.managementUrl : null;
+              item.serverIp = mgmtUrl ? mgmtUrl.substring(0, mgmtUrl.lastIndexOf(":")).replace("http://", "") : "";
 
-						if(item.extensions) {
-							var sInfo = item.extensions.systemStatus;
-							if(sInfo) {
-								item.osName = sInfo.name + ' ' + sInfo.version + ' (' + sInfo.arch + ')';
-								item.cpuUsage = (sInfo.systemCpuLoad && sInfo.systemCpuLoad > 0) ? (sInfo.systemCpuLoad * 100).toFixed(2) : 0;
-								item.totalMemory = sInfo.totalPhysicalMemorySize ? this._humanizeByte(sInfo.totalPhysicalMemorySize, false) : '0GiB';
+              if (item.extensions) {
+                var sInfo = item.extensions.systemStatus;
+                if (sInfo) {
+                  item.osName = sInfo.name + " " + sInfo.version + " (" + sInfo.arch + ")";
+                  item.cpuUsage =
+                    sInfo.systemCpuLoad && sInfo.systemCpuLoad > 0 ? (sInfo.systemCpuLoad * 100).toFixed(2) : 0;
+                  item.totalMemory = sInfo.totalPhysicalMemorySize
+                    ? this._humanizeByte(sInfo.totalPhysicalMemorySize, false)
+                    : "0GiB";
 
-								var totMem = sInfo.totalPhysicalMemorySize ? sInfo.totalPhysicalMemorySize : 0;
-								var freeMem = sInfo.freePhysicalMemorySize ? sInfo.freePhysicalMemorySize : 0;
-								item.memoryUsage = totMem > 0 ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
+                  var totMem = sInfo.totalPhysicalMemorySize ? sInfo.totalPhysicalMemorySize : 0;
+                  var freeMem = sInfo.freePhysicalMemorySize ? sInfo.freePhysicalMemorySize : 0;
+                  item.memoryUsage = totMem > 0 ? (((totMem - freeMem) / totMem) * 100).toFixed(2) : 0;
 
-								var totalDisk = sInfo.totalDiskSpace ? sInfo.totalDiskSpace : 0;
-								var freeDisk = sInfo.freeDiskSpace ? sInfo.freeDiskSpace : 0;
-								item.diskUsage = totalDisk > 0 ? (((totalDisk - freeDisk) / totalDisk) * 100).toFixed(2) : 0;
-							}
-						}
+                  var totalDisk = sInfo.totalDiskSpace ? sInfo.totalDiskSpace : 0;
+                  var freeDisk = sInfo.freeDiskSpace ? sInfo.freeDiskSpace : 0;
+                  item.diskUsage = totalDisk > 0 ? (((totalDisk - freeDisk) / totalDisk) * 100).toFixed(2) : 0;
+                }
+              }
 
-						return item;
+              return item;
+            }.bind(this)
+          );
+        } else {
+          this.items = [];
+        }
+      },
 
-					}.bind(this));
+      /**
+       * 서버 선택 변경시 ...
+       *********
+       * @param {Object} event
+       */
+      showApplications: function (event) {
+        this.resource = event.detail;
+        this.resourceId = this.resource.id;
+        this.serverName = "[" + this.resource.name + "] ";
+        var subItems =
+          this.resource && this.resource.extensions && this.resource.extensions.appsStatus
+            ? this.resource.extensions.appsStatus
+            : [];
 
-				} else {
-					this.items = [];
-				}
-			},
+        if (subItems.length > 0) {
+          subItems.forEach(function (item) {
+            var managementUrl = event.detail.managementUrl;
+            managementUrl = managementUrl.replace("http://", "");
+            managementUrl =
+              managementUrl.indexOf(":") > 0 ? managementUrl.substr(0, managementUrl.indexOf(":")) : managementUrl;
+            item.monitorUrl = "http://" + managementUrl + ":" + item.monitorPort;
+          });
+        }
 
-			/**
-			 * 서버 선택 변경시 ...
-			 *********
-			 * @param {Object} event
-			 */
-			showApplications: function(event) {
-				this.resource = event.detail;
-				this.resourceId = this.resource.id;
-				this.serverName = '[' + this.resource.name + '] ';
-				var subItems = (this.resource && this.resource.extensions && this.resource.extensions.appsStatus) ? this.resource.extensions.appsStatus : [];
+        this.subItems = subItems;
+      },
 
-				if(subItems.length > 0) {
-					subItems.forEach(function(item) {
-						var managementUrl = event.detail.managementUrl;
-						managementUrl = managementUrl.replace('http://', '');
-						managementUrl = managementUrl.indexOf(':') > 0 ? managementUrl.substr(0, managementUrl.indexOf(':')) : managementUrl;
-						item.monitorUrl = 'http://' + managementUrl + ':' + item.monitorPort;
-					});
-				}
+      /**
+       * 셀 데이터 선택 변경시 ...
+       *********
+       * @param {Object} event
+       */
+      _appCellSelectionChanged: function (event) {
+        var rowData = event.detail.row;
+        var cellData = event.detail.cell;
 
-				this.subItems = subItems;
-			},
+        if (cellData.column._fieldName == "monitorUrl" && rowData.status == "UP" && rowData.monitorUrl) {
+          this.openConfirmMsg(
+            {
+              type: "info",
+              title: Things.DataGlobal.t("label.resource_monitor"),
+              text: "리소스 모니터링 화면으로 이동하시겠습니까?",
+              showCancelButton: true,
+            },
+            function () {
+              window.open(rowData.monitorUrl);
+            }
+          );
+        }
+      },
 
-			/**
-			 * 셀 데이터 선택 변경시 ...
-			 *********
-			 * @param {Object} event
-			 */
-			_appCellSelectionChanged: function(event) {
-				var rowData = event.detail.row;
-				var cellData = event.detail.cell;
+      /**
+       * 애플리케이션 선택 변경시 ...
+       *********
+       * @param {Object} event
+       */
+      showApplicationDetails: function (event) {
+        var appInfo = event.detail;
+        appInfo.managementUrl = this.resource.managementUrl;
+        appInfo.serviceUrl = appInfo.managementUrl + "/rest";
+        var viewElement = document.createElement("admin-apps-monitor");
+        viewElement.id = "detail-view";
 
-				if(cellData.column._fieldName == 'monitorUrl' && rowData.status == 'UP' && rowData.monitorUrl) {
-					this.openConfirmMsg({
-						type: 'info',
-						title: Things.DataGlobal.t('label.resource_monitor'),
-						text: '리소스 모니터링 화면으로 이동하시겠습니까?',
-						showCancelButton: true
-					}, function() {
-						window.open(rowData.monitorUrl);
-					});
-				}
-			},
+        viewElement.appAgentPort = appInfo.monitorPort;
 
-			/**
-			 * 애플리케이션 선택 변경시 ...
-			 *********
-			 * @param {Object} event
-			 */
-			showApplicationDetails: function(event) {
-				var appInfo = event.detail;
-				appInfo.managementUrl = this.resource.managementUrl;
-				appInfo.serviceUrl = appInfo.managementUrl + '/rest';
-				var viewElement = document.createElement('admin-apps-monitor');
-				viewElement.id = 'detail-view';
+        if (appInfo.controlType == "control-agent") {
+          viewElement.adminBaseUrl = appInfo.managementUrl + "/admin/api/applications";
+          viewElement.myCtlAgentId = appInfo.id;
+        } else {
+          viewElement.adminBaseUrl = this.adminBaseUrl;
+          appInfo.monitorId = this.resourceId;
+          viewElement.myCtlAgentId = appInfo.id;
+        }
 
-				viewElement.appAgentPort = appInfo.monitorPort;
+        viewElement.resource = appInfo;
+        viewElement.resourceId = appInfo.id;
+        viewElement.showDetailView(appInfo.id, appInfo);
 
-				if(appInfo.controlType == 'control-agent') {
-					viewElement.adminBaseUrl = appInfo.managementUrl + '/admin/api/applications';
-					viewElement.myCtlAgentId = appInfo.id;
+        viewElement.addEventListener(
+          "things-resource-form-saved",
+          function (e) {
+            viewElement.closePopupView();
+          }.bind(this)
+        );
+      },
 
-				} else {
-					viewElement.adminBaseUrl = this.adminBaseUrl;
-					appInfo.monitorId = this.resourceId;
-					viewElement.myCtlAgentId = appInfo.id;
-				}
+      /**
+       * Override
+       *********
+       * @param {Object} event
+       */
+      showDetailView: function (event) {},
 
-				viewElement.resource = appInfo;
-				viewElement.resourceId = appInfo.id;
-				viewElement.showDetailView(appInfo.id, appInfo);
+      /**
+       * Byte 정보를 KB, MB, GB 형태로 ...
+       ************
+       * @param {Number} bytes
+       * @param {String} si
+       */
+      _humanizeByte: function (bytes, si) {
+        var thresh = si ? 1000 : 1024;
 
-				viewElement.addEventListener('things-resource-form-saved', function(e) {
-					viewElement.closePopupView();
-				}.bind(this));
-			},
+        if (Math.abs(bytes) < thresh) {
+          return bytes + " B";
+        }
 
-			/**
-			 * Override
-			 *********
-			 * @param {Object} event
-			 */
-			showDetailView: function(event) {
-			},
+        var units = si
+          ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+          : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
 
-			/**
-			 * Byte 정보를 KB, MB, GB 형태로 ...
-			 ************
-			 * @param {Number} bytes
-			 * @param {String} si
-			 */
-			_humanizeByte: function(bytes, si) {
-				var thresh = si ? 1000 : 1024;
+        var u = -1;
 
-				if(Math.abs(bytes) < thresh) {
-					return bytes + ' B';
-				}
+        do {
+          bytes /= thresh;
+          ++u;
+        } while (Math.abs(bytes) >= thresh && u < units.length - 1);
 
-				var units = si
-					? ['kB','MB','GB','TB','PB','EB','ZB','YB']
-					: ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
-
-				var u = -1;
-
-				do {
-					bytes /= thresh;
-					++u;
-				} while(Math.abs(bytes) >= thresh && u < units.length - 1);
-
-				return bytes.toFixed(1) + ' ' + units[u];
-			}
-		})
-	</script>
+        return bytes.toFixed(1) + " " + units[u];
+      },
+    });
+  </script>
 </dom-module>

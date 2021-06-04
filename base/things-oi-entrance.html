@@ -1,10 +1,10 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
 
 <!--
 OI 이동 버튼
@@ -13,10 +13,11 @@ OI 이동 버튼
 <dom-module id="things-oi-entrance">
   <template>
     <style>
-      paper-icon-button{
-        @apply(--things-small-icon);
-        float:right;
-        margin-top:1px;margin-right:3px;
+      paper-icon-button {
+        @apply (--things-small-icon);
+        float: right;
+        margin-top: 1px;
+        margin-right: 3px;
       }
     </style>
 
@@ -28,15 +29,14 @@ OI 이동 버튼
 
   <script>
     Polymer({
-      is: 'things-oi-entrance',
+      is: "things-oi-entrance",
 
       /**
        * 버튼 클릭시 ...
        */
-      moveToOI: function() {
-        document.location = '/index_oi.html';
-      }
-
+      moveToOI: function () {
+        document.location = "/index_oi.html";
+      },
     });
   </script>
 </dom-module>

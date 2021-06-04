@@ -1,339 +1,364 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
-<link rel="import" href="../common/things-text-viewer.html">
+<link rel="import" href="../common/things-text-viewer.html" />
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Thread 화면
 -->
 
 <dom-module id="admin-app-thread">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- Thread 내용 조회 -->
-		<things-ajax
-			id="app-thread-ajax"
-			resource-action="find">
-		</things-ajax>
+    <!-- Thread 내용 조회 -->
+    <things-ajax id="app-thread-ajax" resource-action="find"> </things-ajax>
 
-		<things-resource-grid
-			left
-			id="grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[items]]"
-			total-count="[[itemCount]]"
-			current-page="{{page}}"
-			limit="{{limit}}"
-			fixed-column-count="0"
-			enable-detail-column>
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      left
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[items]]"
+      total-count="[[itemCount]]"
+      current-page="{{page}}"
+      limit="{{limit}}"
+      fixed-column-count="0"
+      enable-detail-column
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-app-thread',
+  <script>
+    Polymer({
+      is: "admin-app-thread",
 
-			properties: {
-				/**
-				 * Admin Base Url
-				 */
-				adminBaseUrl: {
-					type: String
-				},
+      properties: {
+        /**
+         * Admin Base Url
+         */
+        adminBaseUrl: {
+          type: String,
+        },
 
-				/**
-				 * Application 선택 후 ...
-				 */
-				resource: {
-					type: Object,
-					observer: 'resourceChanged'
-				},
+        /**
+         * Application 선택 후 ...
+         */
+        resource: {
+          type: Object,
+          observer: "resourceChanged",
+        },
 
-				/**
-				 * Thread List
-				 */
-				items: {
-					type: Array,
-				},
+        /**
+         * Thread List
+         */
+        items: {
+          type: Array,
+        },
 
-				/**
-				 * grid config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									visible: false
-								}
-							}
-						}
-					}
-				},
+        /**
+         * grid config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  visible: false,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * grid model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'thread_id'
-						}, {
-							fieldName: 'thread_name'
-						}, {
-							fieldName: 'blocked_count',
-							dataType: 'number'
-						}, {
-							fieldName: 'blocked_time',
-							dataType: 'number'
-						}, {
-							fieldName: 'in_native',
-							dataType: 'boolean'
-						}, {
-							fieldName: 'suspended',
-							dataType: 'boolean'
-						}, {
-							fieldName: 'thread_state'
-						}, {
-							fieldName: 'waited_count',
-							dataType: 'number'
-						}, {
-							fieldName: 'waited_time',
-							dataType: 'number'
-						}, {
-							fieldName: 'lock_name'
-						}, {
-							fieldName: 'lock_owner_id'
-						}, {
-							fieldName: 'lock_owner_name'
-						}, {
-							fieldName: 'stack_trace',
-							dataType: 'object'
-						} ];
-					}
-				},
+        /**
+         * grid model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "thread_id",
+              },
+              {
+                fieldName: "thread_name",
+              },
+              {
+                fieldName: "blocked_count",
+                dataType: "number",
+              },
+              {
+                fieldName: "blocked_time",
+                dataType: "number",
+              },
+              {
+                fieldName: "in_native",
+                dataType: "boolean",
+              },
+              {
+                fieldName: "suspended",
+                dataType: "boolean",
+              },
+              {
+                fieldName: "thread_state",
+              },
+              {
+                fieldName: "waited_count",
+                dataType: "number",
+              },
+              {
+                fieldName: "waited_time",
+                dataType: "number",
+              },
+              {
+                fieldName: "lock_name",
+              },
+              {
+                fieldName: "lock_owner_id",
+              },
+              {
+                fieldName: "lock_owner_name",
+              },
+              {
+                fieldName: "stack_trace",
+                dataType: "object",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * grid columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'thread_id',
-							fieldName: 'thread_id',
-							width: 65,
-							header: {
-								text: 'Thread Id'
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'thread_name',
-							fieldName: 'thread_name',
-							width: 300,
-							header: {
-								text: Things.DataGlobal.t('label.name')
-							},
-							editable: false
-						}, {
-							name: 'thread_state',
-							fieldName: 'thread_state',
-							width: 115,
-							header: {
-								text: Things.DataGlobal.t('label.status')
-							}
-						}, {
-							name: 'in_native',
-							fieldName: 'in_native',
-							width: 70,
-							header: {
-								text: 'Native'
-							},
-							editable: false,
-							renderer: {
-								type: 'check',
-								editable: true,
-								threeStates: false
-							}
-						}, {
-							name: 'suspended',
-							fieldName: 'suspended',
-							width: 70,
-							header: {
-								text: 'Suspended'
-							},
-							editable: false,
-							renderer: {
-								type: 'check',
-								editable: true,
-								threeStates: false
-							}
-						}, {
-							name: 'blocked_count',
-							fieldName: 'blocked_count',
-							width: 90,
-							header: {
-								text: 'Blocked Count'
-							},
-							editable: false,
-							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
-							}
-						}, {
-							name: 'blocked_time',
-							fieldName: 'blocked_time',
-							width: 85,
-							header: {
-								text: 'Blocked Time'
-							},
-							editable: false,
-							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
-							}
-						}, {
-							name: 'waited_count',
-							fieldName: 'waited_count',
-							width: 85,
-							header: {
-								text: 'Waited Count'
-							},
-							editable: false,
-							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
-							}
-						}, {
-							name: 'waited_time',
-							fieldName: 'waited_time',
-							width: 80,
-							header: {
-								text: 'Waited Time'
-							},
-							editable: false,
-							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
-							}
-						}, {
-							name: 'lock_owner_id',
-							fieldName: 'lock_owner_id',
-							width: 85,
-							header: {
-								text: 'Lock Owner ID'
-							},
-							editable: false,
-							styles: {
-								textAlignment: 'far'
-							}
-						}, {
-							name: 'lock_name',
-							fieldName: 'lock_name',
-							width: 375,
-							header: {
-								text: 'Lock Name'
-							},
-							editable: false
-						}, {
-							name: 'lock_owner_name',
-							fieldName: 'lock_owner_name',
-							width: 300,
-							header: {
-								text: 'Lock Owner Name'
-							},
-							editable: false
-						} ];
-					}
-				}
-			},
+        /**
+         * grid columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "thread_id",
+                fieldName: "thread_id",
+                width: 65,
+                header: {
+                  text: "Thread Id",
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "thread_name",
+                fieldName: "thread_name",
+                width: 300,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+                editable: false,
+              },
+              {
+                name: "thread_state",
+                fieldName: "thread_state",
+                width: 115,
+                header: {
+                  text: Things.DataGlobal.t("label.status"),
+                },
+              },
+              {
+                name: "in_native",
+                fieldName: "in_native",
+                width: 70,
+                header: {
+                  text: "Native",
+                },
+                editable: false,
+                renderer: {
+                  type: "check",
+                  editable: true,
+                  threeStates: false,
+                },
+              },
+              {
+                name: "suspended",
+                fieldName: "suspended",
+                width: 70,
+                header: {
+                  text: "Suspended",
+                },
+                editable: false,
+                renderer: {
+                  type: "check",
+                  editable: true,
+                  threeStates: false,
+                },
+              },
+              {
+                name: "blocked_count",
+                fieldName: "blocked_count",
+                width: 90,
+                header: {
+                  text: "Blocked Count",
+                },
+                editable: false,
+                styles: {
+                  textAlignment: "far",
+                  numberFormat: "0,000",
+                },
+              },
+              {
+                name: "blocked_time",
+                fieldName: "blocked_time",
+                width: 85,
+                header: {
+                  text: "Blocked Time",
+                },
+                editable: false,
+                styles: {
+                  textAlignment: "far",
+                  numberFormat: "0,000",
+                },
+              },
+              {
+                name: "waited_count",
+                fieldName: "waited_count",
+                width: 85,
+                header: {
+                  text: "Waited Count",
+                },
+                editable: false,
+                styles: {
+                  textAlignment: "far",
+                  numberFormat: "0,000",
+                },
+              },
+              {
+                name: "waited_time",
+                fieldName: "waited_time",
+                width: 80,
+                header: {
+                  text: "Waited Time",
+                },
+                editable: false,
+                styles: {
+                  textAlignment: "far",
+                  numberFormat: "0,000",
+                },
+              },
+              {
+                name: "lock_owner_id",
+                fieldName: "lock_owner_id",
+                width: 85,
+                header: {
+                  text: "Lock Owner ID",
+                },
+                editable: false,
+                styles: {
+                  textAlignment: "far",
+                },
+              },
+              {
+                name: "lock_name",
+                fieldName: "lock_name",
+                width: 375,
+                header: {
+                  text: "Lock Name",
+                },
+                editable: false,
+              },
+              {
+                name: "lock_owner_name",
+                fieldName: "lock_owner_name",
+                width: 300,
+                header: {
+                  text: "Lock Owner Name",
+                },
+                editable: false,
+              },
+            ];
+          },
+        },
+      },
 
-			listeners: {
-				'grid.things-grid-detail-tap': '_detailButtonSelected',
-				'app-thread-ajax.things-ajax-response': '_threadListArrived',
-				'app-thread-ajax.things-ajax-error': '_errorHandler'
-			},
+      listeners: {
+        "grid.things-grid-detail-tap": "_detailButtonSelected",
+        "app-thread-ajax.things-ajax-response": "_threadListArrived",
+        "app-thread-ajax.things-ajax-error": "_errorHandler",
+      },
 
-			/**
-			 * 상세 버튼 클릭시 ...
-			 *
-			 * @param {Object} event
-			 */
-			_detailButtonSelected: function(event) {
-				var view = document.createElement('things-text-viewer');
-				view.title = 'Stack Trace';
-				view.content = event.detail.stack_trace ? JSON.stringify(event.detail.stack_trace, null, 4) : '';
-				var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
-				var event = new CustomEvent('things-open-popup-view', { 'detail': eventDetail });
-				document.dispatchEvent(event);
-			},
+      /**
+       * 상세 버튼 클릭시 ...
+       *
+       * @param {Object} event
+       */
+      _detailButtonSelected: function (event) {
+        var view = document.createElement("things-text-viewer");
+        view.title = "Stack Trace";
+        view.content = event.detail.stack_trace ? JSON.stringify(event.detail.stack_trace, null, 4) : "";
+        var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
+        var event = new CustomEvent("things-open-popup-view", { detail: eventDetail });
+        document.dispatchEvent(event);
+      },
 
-			/**
-			 * Thread 데이터 조회 완료 이후 ...
-			 */
-			_threadListArrived: function(event) {
-				var threadList = event.detail;
+      /**
+       * Thread 데이터 조회 완료 이후 ...
+       */
+      _threadListArrived: function (event) {
+        var threadList = event.detail;
 
-				if(threadList && threadList.length > 0) {
-					this.items = threadList;
-				} else {
-					this.items = [];
-				}
+        if (threadList && threadList.length > 0) {
+          this.items = threadList;
+        } else {
+          this.items = [];
+        }
 
-				this.itemCount = this.items.length;
-			},
+        this.itemCount = this.items.length;
+      },
 
-			/**
-			 * Error 핸들링 ...
-			 *
-			 * @param {Object} event
-			 */
-			_errorHandler: function(event) {
-				this.items = [];
-				this.itemCount = 0;
-			},
+      /**
+       * Error 핸들링 ...
+       *
+       * @param {Object} event
+       */
+      _errorHandler: function (event) {
+        this.items = [];
+        this.itemCount = 0;
+      },
 
-			/**
-			 * Application 선택이 변경된 경우 Thread List 호출
-			 */
-			resourceChanged: function(resource) {
-				var traceListAjax = this.$['app-thread-ajax'];
-				traceListAjax.withCredentials = false;
-				traceListAjax.resourceUrl = this.adminBaseUrl + '/:id/dump';
-				traceListAjax.resourceId = resource.id;
-				traceListAjax.generateRequest();
-			},
+      /**
+       * Application 선택이 변경된 경우 Thread List 호출
+       */
+      resourceChanged: function (resource) {
+        var traceListAjax = this.$["app-thread-ajax"];
+        traceListAjax.withCredentials = false;
+        traceListAjax.resourceUrl = this.adminBaseUrl + "/:id/dump";
+        traceListAjax.resourceId = resource.id;
+        traceListAjax.generateRequest();
+      },
 
-			/**
-			 * Data Refresh ...
-			 */
-			refresh: function() {
-				if(this.resource) {
-					this.$['app-thread-ajax'].generateRequest();
-				}
-			}
-		});
-	</script>
+      /**
+       * Data Refresh ...
+       */
+      refresh: function () {
+        if (this.resource) {
+          this.$["app-thread-ajax"].generateRequest();
+        }
+      },
+    });
+  </script>
 </dom-module>

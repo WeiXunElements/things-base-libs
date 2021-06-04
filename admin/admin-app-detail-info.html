@@ -1,18 +1,18 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
 
 <dom-module id="admin-app-detail-info">
   <template>
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
       }
 
       pre {
@@ -20,49 +20,67 @@ Copyright © HatioLab Inc. All rights reserved.
         word-wrap: break-word;
       }
 
-      input[type="text"],input[type="tel"],input[type="email"],input[type="date"],input[type="number"]{
-        border:none;
-        vertical-align:middle;
-        font-size:16px;
+      input[type="text"],
+      input[type="tel"],
+      input[type="email"],
+      input[type="date"],
+      input[type="number"] {
+        border: none;
+        vertical-align: middle;
+        font-size: 16px;
       }
 
-      #app-info table,#app-health table,#app-mem table
-      ,#app-jvm table,#app-gc table,#app-container table,#app-datasource table{
-        border-collapse:collapse;
+      #app-info table,
+      #app-health table,
+      #app-mem table,
+      #app-jvm table,
+      #app-gc table,
+      #app-container table,
+      #app-datasource table {
+        border-collapse: collapse;
         border-spacing: 0;
-        width:100%;
+        width: 100%;
       }
-      #app-info td,#app-health td,#app-mem td
-      ,#app-jvm td,#app-gc td,#app-container td,#app-datasource td{
-        border-bottom:1px solid #999;
-        padding:5px 10px;
-        font-size:14px;
+      #app-info td,
+      #app-health td,
+      #app-mem td,
+      #app-jvm td,
+      #app-gc td,
+      #app-container td,
+      #app-datasource td {
+        border-bottom: 1px solid #999;
+        padding: 5px 10px;
+        font-size: 14px;
       }
-      #app-info th,#app-health th,#app-mem th
-      ,#app-jvm th,#app-gc th,#app-container th,#app-datasource th{
-        background-color:#f2eeeb;
-        border-bottom:1px solid #999;
-        padding:3px 10px 3px 0;
-        color:#3f4048;
-        width:150px;
-        height:23px;
-        text-align:right;
+      #app-info th,
+      #app-health th,
+      #app-mem th,
+      #app-jvm th,
+      #app-gc th,
+      #app-container th,
+      #app-datasource th {
+        background-color: #f2eeeb;
+        border-bottom: 1px solid #999;
+        padding: 3px 10px 3px 0;
+        color: #3f4048;
+        width: 150px;
+        height: 23px;
+        text-align: right;
         font-weight: bolder;
-        font-size:14px;
+        font-size: 14px;
       }
 
       .heading {
-        background-color:#7a7470;
-        padding:10px 35px;
-        border:none;
-        color:#fff;
-        text-align:left;
-        line-height:0;
-        font-size:16px;
+        background-color: #7a7470;
+        padding: 10px 35px;
+        border: none;
+        color: #fff;
+        text-align: left;
+        line-height: 0;
+        font-size: 16px;
       }
-
     </style>
-  <!-- Application info -->
+    <!-- Application info -->
     <a id="btn-app-info" class="heading" on-click="toggle">Application</a>
     <iron-collapse id="app-info" opened>
       <form is="iron-form">
@@ -93,7 +111,7 @@ Copyright © HatioLab Inc. All rights reserved.
           <!-- detail depth 1 -->
           <tr>
             <th>Application</th>
-            <td><input readonly="true" is="iron-input" type="text"></td>
+            <td><input readonly="true" is="iron-input" type="text" /></td>
           </tr>
           <!-- detail depth 2 add table -->
         </table>
@@ -109,7 +127,7 @@ Copyright © HatioLab Inc. All rights reserved.
         <table>
           <tr>
             <th>stage</th>
-            <td><input readonly="true" is="iron-input" type="text" name="input_app_stage"></td>
+            <td><input readonly="true" is="iron-input" type="text" name="input_app_stage" /></td>
           </tr>
         </table>
       </form>
@@ -124,7 +142,7 @@ Copyright © HatioLab Inc. All rights reserved.
         <table>
           <tr>
             <th>stage</th>
-            <td><input readonly="true" is="iron-input" type="text"></td>
+            <td><input readonly="true" is="iron-input" type="text" /></td>
           </tr>
         </table>
       </form>
@@ -139,7 +157,7 @@ Copyright © HatioLab Inc. All rights reserved.
         <table>
           <tr>
             <th>stage</th>
-            <td><input readonly="true" is="iron-input" type="text"></td>
+            <td><input readonly="true" is="iron-input" type="text" /></td>
           </tr>
         </table>
       </form>
@@ -154,7 +172,7 @@ Copyright © HatioLab Inc. All rights reserved.
         <table>
           <tr>
             <th>stage</th>
-            <td><input readonly="true" is="iron-input" type="text"></td>
+            <td><input readonly="true" is="iron-input" type="text" /></td>
           </tr>
         </table>
       </form>
@@ -169,69 +187,66 @@ Copyright © HatioLab Inc. All rights reserved.
         <table>
           <tr>
             <th>stage</th>
-            <td><input readonly="true" is="iron-input" type="text"></td>
+            <td><input readonly="true" is="iron-input" type="text" /></td>
           </tr>
         </table>
       </form>
     </iron-collapse>
-
   </template>
   <script>
     Polymer({
-      is: 'admin-app-detail-info',
+      is: "admin-app-detail-info",
 
-      behaviors: [
-      ],
+      behaviors: [],
 
       properties: {
         color: {
           type: String,
-          value: '#000'
+          value: "#000",
         },
         backgroundColor: {
           type: String,
-          value: '#FFFFFF'
+          value: "#FFFFFF",
         },
         infoResponse: {
-          type: Object
+          type: Object,
         },
-        healthResponse:{
-          type:Object,
-          observer: '_healthResponseChanged'
-        }
+        healthResponse: {
+          type: Object,
+          observer: "_healthResponseChanged",
+        },
       },
 
-      listeners: {
+      listeners: {},
+
+      _healthResponseChanged: function (healthResponse) {
+        console.warn("ddddddd");
+        console.warn("ddddddd");
+        console.warn("ddddddd");
+        console.warn("ddddddd");
       },
 
-      _healthResponseChanged: function(healthResponse) {
-        console.warn("ddddddd");
-        console.warn("ddddddd");
-        console.warn("ddddddd");
-        console.warn("ddddddd");
-			},
-
-      toggle: function(e) {
+      toggle: function (e) {
         var btnId = e.target.id;
         var targetCollapse = "";
-        if(btnId == "btn-app-info") {
+        if (btnId == "btn-app-info") {
           targetCollapse = "app-info";
-        } else if(btnId == "btn-app-health") {
+        } else if (btnId == "btn-app-health") {
           targetCollapse = "app-health";
-        } else if(btnId == "btn-app-mem") {
+        } else if (btnId == "btn-app-mem") {
           targetCollapse = "app-mem";
-        } else if(btnId == "btn-app-jvm") {
+        } else if (btnId == "btn-app-jvm") {
           targetCollapse = "app-jvm";
-        } else if(btnId == "btn-app-gc") {
+        } else if (btnId == "btn-app-gc") {
           targetCollapse = "app-gc";
-        } else if(btnId == "btn-app-container") {
+        } else if (btnId == "btn-app-container") {
           targetCollapse = "app-container";
-        } else if(btnId == "btn-app-datasource") {
+        } else if (btnId == "btn-app-datasource") {
           targetCollapse = "app-datasource";
         }
 
         this.$[targetCollapse].toggle();
-      }
+      },
     });
   </script>
 </dom-module>

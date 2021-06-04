@@ -1,14 +1,14 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-icon/iron-icon.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../iron-icon/iron-icon.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
 <!--
   메뉴 폼 설정 화면
@@ -18,11 +18,11 @@ Copyright © HatioLab Inc. All rights reserved.
   <template>
     <style>
       :host {
-        display:block;
-        @apply(--layout-vertical);
+        display: block;
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
@@ -31,7 +31,8 @@ Copyright © HatioLab Inc. All rights reserved.
       method="GET"
       resource-url="menus/:id/menu_meta?no_trans_term=true"
       resource-id="[[resourceId]]"
-      last-response="{{menuMeta}}">
+      last-response="{{menuMeta}}"
+    >
     </things-ajax>
 
     <things-resource-grid
@@ -41,28 +42,28 @@ Copyright © HatioLab Inc. All rights reserved.
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
+      buttons="[[buttons]]"
+    >
     </things-resource-grid>
   </template>
 
   <script>
     Polymer({
-
-      is: 'things-base-menu-setup-form',
+      is: "things-base-menu-setup-form",
 
       properties: {
         /**
          * Menu Id
          */
         resourceId: {
-          type: String
+          type: String,
         },
 
         /**
          * Menu Data
          */
         resource: {
-          type: Object
+          type: Object,
         },
 
         /**
@@ -72,14 +73,14 @@ Copyright © HatioLab Inc. All rights reserved.
         menuMeta: {
           type: Object,
           notify: true,
-          observer: '_onMenuMetaChanged'
+          observer: "_onMenuMetaChanged",
         },
 
         /**
          * Menu columns 조회 정보
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         /**
@@ -87,35 +88,50 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridModel: {
           type: Array,
-          value: [ {
-            fieldName: 'id'
-          }, {
-            fieldName: 'menu_id'
-          }, {
-            fieldName: 'rank'
-          }, {
-            fieldName: 'name'
-          }, {
-            fieldName: 'term'
-          }, {
-            fieldName: 'col_type'
-          }, {
-            fieldName: 'ref_type'
-          }, {
-            fieldName: 'ref_name'
-          }, {
-            fieldName: 'uniq_rank'
-          }, {
-            fieldName: 'form_editor'
-          }, {
-            fieldName: 'form_validator'
-          }, {
-            fieldName: 'form_format'
-          }, {
-            fieldName: 'def_val'
-          }, {
-            fieldName: 'ignore_on_save'
-          } ]
+          value: [
+            {
+              fieldName: "id",
+            },
+            {
+              fieldName: "menu_id",
+            },
+            {
+              fieldName: "rank",
+            },
+            {
+              fieldName: "name",
+            },
+            {
+              fieldName: "term",
+            },
+            {
+              fieldName: "col_type",
+            },
+            {
+              fieldName: "ref_type",
+            },
+            {
+              fieldName: "ref_name",
+            },
+            {
+              fieldName: "uniq_rank",
+            },
+            {
+              fieldName: "form_editor",
+            },
+            {
+              fieldName: "form_validator",
+            },
+            {
+              fieldName: "form_format",
+            },
+            {
+              fieldName: "def_val",
+            },
+            {
+              fieldName: "ignore_on_save",
+            },
+          ],
         },
 
         /**
@@ -123,9 +139,9 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridColumns: {
           type: Array,
-          value: function() {
+          value: function () {
             return this.formColumnList();
-          }
+          },
         },
 
         /**
@@ -133,7 +149,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: '_computeColumnSaveUrl(resourceId)'
+          computed: "_computeColumnSaveUrl(resourceId)",
         },
 
         /**
@@ -141,140 +157,234 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         buttons: {
           type: Array,
-          value: [ {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          } ]
-        }
+          value: [
+            {
+              id: "save-btn",
+              text: "save",
+              icon: "icons:save",
+            },
+          ],
+        },
       },
 
       listeners: {
-        'things-detail-view-selected' : '_detailTabSelected',
-        'grid.things-grid-handle-save' : '_beforeSearchColumnSave',
-        'grid.things-grid-save-success' : '_reloadGrid',
-        'column-ajax.things-ajax-response': '_afterColumnsLoaded'
+        "things-detail-view-selected": "_detailTabSelected",
+        "grid.things-grid-handle-save": "_beforeSearchColumnSave",
+        "grid.things-grid-save-success": "_reloadGrid",
+        "column-ajax.things-ajax-response": "_afterColumnsLoaded",
       },
 
       /**
        * 상세 탭 선택시 ...
        */
-      _detailTabSelected: function(e) {
+      _detailTabSelected: function (e) {
         this.$.grid.resizeGrid();
       },
 
       /**
        * Form Column List
        */
-      formColumnList: function() {
+      formColumnList: function () {
         // var validators = document.querySelector('#validators').allValidators();
-        var validators =  app.$$('#validators').allValidators();
-        var colTypes = ['', 'binary', 'boolean', 'date', 'datetime','decimal','double', 'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'];
-        var editors = ['', 'hidden', 'readonly','view-field', 'checkbox', 'text', 'number', 'password', 'tristate-radio', 'textarea', 'code-combo', 'resource-combo', 'resource-code', 'resource-field', 'resource-selector', 'resource-format-selector', 'image-selector', 'date-picker', 'time-picker', 'datetime-picker', 'time-input', 'positive-number', 'negative-number', 'ranged-date-picker'];
+        var validators = app.$$("#validators").allValidators();
+        var colTypes = [
+          "",
+          "binary",
+          "boolean",
+          "date",
+          "datetime",
+          "decimal",
+          "double",
+          "float",
+          "integer",
+          "long",
+          "string",
+          "text",
+          "time",
+          "timestamp",
+        ];
+        var editors = [
+          "",
+          "hidden",
+          "readonly",
+          "view-field",
+          "checkbox",
+          "text",
+          "number",
+          "password",
+          "tristate-radio",
+          "textarea",
+          "code-combo",
+          "resource-combo",
+          "resource-code",
+          "resource-field",
+          "resource-selector",
+          "resource-format-selector",
+          "image-selector",
+          "date-picker",
+          "time-picker",
+          "datetime-picker",
+          "time-input",
+          "positive-number",
+          "negative-number",
+          "ranged-date-picker",
+        ];
 
-        return [ {
-            fieldName: 'id', name: 'id', width: 0
-          }, {
-            fieldName: 'menu_id', name: 'menu_id', width: 0
-          }, {
-            fieldName: 'rank', name: 'rank', width: 50, type: 'number',
+        return [
+          {
+            fieldName: "id",
+            name: "id",
+            width: 0,
+          },
+          {
+            fieldName: "menu_id",
+            name: "menu_id",
+            width: 0,
+          },
+          {
+            fieldName: "rank",
+            name: "rank",
+            width: 50,
+            type: "number",
             header: {
-              text: Things.DataGlobal.t('label.rank')
+              text: Things.DataGlobal.t("label.rank"),
             },
             styles: {
-              textAlignment: 'center'
-            }
-          }, {
-            fieldName: 'name', name: 'name', width: 135, editable: false,
-            header: {
-              text: Things.DataGlobal.t('label.name')
-            }
-          }, {
-            fieldName: 'term', name: 'term', width: 135, editable: false,
-            header: {
-              text: Things.DataGlobal.t('label.term')
+              textAlignment: "center",
             },
-            valueType: 'text', type: 'calced',
-            valueCallback: function(column, row) {
-              var term = row.getValue('term');
-              return term ? Things.DataGlobal.t(term) : '';
-            }
-          }, {
-            name: 'col_type', fieldName: 'col_type', width: 75, editable: false,
+          },
+          {
+            fieldName: "name",
+            name: "name",
+            width: 135,
+            editable: false,
             header: {
-              text: Things.DataGlobal.t('label.col_type')
-            }
-          }, {
-            fieldName: 'ref_type', name: 'ref_type', width: 100, editable: false,
+              text: Things.DataGlobal.t("label.name"),
+            },
+          },
+          {
+            fieldName: "term",
+            name: "term",
+            width: 135,
+            editable: false,
             header: {
-              text: Things.DataGlobal.t('label.ref_type')
-            }
-          }, {
-            fieldName: 'ref_name', name: 'ref_name', width: 150, editable: false,
+              text: Things.DataGlobal.t("label.term"),
+            },
+            valueType: "text",
+            type: "calced",
+            valueCallback: function (column, row) {
+              var term = row.getValue("term");
+              return term ? Things.DataGlobal.t(term) : "";
+            },
+          },
+          {
+            name: "col_type",
+            fieldName: "col_type",
+            width: 75,
+            editable: false,
             header: {
-              text: Things.DataGlobal.t('label.ref_name')
-           }
-          }, {
-            name: 'form_editor', fieldName: 'form_editor', width: 150,
+              text: Things.DataGlobal.t("label.col_type"),
+            },
+          },
+          {
+            fieldName: "ref_type",
+            name: "ref_type",
+            width: 100,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.ref_type"),
+            },
+          },
+          {
+            fieldName: "ref_name",
+            name: "ref_name",
+            width: 150,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.ref_name"),
+            },
+          },
+          {
+            name: "form_editor",
+            fieldName: "form_editor",
+            width: 150,
             lookupDisplay: true,
             lookupValues: editors,
             lookupLabels: editors,
             header: {
-              text: Things.DataGlobal.t('label.editor')
+              text: Things.DataGlobal.t("label.editor"),
             },
             editor: {
-              type: 'list',
-              domainOnly: true
-            }
-          }, {
-            fieldName: 'form_format', name: 'form_format', width: 125,
+              type: "list",
+              domainOnly: true,
+            },
+          },
+          {
+            fieldName: "form_format",
+            name: "form_format",
+            width: 125,
             header: {
-              text: Things.DataGlobal.t('label.format')
+              text: Things.DataGlobal.t("label.format"),
             },
             editor: {
-              maxLength: 128
-            }
-          }, {
-            name: 'form_validator', fieldName: 'form_validator', width: 120,
+              maxLength: 128,
+            },
+          },
+          {
+            name: "form_validator",
+            fieldName: "form_validator",
+            width: 120,
             lookupDisplay: true,
             lookupValues: validators,
             lookupLabels: validators,
             header: {
-              text: Things.DataGlobal.t('label.validator')
+              text: Things.DataGlobal.t("label.validator"),
             },
             editor: {
-              type: 'list',
-              domainOnly: true
-            }
-          }, {
-            fieldName: 'def_val', name: 'def_val', width: 100,
+              type: "list",
+              domainOnly: true,
+            },
+          },
+          {
+            fieldName: "def_val",
+            name: "def_val",
+            width: 100,
             header: {
-              text: Things.DataGlobal.t('label.def_val')
+              text: Things.DataGlobal.t("label.def_val"),
             },
             editor: {
-              maxLength: 255
-            }
-          }, {
-            fieldName: 'uniq_rank', name: 'uniq_rank', width: 65, type: 'number',
+              maxLength: 255,
+            },
+          },
+          {
+            fieldName: "uniq_rank",
+            name: "uniq_rank",
+            width: 65,
+            type: "number",
             header: {
-              text: Things.DataGlobal.t('label.uniq_rank')
+              text: Things.DataGlobal.t("label.uniq_rank"),
             },
             styles: {
-              textAlignment: 'center'
-            }
-          }, {
-            fieldName: 'ignore_on_save', name: 'ignore_on_save', width: 100, editable: false,
+              textAlignment: "center",
+            },
+          },
+          {
+            fieldName: "ignore_on_save",
+            name: "ignore_on_save",
+            width: 100,
+            editable: false,
             header: {
-              text: Things.DataGlobal.t('label.ignore_on_save')
+              text: Things.DataGlobal.t("label.ignore_on_save"),
             },
             renderer: {
-              type: 'check',
+              type: "check",
               editable: true,
               threeStates: false,
-              trueValues: 'true',
-              falseValues: 'false'
-            }
-          } ];
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+        ];
       },
 
       /**
@@ -282,12 +392,14 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} menuMeta
        */
-      _onMenuMetaChanged: function(menuMeta) {
-        if(!menuMeta || !menuMeta.columns || menuMeta.columns.length == 0) {
+      _onMenuMetaChanged: function (menuMeta) {
+        if (!menuMeta || !menuMeta.columns || menuMeta.columns.length == 0) {
           this.items = [];
         } else {
-          var items = menuMeta.columns.filter(function(column) { return !column.virtual_field; });
-          this._sortColumns(items, 'rank')
+          var items = menuMeta.columns.filter(function (column) {
+            return !column.virtual_field;
+          });
+          this._sortColumns(items, "rank");
           this.items = items;
         }
       },
@@ -295,9 +407,9 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * list sorting
        */
-      _sortColumns: function(list, sortField) {
-        list.sort(function(a, b) {
-          return (a[sortField] > b[sortField]) ? 1 : ((b[sortField] > a[sortField]) ? -1 : 0);
+      _sortColumns: function (list, sortField) {
+        list.sort(function (a, b) {
+          return a[sortField] > b[sortField] ? 1 : b[sortField] > a[sortField] ? -1 : 0;
         });
       },
 
@@ -307,8 +419,8 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} Detail Form Column Save URL
        */
-      _computeColumnSaveUrl: function(resourceId) {
-        return 'menus/' + resourceId + '/menu_columns/update_multiple';
+      _computeColumnSaveUrl: function (resourceId) {
+        return "menus/" + resourceId + "/menu_columns/update_multiple";
       },
 
       /**
@@ -316,13 +428,13 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event menu-meta 저장 전 이벤트
        */
-      _beforeSearchColumnSave: function(event) {
+      _beforeSearchColumnSave: function (event) {
         var grid = event.target;
-        if(grid.writeData && grid.writeData.length > 0) {
+        if (grid.writeData && grid.writeData.length > 0) {
           var resourceId = this.resourceId;
-          grid.writeData.forEach(function(changedData) {
-            delete changedData['term'];
-            if(changedData.cud_flag_ == 'c') {
+          grid.writeData.forEach(function (changedData) {
+            delete changedData["term"];
+            if (changedData.cud_flag_ == "c") {
               changedData.menu_id = resourceId;
             }
           });
@@ -332,8 +444,8 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Reload Grid Data
        */
-      _reloadGrid: function(e) {
-        this.$['column-ajax'].generateRequest();
+      _reloadGrid: function (e) {
+        this.$["column-ajax"].generateRequest();
       },
 
       /**
@@ -341,10 +453,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _afterColumnsLoaded: function(event) {
+      _afterColumnsLoaded: function (event) {
         this.menuMeta = event.detail;
-      }
-
+      },
     });
   </script>
 </dom-module>

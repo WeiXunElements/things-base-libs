@@ -1,256 +1,234 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../../things-button/things-button-group.html">
-<link rel="import" href="../../things-button/things-button-bar.html">
-<link rel="import" href="../../things-code-editor/things-code-editor.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html" />
+<link rel="import" href="../../things-button/things-button-group.html" />
+<link rel="import" href="../../things-button/things-button-bar.html" />
+<link rel="import" href="../../things-code-editor/things-code-editor.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Control & Log Viewer
 -->
 
 <dom-module id="admin-app-control">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			paper-toolbar {
-				background-color:var(--things-white-background-color);
-				height: 50px;
-			}
-			paper-toolbar::shadow #bottomBar {
-				height: 50px;
-				@apply(--layout-horizontal);
-				@apply(--layout-end-justified);
-				padding: 0 10px;
-			}
-			.content {
-				padding: 5 10px;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      paper-toolbar {
+        background-color: var(--things-white-background-color);
+        height: 50px;
+      }
+      paper-toolbar::shadow #bottomBar {
+        height: 50px;
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
+        padding: 0 10px;
+      }
+      .content {
+        padding: 5 10px;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- Redis Flushall Ajax -->
-		<things-ajax
-			id="redis-flushall-ajax"
-			resource-url="[[ctlRedisFlushUrl]]"
-			resource-action="delete">
-		</things-ajax>
+    <!-- Redis Flushall Ajax -->
+    <things-ajax id="redis-flushall-ajax" resource-url="[[ctlRedisFlushUrl]]" resource-action="delete"> </things-ajax>
 
-		<!-- Log View Ajax -->
-		<things-ajax
-			id="log-ajax"
-			resource-url="[[ctlAgentLogUrl]]"
-			resource-action="find"
-			params="[[logParams]]"
-			last-response="{{logObj}}">
-		</things-ajax>
+    <!-- Log View Ajax -->
+    <things-ajax
+      id="log-ajax"
+      resource-url="[[ctlAgentLogUrl]]"
+      resource-action="find"
+      params="[[logParams]]"
+      last-response="{{logObj}}"
+    >
+    </things-ajax>
 
-		<!-- Application Restart Ajax -->
-		<things-ajax
-			id="restart-ajax"
-			resource-url="[[ctlAgentRetartUrl]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- Application Restart Ajax -->
+    <things-ajax id="restart-ajax" resource-url="[[ctlAgentRetartUrl]]" resource-action="create"> </things-ajax>
 
-		<!-- Application Stop Ajax -->
-		<things-ajax
-			id="stop-ajax"
-			resource-url="[[ctlAgentStopUrl]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- Application Stop Ajax -->
+    <things-ajax id="stop-ajax" resource-url="[[ctlAgentStopUrl]]" resource-action="create"> </things-ajax>
 
-		<!-- Application Deploy Ajax -->
-		<things-ajax
-			id="deploy-ajax"
-			resource-url="[[ctlAgentDeployUrl]]"
-			resource-action="create">
-		</things-ajax>
+    <!-- Application Deploy Ajax -->
+    <things-ajax id="deploy-ajax" resource-url="[[ctlAgentDeployUrl]]" resource-action="create"> </things-ajax>
 
-		<!-- 컨트롤 버튼 -->
-		<paper-toolbar>
-			<div class="bottom">
-				<things-button-bar
-					id="ctl-button-group"
-					buttons="[[ctlButtons]]">
-				</things-button-bar>
-			</div>
-		</paper-toolbar>
+    <!-- 컨트롤 버튼 -->
+    <paper-toolbar>
+      <div class="bottom">
+        <things-button-bar id="ctl-button-group" buttons="[[ctlButtons]]"> </things-button-bar>
+      </div>
+    </paper-toolbar>
 
-		<div class="content">
-			<!-- 리프레쉬 주기 -->
-			<things-input-field id="interval-field"
-									 			  type="number"
-									 			  label="Interval"
-									 			  value="{{refreshInterval::change}}">
-			</things-input-field>
+    <div class="content">
+      <!-- 리프레쉬 주기 -->
+      <things-input-field id="interval-field" type="number" label="Interval" value="{{refreshInterval::change}}">
+      </things-input-field>
 
-			<!-- 로그 파일 읽을 라인 수 -->
-			<things-input-field id="lines-field"
-									 			  type="number"
-									 			  label="Read Line"
-									 			  value="{{logReadLines::change}}">
-			</things-input-field>
+      <!-- 로그 파일 읽을 라인 수 -->
+      <things-input-field id="lines-field" type="number" label="Read Line" value="{{logReadLines::change}}">
+      </things-input-field>
 
-			<!-- 로그 뷰어 -->
-			<things-code-editor
-				class="flex"
-				id="log-viewer"
-				theme="ace/theme/monokai"
-				resource="[[logObj]]"
-				code-field="log"
-				mode="ace/mode/json"
-				buttons='[]'>
-			</things-code-editor>
-		</div>
-	</template>
+      <!-- 로그 뷰어 -->
+      <things-code-editor
+        class="flex"
+        id="log-viewer"
+        theme="ace/theme/monokai"
+        resource="[[logObj]]"
+        code-field="log"
+        mode="ace/mode/json"
+        buttons="[]"
+      >
+      </things-code-editor>
+    </div>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-app-control',
+  <script>
+    Polymer({
+      is: "admin-app-control",
 
-			behaviors: [
-				Things.MsgBoxBehavior
-			],
+      behaviors: [Things.MsgBoxBehavior],
 
-			properties: {
-				/**
-				 * 애플리케이션 ID
-				 */
-				resourceId: {
-					type: String
-				},
+      properties: {
+        /**
+         * 애플리케이션 ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-				/**
-				 * 로그 리소스
-				 */
-				resource: {
-					type: Object,
-					observer: '_resourceChanged'
-				},
+        /**
+         * 로그 리소스
+         */
+        resource: {
+          type: Object,
+          observer: "_resourceChanged",
+        },
 
-				/**
-				 * 로그 내용을 감싸는 Object
-				 */
-				logObj: {
-					type: Object
-				},
+        /**
+         * 로그 내용을 감싸는 Object
+         */
+        logObj: {
+          type: Object,
+        },
 
-				/**
-				 * 로그 파일 읽을 라인 수
-				 */
-				logReadLines: {
-					type: Number,
-					value: 500,
-					observer: '_logReadLinesChanged'
-				},
+        /**
+         * 로그 파일 읽을 라인 수
+         */
+        logReadLines: {
+          type: Number,
+          value: 500,
+          observer: "_logReadLinesChanged",
+        },
 
-				/**
-				 * 로그 조회를 위한 파라미터
-				 */
-				logParams: {
-					type: Object,
-					value: function() {
-						return { lines : 0 };
-					}
-				},
+        /**
+         * 로그 조회를 위한 파라미터
+         */
+        logParams: {
+          type: Object,
+          value: function () {
+            return { lines: 0 };
+          },
+        },
 
-				/**
-				 * Management URL
-				 */
-				managementUrl: {
-					type: String
-				},
+        /**
+         * Management URL
+         */
+        managementUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent Port
-				 */
-				ctlAgentPort: {
-					type: String
-				},
+        /**
+         * Control Agent Port
+         */
+        ctlAgentPort: {
+          type: String,
+        },
 
-				/**
-				 * My Control Agent ID
-				 */
-				myCtlAgentId: {
-					type: String
-				},
+        /**
+         * My Control Agent ID
+         */
+        myCtlAgentId: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent Base URL
-				 */
-				ctlAgentBaseUrl: {
-					type: String,
-					computed: '_computeCtlAgentBaseUrl(managementUrl, ctlAgentPort, myCtlAgentId)',
-					observer: '_ctlAgentBaseUrlChanged'
-				},
+        /**
+         * Control Agent Base URL
+         */
+        ctlAgentBaseUrl: {
+          type: String,
+          computed: "_computeCtlAgentBaseUrl(managementUrl, ctlAgentPort, myCtlAgentId)",
+          observer: "_ctlAgentBaseUrlChanged",
+        },
 
-				/**
-				 * Control Agent : Start URL
-				 */
-				ctlAgentRetartUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Start URL
+         */
+        ctlAgentRetartUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Stop URL
-				 */
-				ctlAgentStopUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Stop URL
+         */
+        ctlAgentStopUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Deploy URL
-				 */
-				ctrlAgentDeployUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Deploy URL
+         */
+        ctrlAgentDeployUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Log URL
-				 */
-				ctlAgentLogUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Log URL
+         */
+        ctlAgentLogUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Log Download URL
-				 */
-				ctlAgentLogDownloadUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Log Download URL
+         */
+        ctlAgentLogDownloadUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Redis Flush All URL
-				 */
-				ctlRedisFlushUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Redis Flush All URL
+         */
+        ctlRedisFlushUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Button
-				 */
-				ctlButtons: {
-					type: Array,
-					value: [ {
-						id: 'download-log-btn',
-						text: 'download-log'
-					}, /*{
+        /**
+         * Control Button
+         */
+        ctlButtons: {
+          type: Array,
+          value: [
+            {
+              id: "download-log-btn",
+              text: "download-log",
+            },
+            /*{
 						id: 'clear-log-btn',
 						text: 'reset'
-					}, */{
-						id: 'show-log-btn',
-						text: 'show-log'
-					}, /*{
+					}, */ {
+              id: "show-log-btn",
+              text: "show-log",
+            },
+            /*{
 						id: 'flush-redis-btn',
 						text: 'flush-redis'
 					}, {
@@ -260,281 +238,289 @@ Copyright © HatioLab Inc. All rights reserved.
 						id: 'off-refresh-btn',
 						text: 'off-refresh'
 					},*/ {
-						id: 'restart-btn',
-						text: 'restart'
-					}, {
-						id: 'stop-btn',
-						text: 'stop'
-					}/*, {
+              id: "restart-btn",
+              text: "restart",
+            },
+            {
+              id: "stop-btn",
+              text: "stop",
+            } /*, {
 						id: 'deploy-btn',
 						text: 'deploy'
-					}*/ ]
-				},
+					}*/,
+          ],
+        },
 
-				/**
-				 * 자동 리프레쉬 여부
-				 */
-				autoRefresh: {
-					type: Boolean,
-					value: false,
-					observer: '_autoRefreshChanged'
-				},
+        /**
+         * 자동 리프레쉬 여부
+         */
+        autoRefresh: {
+          type: Boolean,
+          value: false,
+          observer: "_autoRefreshChanged",
+        },
 
-				/**
-				 * 자동 리프레쉬 주기
-				 */
-				refreshInterval: {
-					type: Number,
-					value: 10000,
-					observer: '_refreshIntervalChanged'
-				}
-			},
+        /**
+         * 자동 리프레쉬 주기
+         */
+        refreshInterval: {
+          type: Number,
+          value: 10000,
+          observer: "_refreshIntervalChanged",
+        },
+      },
 
-			listeners: {
-				'download-log-btn-tap' : 'downloadLogFile',
-				'clear-log-btn-tap' : 'clearLog',
-				'show-log-btn-tap' : 'showLog',
-				'on-refresh-btn-tap' : 'onRefreshLog',
-				'off-refresh-btn-tap' : 'offRefreshLog',
-				'restart-btn-tap': 'restartApp',
-				'stop-btn-tap': 'stopApp',
-				'deploy-btn-tap': 'deployApp',
-				'flush-redis-btn-tap': 'redisFlushall',
-			},
+      listeners: {
+        "download-log-btn-tap": "downloadLogFile",
+        "clear-log-btn-tap": "clearLog",
+        "show-log-btn-tap": "showLog",
+        "on-refresh-btn-tap": "onRefreshLog",
+        "off-refresh-btn-tap": "offRefreshLog",
+        "restart-btn-tap": "restartApp",
+        "stop-btn-tap": "stopApp",
+        "deploy-btn-tap": "deployApp",
+        "flush-redis-btn-tap": "redisFlushall",
+      },
 
-			/**
-			 * Application 선택이 변경된 경우
-			 *
-			 * @param {Object} resource
-			 */
-			_resourceChanged: function(resource) {
-				this.resourceUrl = resource.managementUrl;
-				this.resourceId = resource.id;
-				var managementUrl = resource.managementUrl;
-				var portSep = managementUrl.lastIndexOf(':');
+      /**
+       * Application 선택이 변경된 경우
+       *
+       * @param {Object} resource
+       */
+      _resourceChanged: function (resource) {
+        this.resourceUrl = resource.managementUrl;
+        this.resourceId = resource.id;
+        var managementUrl = resource.managementUrl;
+        var portSep = managementUrl.lastIndexOf(":");
 
-				if(managementUrl.lastIndexOf(':') > 6) {
-					this.managementUrl = managementUrl.substr(0, portSep);
-				} else {
-					this.managementUrl = managementUrl;
-				}
+        if (managementUrl.lastIndexOf(":") > 6) {
+          this.managementUrl = managementUrl.substr(0, portSep);
+        } else {
+          this.managementUrl = managementUrl;
+        }
 
-				this.clearLog();
-				this.offRefreshLog();
-				this.refresh();
-			},
+        this.clearLog();
+        this.offRefreshLog();
+        this.refresh();
+      },
 
-			/**
-			 * managementUrl, ctlAgentPort, myCtlAgentId로 ctlAgentBaseUrl을 계산
-			 *
-			 * @param {String} managementUrl
-			 * @param {String} ctlAgentPort
-			 * @param {String} myCtlAgentId
-			 */
-			_computeCtlAgentBaseUrl: function(managementUrl, ctlAgentPort, myCtlAgentId) {
-				return managementUrl + ':' + ctlAgentPort + '/apps/' + myCtlAgentId + '/';
-			},
+      /**
+       * managementUrl, ctlAgentPort, myCtlAgentId로 ctlAgentBaseUrl을 계산
+       *
+       * @param {String} managementUrl
+       * @param {String} ctlAgentPort
+       * @param {String} myCtlAgentId
+       */
+      _computeCtlAgentBaseUrl: function (managementUrl, ctlAgentPort, myCtlAgentId) {
+        return managementUrl + ":" + ctlAgentPort + "/apps/" + myCtlAgentId + "/";
+      },
 
-			/**
-			 * ctlAgentBaseUrl가 변경된 이후 ctrAgentStartUrl, ctlAgentStopUrl, ctrlAgentDeployUrl, ctlAgentLogUrl, ctlRedisFlushUrl를 설정
-			 *
-			 * @param {String} ctlAgentBaseUrl
-			 */
-			_ctlAgentBaseUrlChanged: function(ctlAgentBaseUrl) {
-				this.ctlAgentRetartUrl = ctlAgentBaseUrl + 'restart';
-				this.ctlAgentStopUrl = ctlAgentBaseUrl + 'stop';
-				this.ctlAgentDeployUrl = ctlAgentBaseUrl + 'udpate';
-				this.ctlAgentLogUrl = ctlAgentBaseUrl + 'log/today/read';
-				this.ctlAgentLogDownloadUrl = ctlAgentBaseUrl + 'log/today/download';
-				this.ctlRedisFlushUrl = ctlAgentBaseUrl + 'redis_flushall';
-			},
+      /**
+       * ctlAgentBaseUrl가 변경된 이후 ctrAgentStartUrl, ctlAgentStopUrl, ctrlAgentDeployUrl, ctlAgentLogUrl, ctlRedisFlushUrl를 설정
+       *
+       * @param {String} ctlAgentBaseUrl
+       */
+      _ctlAgentBaseUrlChanged: function (ctlAgentBaseUrl) {
+        this.ctlAgentRetartUrl = ctlAgentBaseUrl + "restart";
+        this.ctlAgentStopUrl = ctlAgentBaseUrl + "stop";
+        this.ctlAgentDeployUrl = ctlAgentBaseUrl + "udpate";
+        this.ctlAgentLogUrl = ctlAgentBaseUrl + "log/today/read";
+        this.ctlAgentLogDownloadUrl = ctlAgentBaseUrl + "log/today/download";
+        this.ctlRedisFlushUrl = ctlAgentBaseUrl + "redis_flushall";
+      },
 
-			/**
-			 * 로그 파일 읽을 라인 수가 변경된 이 후 ...
-			 *
-			 * @param {Number} logReadLines
-			 */
-			_logReadLinesChanged: function(logReadLines) {
-				this.logParams = { lines : logReadLines };
-			},
+      /**
+       * 로그 파일 읽을 라인 수가 변경된 이 후 ...
+       *
+       * @param {Number} logReadLines
+       */
+      _logReadLinesChanged: function (logReadLines) {
+        this.logParams = { lines: logReadLines };
+      },
 
-			/**
-			 * 리프레쉬 주기가 변경된 이 후 ...
-			 *
-			 * @param {Number} refreshInterval
-			 */
-			_refreshIntervalChanged: function(refreshInterval) {
-				if(refreshInterval < 1000) {
-					this.refreshInterval = 1000;
-				}
-			},
+      /**
+       * 리프레쉬 주기가 변경된 이 후 ...
+       *
+       * @param {Number} refreshInterval
+       */
+      _refreshIntervalChanged: function (refreshInterval) {
+        if (refreshInterval < 1000) {
+          this.refreshInterval = 1000;
+        }
+      },
 
-			/**
-			 * 자동 리프레쉬 여부 변경시
-			 *
-			 * @param {Number} autoRefresh
-			 */
-			_autoRefreshChanged: function(autoRefresh) {
-				if(autoRefresh) {
-					this.refreshAuto();
-				} else {
-					this.cancelAsync(this.refreshAuto);
-				}
-			},
+      /**
+       * 자동 리프레쉬 여부 변경시
+       *
+       * @param {Number} autoRefresh
+       */
+      _autoRefreshChanged: function (autoRefresh) {
+        if (autoRefresh) {
+          this.refreshAuto();
+        } else {
+          this.cancelAsync(this.refreshAuto);
+        }
+      },
 
-			/**
-			 * 자동 페이지 리프레쉬
-			 */
-			refreshAuto: function() {
-				this.cancelAsync(this.refreshAuto);
+      /**
+       * 자동 페이지 리프레쉬
+       */
+      refreshAuto: function () {
+        this.cancelAsync(this.refreshAuto);
 
-				if(this.autoRefresh) {
-					this.refresh();
-					this.async(this.refreshAuto, Number(this.refreshInterval));
-				}
-			},
+        if (this.autoRefresh) {
+          this.refresh();
+          this.async(this.refreshAuto, Number(this.refreshInterval));
+        }
+      },
 
-			/**
-			 * 페이지 리프레쉬
-			 */
-			refresh: function() {
-				if(this.resourceId && this.ctlAgentLogUrl) {
-					this.$['log-ajax'].generateRequest();
-				}
-			},
+      /**
+       * 페이지 리프레쉬
+       */
+      refresh: function () {
+        if (this.resourceId && this.ctlAgentLogUrl) {
+          this.$["log-ajax"].generateRequest();
+        }
+      },
 
-			/**
-			 * 로그 조회
-			 *
-			 * @param {Object} event
-			 */
-			showLog: function(event) {
-				this.refresh();
-			},
+      /**
+       * 로그 조회
+       *
+       * @param {Object} event
+       */
+      showLog: function (event) {
+        this.refresh();
+      },
 
-			/**
-			 * 로그 클리어
-			 *
-			 * @param {Object} event
-			 */
-			clearLog: function(event) {
-				this.logObj = { id : 2, log : '' };
-			},
+      /**
+       * 로그 클리어
+       *
+       * @param {Object} event
+       */
+      clearLog: function (event) {
+        this.logObj = { id: 2, log: "" };
+      },
 
-			/**
-			 * 로그 조회 자동 리프레쉬 - On
-			 *
-			 * @param {Object} event
-			 */
-			onRefreshLog: function(event) {
-				this.autoRefresh = true;
-				this.$['interval-field'].hidden = false;
+      /**
+       * 로그 조회 자동 리프레쉬 - On
+       *
+       * @param {Object} event
+       */
+      onRefreshLog: function (event) {
+        this.autoRefresh = true;
+        this.$["interval-field"].hidden = false;
 
-				var buttonGroup = this.$['ctl-button-group'];
+        var buttonGroup = this.$["ctl-button-group"];
 
-				if(buttonGroup && buttonGroup.hideButton) {
-					buttonGroup.hideButton('on-refresh-btn');
-				}
+        if (buttonGroup && buttonGroup.hideButton) {
+          buttonGroup.hideButton("on-refresh-btn");
+        }
 
-				if(buttonGroup && buttonGroup.showButton) {
-					buttonGroup.showButton('off-refresh-btn');
-				}
-			},
+        if (buttonGroup && buttonGroup.showButton) {
+          buttonGroup.showButton("off-refresh-btn");
+        }
+      },
 
-			/**
-			 * 로그 조회 자동 리프레쉬 - Off
-			 *
-			 * @param {Object} event
-			 */
-			offRefreshLog: function(event) {
-				this.autoRefresh = false;
-				this.$['interval-field'].hidden = true;
+      /**
+       * 로그 조회 자동 리프레쉬 - Off
+       *
+       * @param {Object} event
+       */
+      offRefreshLog: function (event) {
+        this.autoRefresh = false;
+        this.$["interval-field"].hidden = true;
 
-				var buttonGroup = this.$['ctl-button-group'];
-				if(buttonGroup.showButton) {
-					buttonGroup.showButton('on-refresh-btn');
-				}
+        var buttonGroup = this.$["ctl-button-group"];
+        if (buttonGroup.showButton) {
+          buttonGroup.showButton("on-refresh-btn");
+        }
 
-				if(buttonGroup.hideButton) {
-					buttonGroup.hideButton('off-refresh-btn');
-				}
-			},
+        if (buttonGroup.hideButton) {
+          buttonGroup.hideButton("off-refresh-btn");
+        }
+      },
 
-			/**
-			 * 로그 파일 다운로드
-			 *
-			 * @param {Object} event
-			 */
-			downloadLogFile: function(event) {
-				if(this.ctlAgentLogDownloadUrl) {
-					var downloadUrl = this.ctlAgentLogDownloadUrl;
-					this.openConfirmMsg({
-						type : 'info',
-						title : Things.DataGlobal.t('text.Want to download file'),
-						text : Things.DataGlobal.t('text.You can download file'),
-						showCancelButton: true
-					}, function() {
-						window.location = downloadUrl;
-					});
-				}
-			},
+      /**
+       * 로그 파일 다운로드
+       *
+       * @param {Object} event
+       */
+      downloadLogFile: function (event) {
+        if (this.ctlAgentLogDownloadUrl) {
+          var downloadUrl = this.ctlAgentLogDownloadUrl;
+          this.openConfirmMsg(
+            {
+              type: "info",
+              title: Things.DataGlobal.t("text.Want to download file"),
+              text: Things.DataGlobal.t("text.You can download file"),
+              showCancelButton: true,
+            },
+            function () {
+              window.location = downloadUrl;
+            }
+          );
+        }
+      },
 
-			/**
-			 * 트랜잭션 수행
-			 *
-			 * @param {Object} event
-			 */
-			_executeTransaction: function(ajaxId) {
-				var ajax = this.$[ajaxId];
-				this.openConfirmMsg({
-					type : 'info',
-					title : Things.DataGlobal.t('text.Sure to process'),
-					text : Things.DataGlobal.t('text.Sure to process'),
-					showCancelButton: true
-				}, function() {
-					ajax.generateRequest();
-				});
-			},
+      /**
+       * 트랜잭션 수행
+       *
+       * @param {Object} event
+       */
+      _executeTransaction: function (ajaxId) {
+        var ajax = this.$[ajaxId];
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: Things.DataGlobal.t("text.Sure to process"),
+            text: Things.DataGlobal.t("text.Sure to process"),
+            showCancelButton: true,
+          },
+          function () {
+            ajax.generateRequest();
+          }
+        );
+      },
 
-			/**
-			 * Restart Application
-			 *
-			 * @param {Object} event
-			 */
-			restartApp: function(event) {
-				//this.$['restart-ajax'].generateRequest();
-				this._executeTransaction('restart-ajax');
-			},
+      /**
+       * Restart Application
+       *
+       * @param {Object} event
+       */
+      restartApp: function (event) {
+        //this.$['restart-ajax'].generateRequest();
+        this._executeTransaction("restart-ajax");
+      },
 
-			/**
-			 * Stop Application
-			 *
-			 * @param {Object} event
-			 */
-			stopApp: function(event) {
-				//this.$['stop-ajax'].generateRequest();
-				this._executeTransaction('stop-ajax');
-			},
+      /**
+       * Stop Application
+       *
+       * @param {Object} event
+       */
+      stopApp: function (event) {
+        //this.$['stop-ajax'].generateRequest();
+        this._executeTransaction("stop-ajax");
+      },
 
-			/**
-			 * Deploy Application
-			 *
-			 * @param {Object} event
-			 */
-			deployApp: function(event) {
-				//this.$['deploy-ajax'].generateRequest();
-				this._executeTransaction('deploy-ajax');
-			},
+      /**
+       * Deploy Application
+       *
+       * @param {Object} event
+       */
+      deployApp: function (event) {
+        //this.$['deploy-ajax'].generateRequest();
+        this._executeTransaction("deploy-ajax");
+      },
 
-			/**
-			 * Redis Flush All
-			 *
-			 * @param {Object} event
-			 */
-			redisFlushall: function(event) {
-				//this.$['redis-flushall-ajax'].generateRequest();
-				this._executeTransaction('redis-flushall-ajax');
-			}
-		})
-	</script>
+      /**
+       * Redis Flush All
+       *
+       * @param {Object} event
+       */
+      redisFlushall: function (event) {
+        //this.$['redis-flushall-ajax'].generateRequest();
+        this._executeTransaction("redis-flushall-ajax");
+      },
+    });
+  </script>
 </dom-module>

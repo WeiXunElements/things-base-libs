@@ -1,11 +1,11 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
 <!--
   역할 - 메뉴 권한 탭 
@@ -15,33 +15,33 @@ Copyright © HatioLab Inc. All rights reserved.
   <template>
     <style>
       :host {
-        display:block;
-        @apply(--layout-vertical);
+        display: block;
+        @apply (--layout-vertical);
       }
       #layout-flex {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--things-default-padding);
-        padding-top:0px;
-        padding-bottom:0px;
+        @apply (--things-default-padding);
+        padding-top: 0px;
+        padding-bottom: 0px;
       }
       .things-resource-grid-main {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
         min-height: 200px;
       }
       .things-resource-grid-sub {
-        @apply(--layout-flex-2);
+        @apply (--layout-flex-2);
       }
       #grid {
-          padding-bottom: 5px;
+        padding-bottom: 5px;
       }
     </style>
 
     <!-- flex를 위해 id에  layout-flex 추가  -->
     <div id="layout-flex">
-      <things-ajax 
+      <things-ajax
         auto
         id="main-menus"
         method="GET"
@@ -50,50 +50,48 @@ Copyright © HatioLab Inc. All rights reserved.
         select-fields="id,rank,name,description,menu_type,category"
         query-fields="[[mainMenuQueryFields]]"
         sort-fields="[[manuSortFields]]"
-        last-response="{{mainList}}">
+        last-response="{{mainList}}"
+      >
       </things-ajax>
 
-      <things-resource-grid 
+      <things-resource-grid
         id="grid"
         class="things-resource-grid-main"
         config="[[gridConfig]]"
         model="[[mainGridModel]]"
         columns="[[mainGridColumns]]"
-        current-page=1
-        limit=1000
+        current-page="1"
+        limit="1000"
         data="[[mainList.items]]"
         total-count="[[mainList.total]]"
         fixed-column-count="0"
         enable-detail-column
         buttons=""
-        !enable-toolbar>
+        !enable-toolbar
+      >
       </things-resource-grid>
 
-      <things-ajax 
-        id="sub-menu-search"
-        method="GET"
-        resource-url="[[subSearchUrl]]"
-        last-response="{{subList}}">
+      <things-ajax id="sub-menu-search" method="GET" resource-url="[[subSearchUrl]]" last-response="{{subList}}">
       </things-ajax>
 
-      <things-resource-grid 
+      <things-resource-grid
         id="subgrid"
         class="things-resource-grid-sub"
         config="[[gridConfig]]"
-        model="[[subGridModel]]" 
+        model="[[subGridModel]]"
         columns="[[subGridColumns]]"
         data="[[finalItem]]"
         grid-save-action="[[subSaveUrl]]"
         fixed-column-count="0"
-        buttons="[[buttons]]">
+        buttons="[[buttons]]"
+      >
       </things-resource-grid>
     </div>
   </template>
 
   <script>
     Polymer({
-
-      is: 'things-base-role-detail-auth',
+      is: "things-base-role-detail-auth",
 
       properties: {
         /**
@@ -101,41 +99,51 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         mainMenuQueryFields: {
           type: Array,
-          value: function() {
-            return [{ 
-              name: 'menu_type', value: 'MENU' 
-            }, { 
-              name: 'hidden_flag', operator: 'is_not_true' 
-            }];
-          }
+          value: function () {
+            return [
+              {
+                name: "menu_type",
+                value: "MENU",
+              },
+              {
+                name: "hidden_flag",
+                operator: "is_not_true",
+              },
+            ];
+          },
         },
 
         /**
-         * 메뉴 소팅 조건 
+         * 메뉴 소팅 조건
          */
         manuSortFields: {
           type: Array,
-          value: function() {
-            return [{ 
-              field : 'parentId', ascending: true
-            }, {
-              field : 'rank', ascending: true
-            }];
-          }
+          value: function () {
+            return [
+              {
+                field: "parentId",
+                ascending: true,
+              },
+              {
+                field: "rank",
+                ascending: true,
+              },
+            ];
+          },
         },
 
         /**
          * 현재 선택된 Role Id
          */
         roleId: {
-          type: String
+          type: String,
         },
 
         /**
          * 현재 선택된 Main Menu Id
          */
         menuId: {
-          type: String
+          type: String,
         },
 
         /**
@@ -143,7 +151,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         subList: {
           type: Object,
-          observer: '_subListChanged'
+          observer: "_subListChanged",
         },
 
         /**
@@ -151,7 +159,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         subSearchUrl: {
           type: String,
-          computed: '_computeAuthSearchUrl(roleId, menuId)',
+          computed: "_computeAuthSearchUrl(roleId, menuId)",
         },
 
         /**
@@ -159,14 +167,14 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         subSaveUrl: {
           type: String,
-          computed: '_computeAuthColumnSaveUrl(roleId)'
+          computed: "_computeAuthColumnSaveUrl(roleId)",
         },
 
         /**
          * 그리드에 나타나는 최종 item object _subListChanged 함수를 통해 초기화되는 결과 값
          */
         finalItem: {
-          type: Object
+          type: Object,
         },
 
         /**
@@ -174,7 +182,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         resource: {
           type: Object,
-          observer: '_onResourceChanged'
+          observer: "_onResourceChanged",
         },
 
         /**
@@ -182,19 +190,26 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         mainGridModel: {
           type: Array,
-          value: [{
-            fieldName: 'id'
-          },{
-            fieldName: 'rank'
-          }, {
-            fieldName: 'name'
-          }, {
-            fieldName: 'description'
-          }, {
-            fieldName: 'menu_type'
-          }, {
-            fieldName: 'category'
-          }]
+          value: [
+            {
+              fieldName: "id",
+            },
+            {
+              fieldName: "rank",
+            },
+            {
+              fieldName: "name",
+            },
+            {
+              fieldName: "description",
+            },
+            {
+              fieldName: "menu_type",
+            },
+            {
+              fieldName: "category",
+            },
+          ],
         },
 
         /**
@@ -202,9 +217,9 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         mainGridColumns: {
           type: Array,
-          value: function() {
+          value: function () {
             return [];
-          }
+          },
         },
 
         /**
@@ -212,48 +227,59 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         subGridModel: {
           type: Array,
-          value: [ {
-            fieldName: 'id'
-          }, {
-            fieldName: 'parent_id'
-          }, {
-            fieldName: 'name'
-          }, {
-            fieldName: 'check_all',
-            dataType: 'boolean'
-          }, {
-            fieldName: 'show',
-            dataType: 'boolean'
-          }, {
-            fieldName: 'create',
-            dataType: 'boolean'
-          }, {
-            fieldName: 'update',
-            dataType: 'boolean'
-          }, {
-            fieldName: 'delete',
-            dataType: 'boolean'
-          } ]
+          value: [
+            {
+              fieldName: "id",
+            },
+            {
+              fieldName: "parent_id",
+            },
+            {
+              fieldName: "name",
+            },
+            {
+              fieldName: "check_all",
+              dataType: "boolean",
+            },
+            {
+              fieldName: "show",
+              dataType: "boolean",
+            },
+            {
+              fieldName: "create",
+              dataType: "boolean",
+            },
+            {
+              fieldName: "update",
+              dataType: "boolean",
+            },
+            {
+              fieldName: "delete",
+              dataType: "boolean",
+            },
+          ],
         },
-        
+
         /**
          * 하위 그리드 컬럼
          */
         subGridColumns: {
           type: Array,
-          value: []
+          value: [],
         },
 
         /**
-         * 버튼 정보 
+         * 버튼 정보
          */
         buttons: {
           type: Array,
-          value: [ {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          } ]
+          value: [
+            {
+              id: "save-btn",
+              text: "save",
+              icon: "icons:save",
+            },
+          ],
         },
 
         /**
@@ -261,9 +287,9 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         mainGridConfig: {
           type: Object,
-          value: function() {
-            return { checkBar : false };
-          }
+          value: function () {
+            return { checkBar: false };
+          },
         },
 
         /**
@@ -271,143 +297,196 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         subGridConfig: {
           type: Object,
-          value: function() {
-            return { checkBar : false };
-          }
-        }
+          value: function () {
+            return { checkBar: false };
+          },
+        },
       },
 
       listeners: {
-        'grid.things-grid-detail-tap': '_showSubMenus',
-        'grid.things-grid-configured' : '_onGridConfigured',
-        'subgrid.things-grid-configured' : '_onSubGridConfigured',
-        'subgrid.things-grid-save-success' : 'reloadGrid',
-        'subgrid.things-grid-handle-build-writedata' : '_setupPermissionsToUpdate',
-        'subgrid.things-grid-handle-save' : '_saveGridData'
+        "grid.things-grid-detail-tap": "_showSubMenus",
+        "grid.things-grid-configured": "_onGridConfigured",
+        "subgrid.things-grid-configured": "_onSubGridConfigured",
+        "subgrid.things-grid-save-success": "reloadGrid",
+        "subgrid.things-grid-handle-build-writedata": "_setupPermissionsToUpdate",
+        "subgrid.things-grid-handle-save": "_saveGridData",
       },
 
       /**
        * lifecycle
        */
       attached: function () {
-        this.mainGridColumns =[ {
-          name: 'id',
-          fieldName: 'id',
-          width: 0
-        }, {
-          name: 'rank',
-          fieldName: 'rank',
-          width: 70,
-          editable: false,
-          styles: { 
-            textAlignment : 'center' 
+        this.mainGridColumns = [
+          {
+            name: "id",
+            fieldName: "id",
+            width: 0,
           },
-          header: {
-            text: Things.DataGlobal.t('label.rank')
-          }
-        }, {
-          name: 'name',
-          fieldName: 'name',
-          width: 200,
-          editable: false,
-          header: {
-            text: Things.DataGlobal.t('label.name')
+          {
+            name: "rank",
+            fieldName: "rank",
+            width: 70,
+            editable: false,
+            styles: {
+              textAlignment: "center",
+            },
+            header: {
+              text: Things.DataGlobal.t("label.rank"),
+            },
           },
-          valueType: 'text', type: 'calced',
-          valueCallback: function(column, row) {
-            var name = row.getValue('name');
-            return Things.DataGlobal.t('menu.' + name);
-          }
-        }, {
-          name: 'description',
-          fieldName: 'description',
-          width: 200,
-          editable: false,
-          header: {
-            text: Things.DataGlobal.t('label.description')
-          }
-        }, {
-          name: 'menu_type',
-          fieldName: 'menu_type',
-          width: 80,
-          editable: false,
-          header: {
-            text: Things.DataGlobal.t('label.menu_type')
-          }
-        }, {
-          name: 'category',
-          fieldName: 'category',
-          width: 100,
-          editable: false,
-          header: {
-            text: Things.DataGlobal.t('label.category')
-          }          
-        }];
-            
-        this.subGridColumns = [ {
-          fieldName: 'id',
-          width: 0
-        }, {
-          fieldName: 'parent_id',
-          width: 0
-        }, {
-          fieldName: 'name',
-          editable: false,
-          width: 300,
-          header: {
-            text: Things.DataGlobal.t('label.name')
+          {
+            name: "name",
+            fieldName: "name",
+            width: 200,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.name"),
+            },
+            valueType: "text",
+            type: "calced",
+            valueCallback: function (column, row) {
+              var name = row.getValue("name");
+              return Things.DataGlobal.t("menu." + name);
+            },
           },
-          valueType: 'text', type: 'calced',
-          valueCallback: function(column, row) {
-            var name = row.getValue('name');
-            return Things.DataGlobal.t('menu.' + name);
-          }
-        }, {
-          name: 'check_all', fieldName: 'check_all', width: 100, editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.check_all')
+          {
+            name: "description",
+            fieldName: "description",
+            width: 200,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.description"),
+            },
           },
-          renderer: {
-            type: 'check', editable: true, editOnClick: true, threeStates: false, 
-            trueValues: 'true', falseValues: 'false'
-          }
-        }, {
-          name: 'show', fieldName: 'show', width: 80, editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.show')
+          {
+            name: "menu_type",
+            fieldName: "menu_type",
+            width: 80,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.menu_type"),
+            },
           },
-          renderer: {
-            type: 'check', editable: true, editOnClick: true, threeStates: false, 
-            trueValues: 'true', falseValues: 'false'
-          }
-        }, {
-          name: 'create', fieldName: 'create', width: 80, editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.create')
+          {
+            name: "category",
+            fieldName: "category",
+            width: 100,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.category"),
+            },
           },
-          renderer: {
-            type: 'check', editable: true, editOnClick: true, threeStates: false, 
-            trueValues: 'true', falseValues: 'false'
-          }
-        }, {
-          name: 'update', fieldName: 'update', width: 80, editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.update')
+        ];
+
+        this.subGridColumns = [
+          {
+            fieldName: "id",
+            width: 0,
           },
-          renderer: {
-            type: 'check', editable: true, editOnClick: true, threeStates: false, 
-            trueValues: 'true', falseValues: 'false'
-          }
-        }, {
-          name: 'delete', fieldName: 'delete', width: 80, editable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.delete')
+          {
+            fieldName: "parent_id",
+            width: 0,
           },
-          renderer: {
-            type: 'check', editable: true, editOnClick: true, threeStates: false, 
-            trueValues: 'true', falseValues: 'false'
-          }
-        } ];
+          {
+            fieldName: "name",
+            editable: false,
+            width: 300,
+            header: {
+              text: Things.DataGlobal.t("label.name"),
+            },
+            valueType: "text",
+            type: "calced",
+            valueCallback: function (column, row) {
+              var name = row.getValue("name");
+              return Things.DataGlobal.t("menu." + name);
+            },
+          },
+          {
+            name: "check_all",
+            fieldName: "check_all",
+            width: 100,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.check_all"),
+            },
+            renderer: {
+              type: "check",
+              editable: true,
+              editOnClick: true,
+              threeStates: false,
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+          {
+            name: "show",
+            fieldName: "show",
+            width: 80,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.show"),
+            },
+            renderer: {
+              type: "check",
+              editable: true,
+              editOnClick: true,
+              threeStates: false,
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+          {
+            name: "create",
+            fieldName: "create",
+            width: 80,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.create"),
+            },
+            renderer: {
+              type: "check",
+              editable: true,
+              editOnClick: true,
+              threeStates: false,
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+          {
+            name: "update",
+            fieldName: "update",
+            width: 80,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.update"),
+            },
+            renderer: {
+              type: "check",
+              editable: true,
+              editOnClick: true,
+              threeStates: false,
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+          {
+            name: "delete",
+            fieldName: "delete",
+            width: 80,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.delete"),
+            },
+            renderer: {
+              type: "check",
+              editable: true,
+              editOnClick: true,
+              threeStates: false,
+              trueValues: "true",
+              falseValues: "false",
+            },
+          },
+        ];
       },
 
       /**
@@ -415,16 +494,16 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} resource
        */
-      _onResourceChanged: function(resource) {
+      _onResourceChanged: function (resource) {
         this.roleId = resource.id;
       },
 
       /**
        * Main Grid가 구성된 이후 ...
        *
-       * @param {Object} event grid.things-grid-configured 이벤트 
+       * @param {Object} event grid.things-grid-configured 이벤트
        */
-      _onGridConfigured: function(event) {
+      _onGridConfigured: function (event) {
         var grid = event.detail;
         grid.setCheckBar(false);
       },
@@ -432,19 +511,19 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Sub Grid가 구성된 이후 ...
        *
-       * @param {Object} event subgrid.things-grid-configured 이벤트 
+       * @param {Object} event subgrid.things-grid-configured 이벤트
        */
-      _onSubGridConfigured: function(event) {
+      _onSubGridConfigured: function (event) {
         var grid = event.detail;
         grid.setCheckBar(false);
         grid.onEditCellUpdated = function (grid, rowIndex, fieldIndex, newValue, oldValue) {
-          if(fieldIndex == 3) {
+          if (fieldIndex == 3) {
             grid.commit();
             var rowObj = grid.focusedRow().getRowObject();
-            rowObj['show'] = newValue;
-            rowObj['create'] = newValue;
-            rowObj['update'] = newValue;
-            rowObj['delete'] = newValue;
+            rowObj["show"] = newValue;
+            rowObj["create"] = newValue;
+            rowObj["update"] = newValue;
+            rowObj["delete"] = newValue;
             grid.dataSource().updateRow(rowIndex._dataIndex, rowObj);
           }
         };
@@ -455,21 +534,21 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event things-grid-handle-build-writedata
        */
-      _setupPermissionsToUpdate: function(event) {
+      _setupPermissionsToUpdate: function (event) {
         event.preventDefault();
         var grid = event.detail;
         var thingsGrid = event.srcElement;
         var count = grid.dataSource().rowCount();
         var dataList = grid.dataSource().getRowObjects(0, count);
 
-        if(dataList && dataList.length > 0) {
+        if (dataList && dataList.length > 0) {
           var updateList = [];
-          dataList.forEach(function(data) {
-            if(data.show || data.create || data.update || data.delete) {
+          dataList.forEach(function (data) {
+            if (data.show || data.create || data.update || data.delete) {
               var clonedObj = JSON.parse(JSON.stringify(data));
               clonedObj.menu_id = clonedObj.id;
-              delete clonedObj['id'];
-              delete clonedObj['name'];
+              delete clonedObj["id"];
+              delete clonedObj["name"];
               updateList.push(clonedObj);
             }
           });
@@ -483,14 +562,14 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event things-grid-handle-save
        */
-      _saveGridData: function(event) {
+      _saveGridData: function (event) {
         event.preventDefault();
         var grid = event.detail;
         var thingsGrid = event.srcElement;
-        var saveUrl = this.subSaveUrl + '?parent_menu_id=' + this.menuId;
+        var saveUrl = this.subSaveUrl + "?parent_menu_id=" + this.menuId;
 
-        if(!thingsGrid.writeData || thingsGrid.writeData.length == 0) {
-          saveUrl = saveUrl + '&delete_all=true';
+        if (!thingsGrid.writeData || thingsGrid.writeData.length == 0) {
+          saveUrl = saveUrl + "&delete_all=true";
         }
 
         thingsGrid.updateMultipleData(saveUrl);
@@ -502,8 +581,8 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param roleId
        * @param menuId
        */
-      _computeAuthSearchUrl: function(roleId, menuId) {
-        return 'roles/' + roleId + '/permitted_resources/' + menuId + '.json';
+      _computeAuthSearchUrl: function (roleId, menuId) {
+        return "roles/" + roleId + "/permitted_resources/" + menuId + ".json";
       },
 
       /**
@@ -511,8 +590,8 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param roleId
        */
-      _computeAuthColumnSaveUrl: function(roleId) {
-        return 'roles/' + roleId + '/update_permissions';
+      _computeAuthColumnSaveUrl: function (roleId) {
+        return "roles/" + roleId + "/update_permissions";
       },
 
       /**
@@ -520,9 +599,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param event
        */
-      _showSubMenus: function(event) {
+      _showSubMenus: function (event) {
         this.menuId = event.detail.id;
-        this.$['sub-menu-search'].generateRequest();
+        this.$["sub-menu-search"].generateRequest();
       },
 
       /**
@@ -530,8 +609,8 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param event
        */
-      reloadGrid: function(e) {
-        this.$['sub-menu-search'].generateRequest();
+      reloadGrid: function (e) {
+        this.$["sub-menu-search"].generateRequest();
       },
 
       /**
@@ -539,38 +618,39 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param subList
        */
-      _subListChanged: function(subList) {
+      _subListChanged: function (subList) {
         var newItems = [];
         var itemsLength = subList.items.length;
 
-        for(var i = 0; i < itemsLength; i++) {
+        for (var i = 0; i < itemsLength; i++) {
           var currentName = subList.items[i].name;
           var actionName = subList.items[i].action_name;
           var tempItem = subList.items[i];
           var lastIdx = newItems.length - 1;
-          
-          if(actionName) {
-            if(currentName != previousName) {
-              if(actionName == 'create') {
+
+          if (actionName) {
+            if (currentName != previousName) {
+              if (actionName == "create") {
                 tempItem.create = true;
-              } else if (actionName == 'delete') {
+              } else if (actionName == "delete") {
                 tempItem.delete = true;
-              } else if (actionName == 'update') {
+              } else if (actionName == "update") {
                 tempItem.update = true;
-              } else { //show
+              } else {
+                //show
                 tempItem.show = true;
               }
 
               newItems.push(tempItem);
-
             } else {
-              if(actionName == 'create') {
+              if (actionName == "create") {
                 newItems[lastIdx].create = true;
-              } else if (actionName == 'delete') {
+              } else if (actionName == "delete") {
                 newItems[lastIdx].delete = true;
-              } else if (actionName == 'update') {
+              } else if (actionName == "update") {
                 newItems[lastIdx].update = true;
-              } else { //show
+              } else {
+                //show
                 newItems[lastIdx].show = true;
               }
             }
@@ -582,7 +662,7 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         this.finalItem = newItems;
-      }
+      },
     });
   </script>
 </dom-module>

@@ -1,205 +1,216 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-global-behavior/things-global-behavior.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-global-behavior/things-global-behavior.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
 
 <!--
 	테이블 컬럼 조회 화면
 -->
 
 <dom-module id="things-base-db-mgr-column">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- 테이블 컬럼 정보 조회를 위한 ajax -->
-		<things-ajax
-			id="table-columns-ajax"
-			resource-url="ddl/columns/table/:id"
-			resource-action="find"
-			last-response="{{tableColumns}}">
-		</things-ajax>
+    <!-- 테이블 컬럼 정보 조회를 위한 ajax -->
+    <things-ajax
+      id="table-columns-ajax"
+      resource-url="ddl/columns/table/:id"
+      resource-action="find"
+      last-response="{{tableColumns}}"
+    >
+    </things-ajax>
 
-		<!-- 테이블 컬럼 그리드 -->
-		<things-resource-grid
-			content
-			id="table-columns-grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="{{tableColumns}}"
-			buttons="[[buttons]]"
-			fixed-column-count="0">
-		</things-resource-grid>
-	</template>
+    <!-- 테이블 컬럼 그리드 -->
+    <things-resource-grid
+      content
+      id="table-columns-grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="{{tableColumns}}"
+      buttons="[[buttons]]"
+      fixed-column-count="0"
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'things-base-db-mgr-column',
+  <script>
+    Polymer({
+      is: "things-base-db-mgr-column",
 
-			behaviors: [
-				Things.GlobalBehavior,
-				Things.MsgBoxBehavior
-			],
+      behaviors: [Things.GlobalBehavior, Things.MsgBoxBehavior],
 
-			properties: {
-				/**
-				 * 메인 화면에서 전달받는 테이블 정보
-				 */
-				resource: {
-					type: Object
-				},
+      properties: {
+        /**
+         * 메인 화면에서 전달받는 테이블 정보
+         */
+        resource: {
+          type: Object,
+        },
 
-				/**
-				 * Grid Config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									exclusive: true
-								}
-							}
-						}
-					}
-				},
+        /**
+         * Grid Config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  exclusive: true,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Table Grid Model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'name'
-						}, {
-							fieldName: 'description'
-						}, {
-							fieldName: 'data_type'
-						}, {
-							fieldName: 'length'
-						}, {
-							fieldName: 'nullable', dataType: 'boolean'
-						} ];
-					}
-				},
+        /**
+         * Table Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "description",
+              },
+              {
+                fieldName: "data_type",
+              },
+              {
+                fieldName: "length",
+              },
+              {
+                fieldName: "nullable",
+                dataType: "boolean",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * Table Grid Columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [{
-							fieldName: 'name',
-							name: 'name',
-							width: 235,
-							editable: false,
-							nullable: false,
-							header: {
-								text: Things.DataGlobal.t('label.columns')
-							}
-						}, {
-							fieldName: 'nullable',
-							name: 'nullable',
-							width: 100,
-							editable: false,
-							nullable: false,
-							header: {
-								text: Things.DataGlobal.t('label.nullable')
-							},
-							renderer: {
-								type: 'check',
-								editable: false,
-								threeStates: false,
-								trueValues: 'true',
-								falseValues: 'false'
-							}
-						}, {
-							name: 'data_type',
-							fieldName: 'data_type',
-							width: 175,
-							editable: false,
-							nullable: false,
-							header: {
-								text: Things.DataGlobal.t('label.col_type')
-							}
-						}, {
-							fieldName: 'length',
-							name: 'length',
-							width: 70,
-							editable: false,
-							type: 'number',
-							header: {
-								text: Things.DataGlobal.t('label.col_size')
-							},
-							styles: {
-								textAlignment: 'far'
-							}
-						}];
-					}
-				},
+        /**
+         * Table Grid Columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "name",
+                name: "name",
+                width: 235,
+                editable: false,
+                nullable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.columns"),
+                },
+              },
+              {
+                fieldName: "nullable",
+                name: "nullable",
+                width: 100,
+                editable: false,
+                nullable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.nullable"),
+                },
+                renderer: {
+                  type: "check",
+                  editable: false,
+                  threeStates: false,
+                  trueValues: "true",
+                  falseValues: "false",
+                },
+              },
+              {
+                name: "data_type",
+                fieldName: "data_type",
+                width: 175,
+                editable: false,
+                nullable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.col_type"),
+                },
+              },
+              {
+                fieldName: "length",
+                name: "length",
+                width: 70,
+                editable: false,
+                type: "number",
+                header: {
+                  text: Things.DataGlobal.t("label.col_size"),
+                },
+                styles: {
+                  textAlignment: "far",
+                },
+              },
+            ];
+          },
+        },
 
-				/**
-				 * Table Columns List
-				 */
-				tableColumns: {
-					type: Array,
-					notify: true
-				},
+        /**
+         * Table Columns List
+         */
+        tableColumns: {
+          type: Array,
+          notify: true,
+        },
 
-				/**
-				 * Buttons
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [ {
-							id: 'refresh-btn',
-							text: 'refresh'
-						} ];
-					}
-				}
-			},
+        /**
+         * Buttons
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "refresh-btn",
+                text: "refresh",
+              },
+            ];
+          },
+        },
+      },
 
-			listeners: {
-				'refresh-btn-tap': 'refreshColumns'
-			},
+      listeners: {
+        "refresh-btn-tap": "refreshColumns",
+      },
 
-			observers: [
-				'refreshColumns(resource)'
-			],
+      observers: ["refreshColumns(resource)"],
 
-			/**
-			 * Refresh Columns
-			 *********
-			 * @param {Object} event
-			 */
-			refreshColumns: function(event) {
-				if(this.resource) {
-					var tableColumnsAjax = this.$['table-columns-ajax'];
-					tableColumnsAjax.resourceId = this.resource.id;
-					tableColumnsAjax.generateRequest();
-				} else {
-					this.tableColumns = [];
-				}
-			}
-		})
-	</script>
+      /**
+       * Refresh Columns
+       *********
+       * @param {Object} event
+       */
+      refreshColumns: function (event) {
+        if (this.resource) {
+          var tableColumnsAjax = this.$["table-columns-ajax"];
+          tableColumnsAjax.resourceId = this.resource.id;
+          tableColumnsAjax.generateRequest();
+        } else {
+          this.tableColumns = [];
+        }
+      },
+    });
+  </script>
 </dom-module>

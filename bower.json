@@ -1,8 +1,8 @@
 {
     "name": "things-base-libs",
-    "version": "v2.2.42",
+    "version": "v2.2.43",
     "authors": [
-        "Hatio Lab. <heartyoh@hatiolab.com>"
+        "Shenzhen Weixun"
     ],
     "description": "Things Framework Base Libraries",
     "keywords": [
@@ -11,8 +11,6 @@
         "seed"
     ],
     "main": "things-base-libs.html",
-    "license": "http://license.hatiolab.com/EULA",
-    "homepage": "https://github.com/ThingsElements/things-base-libs/",
     "ignore": [
         "/.*",
         "/test/"

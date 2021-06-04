@@ -1,301 +1,306 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
 
-<link rel="import" href="./admin-section.html" >
+<link rel="import" href="./admin-section.html" />
 
 <!--
 	모니터링 대상 애플리케이션 탭 - Detail 화면
 -->
 <dom-module id="admin-app-detail">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- Info 내용 조회 -->
-		<things-ajax
-			id="app-info-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-action="find"
-			last-response="{{detailInfo}}">
-		</things-ajax>
+    <!-- Info 내용 조회 -->
+    <things-ajax
+      id="app-info-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-action="find"
+      last-response="{{detailInfo}}"
+    >
+    </things-ajax>
 
-		<things-ajax
-			id="app-health-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-action="find"
-			last-response="{{detailHealth}}">
-		</things-ajax>
+    <things-ajax
+      id="app-health-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-action="find"
+      last-response="{{detailHealth}}"
+    >
+    </things-ajax>
 
-		<things-ajax
-			id="app-metrics-ajax"
-			with-credentials="[[withCredentials]]"
-			resource-action="find"
-			last-response="{{detailMetrics}}">
-		</things-ajax>
+    <things-ajax
+      id="app-metrics-ajax"
+      with-credentials="[[withCredentials]]"
+      resource-action="find"
+      last-response="{{detailMetrics}}"
+    >
+    </things-ajax>
 
-		<template is="dom-repeat" items="[[infoItems]]" as="item">
-			<admin-section
-				title="[[item.name]]"
-				data="[[item.value]]">
-			</admin-section>
-			<br>
-		</template>
+    <template is="dom-repeat" items="[[infoItems]]" as="item">
+      <admin-section title="[[item.name]]" data="[[item.value]]"> </admin-section>
+      <br />
+    </template>
 
-		<template is="dom-repeat" items="[[healthItems]]" as="item">
-			<admin-section
-				title="[[item.name]]"
-				data="[[item.value]]">
-			</admin-section>
-			<br>
-		</template>
+    <template is="dom-repeat" items="[[healthItems]]" as="item">
+      <admin-section title="[[item.name]]" data="[[item.value]]"> </admin-section>
+      <br />
+    </template>
 
-		<template is="dom-repeat" items="[[metricsItems]]" as="item">
-			<admin-section
-				title="[[item.name]]"
-				data="[[item.value]]">
-			</admin-section>
-			<br>
-		</template>
-	</template>
+    <template is="dom-repeat" items="[[metricsItems]]" as="item">
+      <admin-section title="[[item.name]]" data="[[item.value]]"> </admin-section>
+      <br />
+    </template>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'admin-app-detail',
+  <script>
+    Polymer({
+      is: "admin-app-detail",
 
-			properties: {
-				/**
-				 * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
-				 */
-				withCredentials: {
-					type: Boolean,
-					value: false
-				},
+      properties: {
+        /**
+         * Admin 관련 정보를 위한 서버 호출시 인증 설정 여부
+         */
+        withCredentials: {
+          type: Boolean,
+          value: false,
+        },
 
-				/**
-				 * Admin Base Url
-				 */
-				adminBaseUrl: {
-					type: String
-				},
+        /**
+         * Admin Base Url
+         */
+        adminBaseUrl: {
+          type: String,
+        },
 
-				/**
-				 * Application 선택 후 ...
-				 */
-				resource: {
-					type: Object,
-					observer: 'resourceChanged'
-				},
+        /**
+         * Application 선택 후 ...
+         */
+        resource: {
+          type: Object,
+          observer: "resourceChanged",
+        },
 
-				/**
-				 * 상세 내용 - Info
-				 */
-				detailInfo: {
-					type: Object
-				},
+        /**
+         * 상세 내용 - Info
+         */
+        detailInfo: {
+          type: Object,
+        },
 
-				/**
-				 * 상세 내용 - Health
-				 */
-				detailHealth: {
-					type: Object
-				},
+        /**
+         * 상세 내용 - Health
+         */
+        detailHealth: {
+          type: Object,
+        },
 
-				/**
-				 * 상세 내용 - Metrics
-				 */
-				detailMetrics: {
-					type: Object
-				},
+        /**
+         * 상세 내용 - Metrics
+         */
+        detailMetrics: {
+          type: Object,
+        },
 
-				/**
-				 * 화면 바인딩 application infomation
-				 * Title : Value Array
-				 **/
-				infoItems: {
-					type: Array
-				},
+        /**
+         * 화면 바인딩 application infomation
+         * Title : Value Array
+         **/
+        infoItems: {
+          type: Array,
+        },
 
-				/**
-				 * 화면 바인딩 application health
-				 * Title : Value Array
-				 **/
-				healthItems: {
-					type: Array
-				},
+        /**
+         * 화면 바인딩 application health
+         * Title : Value Array
+         **/
+        healthItems: {
+          type: Array,
+        },
 
-				/**
-				 * 화면 바인딩 application metrics
-				 * Title : Value Array
-				 **/
-				metricsItems: {
-					type: Array
-				},
+        /**
+         * 화면 바인딩 application metrics
+         * Title : Value Array
+         **/
+        metricsItems: {
+          type: Array,
+        },
 
-				/**
-				 * APM Agent Port 정보
-				 **/
-				appAgentPort: {
-					type: String,
-					notify: true
-				},
+        /**
+         * APM Agent Port 정보
+         **/
+        appAgentPort: {
+          type: String,
+          notify: true,
+        },
 
-				/**
-				 * Control Agent Port 정보
-				 **/
-				ctlAgentPort: {
-					type: String,
-					notify: true
-				},
+        /**
+         * Control Agent Port 정보
+         **/
+        ctlAgentPort: {
+          type: String,
+          notify: true,
+        },
 
-				/**
-				 * Control Agent가 관리하는 Application ID 정보
-				 **/
-				myCtlAgentId: {
-					type: String,
-					notify: true
-				}
-			},
+        /**
+         * Control Agent가 관리하는 Application ID 정보
+         **/
+        myCtlAgentId: {
+          type: String,
+          notify: true,
+        },
+      },
 
-			observers: [
-				'_detailInfoChanged(detailInfo)',
-				'_detailHealthChanged(detailHealth)',
-				'_detailMetricsChanged(detailMetrics)'
-			],
+      observers: [
+        "_detailInfoChanged(detailInfo)",
+        "_detailHealthChanged(detailHealth)",
+        "_detailMetricsChanged(detailMetrics)",
+      ],
 
-			/**
-			 * App 정보 데이터 변경시
-			 *
-			 * @param {Object} detailInfo
-			 */
-			_detailInfoChanged: function(detailInfo) {
-				this.infoItems = [{ name : 'Application', value : detailInfo }];
+      /**
+       * App 정보 데이터 변경시
+       *
+       * @param {Object} detailInfo
+       */
+      _detailInfoChanged: function (detailInfo) {
+        this.infoItems = [{ name: "Application", value: detailInfo }];
 
-				// APM Agent Port
-				if(detailInfo.agent && detailInfo.agent.port) {
-					this.appAgentPort = detailInfo.agent.port;
-				}
+        // APM Agent Port
+        if (detailInfo.agent && detailInfo.agent.port) {
+          this.appAgentPort = detailInfo.agent.port;
+        }
 
-				// Control Agent 정보
-				if(detailInfo.controlAgent) {
-					this.ctlAgentPort = detailInfo.controlAgent.port;
-					this.myCtlAgentId = detailInfo.controlAgent.my.id;
-				}
-			},
+        // Control Agent 정보
+        if (detailInfo.controlAgent) {
+          this.ctlAgentPort = detailInfo.controlAgent.port;
+          this.myCtlAgentId = detailInfo.controlAgent.my.id;
+        }
+      },
 
-			/**
-			 * App 상태 데이터 변경시
-			 *
-			 * @param {Object} detailHealth
-			 */
-			_detailHealthChanged: function(detailHealth) {
-				this.healthItems = [{ name : 'Health', value : detailHealth }];
-			},
+      /**
+       * App 상태 데이터 변경시
+       *
+       * @param {Object} detailHealth
+       */
+      _detailHealthChanged: function (detailHealth) {
+        this.healthItems = [{ name: "Health", value: detailHealth }];
+      },
 
-			/**
-			 * App Metrics 데이터 변경시
-			 *
-			 * @param {Object} detailMetrics
-			 */
-			_detailMetricsChanged: function(detailMetrics) {
-				var titles = [ {
-					name : "Memory", value: ["mem","heap"]
-				}, {
-					name : "JVM", value: ["systemload", "classes", "uptime", "processor", "threads"]
-				} ,{
-					name : "Garbage Collection", value : "gc"
-				} ,{
-					name : "Servlet Container", value : "httpsessions"
-				} ,{
-					name : "Datasources", value : "datasource"
-				} ];
+      /**
+       * App Metrics 데이터 변경시
+       *
+       * @param {Object} detailMetrics
+       */
+      _detailMetricsChanged: function (detailMetrics) {
+        var titles = [
+          {
+            name: "Memory",
+            value: ["mem", "heap"],
+          },
+          {
+            name: "JVM",
+            value: ["systemload", "classes", "uptime", "processor", "threads"],
+          },
+          {
+            name: "Garbage Collection",
+            value: "gc",
+          },
+          {
+            name: "Servlet Container",
+            value: "httpsessions",
+          },
+          {
+            name: "Datasources",
+            value: "datasource",
+          },
+        ];
 
-				var items = [];
+        var items = [];
 
-				for(var i = 0 ; i < titles.length ; i++) {
-					var filterItems = this.filterResponse(detailMetrics, titles[i].value);
-					if(filterItems.length > 2) {
-						items.push({ name : titles[i].name , value : JSON.parse(filterItems) });
-					}
-				}
+        for (var i = 0; i < titles.length; i++) {
+          var filterItems = this.filterResponse(detailMetrics, titles[i].value);
+          if (filterItems.length > 2) {
+            items.push({ name: titles[i].name, value: JSON.parse(filterItems) });
+          }
+        }
 
-				this.metricsItems = items;
-			},
+        this.metricsItems = items;
+      },
 
-			/**
-			 * Filtering Response
-			 *
-			 * @param {Object} infos
-			 * @param {String} matchStr
-			 */
-			filterResponse(infos, matchStr) {
-				var items = '';
+      /**
+       * Filtering Response
+       *
+       * @param {Object} infos
+       * @param {String} matchStr
+       */
+      filterResponse(infos, matchStr) {
+        var items = "";
 
-				if(typeof matchStr == 'string') {
-					for(var key in infos) {
-						if(key.startsWith(matchStr)){
-							// items += '"' + key.replace(matchStr, "") + '" : ' + infos[key] + ',';
-							items += '"' + key + '" : ' + infos[key] + ',';
-						}
-					}
-				} else {
-					for(var i = 0 ; i < matchStr.length ; i++) {
-						var item = this.filterResponse(infos, matchStr[i]);
-						item = item.substring(1, item.length - 1) + ',';
-						if(item.length > 1) items += item;
-					}
-				}
+        if (typeof matchStr == "string") {
+          for (var key in infos) {
+            if (key.startsWith(matchStr)) {
+              // items += '"' + key.replace(matchStr, "") + '" : ' + infos[key] + ',';
+              items += '"' + key + '" : ' + infos[key] + ",";
+            }
+          }
+        } else {
+          for (var i = 0; i < matchStr.length; i++) {
+            var item = this.filterResponse(infos, matchStr[i]);
+            item = item.substring(1, item.length - 1) + ",";
+            if (item.length > 1) items += item;
+          }
+        }
 
-				items = items.substring(0 , items.length -1);
-				return '{' + items + '}';
-			},
+        items = items.substring(0, items.length - 1);
+        return "{" + items + "}";
+      },
 
-			/**
-			 * Application 선택이 변경된 경우 trace list 호출
-			 *
-			 * @param {Object} resource
-			 */
-			resourceChanged: function(resource) {
-				var detailInfoAjax = this.$['app-info-ajax'];
-				detailInfoAjax.withCredentials = false;
-				detailInfoAjax.resourceUrl = this.adminBaseUrl + '/:id/info';
-				//detailInfoAjax.resourceId = resource.id;
-				detailInfoAjax.resourceId = resource.monitorId;
-				detailInfoAjax.generateRequest();
+      /**
+       * Application 선택이 변경된 경우 trace list 호출
+       *
+       * @param {Object} resource
+       */
+      resourceChanged: function (resource) {
+        var detailInfoAjax = this.$["app-info-ajax"];
+        detailInfoAjax.withCredentials = false;
+        detailInfoAjax.resourceUrl = this.adminBaseUrl + "/:id/info";
+        //detailInfoAjax.resourceId = resource.id;
+        detailInfoAjax.resourceId = resource.monitorId;
+        detailInfoAjax.generateRequest();
 
-				var detailHealthAjax = this.$['app-health-ajax'];
-				detailHealthAjax.withCredentials = false;
-				detailHealthAjax.resourceUrl = this.adminBaseUrl + '/:id/health';
-				//detailHealthAjax.resourceId = resource.id;
-				detailHealthAjax.resourceId = resource.monitorId;
-				detailHealthAjax.generateRequest();
+        var detailHealthAjax = this.$["app-health-ajax"];
+        detailHealthAjax.withCredentials = false;
+        detailHealthAjax.resourceUrl = this.adminBaseUrl + "/:id/health";
+        //detailHealthAjax.resourceId = resource.id;
+        detailHealthAjax.resourceId = resource.monitorId;
+        detailHealthAjax.generateRequest();
 
-				var detailMetricsAjax = this.$['app-metrics-ajax'];
-				detailMetricsAjax.withCredentials = false;
-				detailMetricsAjax.resourceUrl = this.adminBaseUrl + '/:id/metrics';
-				//detailMetricsAjax.resourceId = resource.id;
-				detailMetricsAjax.resourceId = resource.monitorId;
-				detailMetricsAjax.generateRequest();
-			},
+        var detailMetricsAjax = this.$["app-metrics-ajax"];
+        detailMetricsAjax.withCredentials = false;
+        detailMetricsAjax.resourceUrl = this.adminBaseUrl + "/:id/metrics";
+        //detailMetricsAjax.resourceId = resource.id;
+        detailMetricsAjax.resourceId = resource.monitorId;
+        detailMetricsAjax.generateRequest();
+      },
 
-			/**
-			 * Data Refresh ...
-			 */
-			refresh: function() {
-				if(this.resource) {
-					this.$['app-info-ajax'].generateRequest();
-					this.$['app-health-ajax'].generateRequest();
-					this.$['app-metrics-ajax'].generateRequest();
-				}
-			}
-		});
-	</script>
+      /**
+       * Data Refresh ...
+       */
+      refresh: function () {
+        if (this.resource) {
+          this.$["app-info-ajax"].generateRequest();
+          this.$["app-health-ajax"].generateRequest();
+          this.$["app-metrics-ajax"].generateRequest();
+        }
+      },
+    });
+  </script>
 </dom-module>

@@ -1,15 +1,15 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-input/iron-input.html">
-<link rel="import" href="../../iron-form/iron-form.html">
-<link rel="import" href="../../paper-input/paper-input.html">
-<link rel="import" href="../../paper-button/paper-button.html">
-<link rel="import" href="../../paper-material/paper-material.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../iron-input/iron-input.html" />
+<link rel="import" href="../../iron-form/iron-form.html" />
+<link rel="import" href="../../paper-input/paper-input.html" />
+<link rel="import" href="../../paper-button/paper-button.html" />
+<link rel="import" href="../../paper-material/paper-material.html" />
 
-<link rel="import" href="../../things-input-field/things-textarea.html">
+<link rel="import" href="../../things-input-field/things-textarea.html" />
 
 <!--
 	커스텀 서비스의 테스트 화면 
@@ -17,213 +17,213 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <dom-module id="things-base-diy-service-detail-test">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-			}
-			#form {
-				@apply(--layout-flex);
-			}
-			paper-toolbar {
-				background-color:var(--things-white-background-color);
-				height: 50px;
-				@apply(--things-tight-padding);
-			}
-			paper-toolbar::shadow #bottomBar {
-				height: 50px;
-				@apply(--layout-horizontal);
-				@apply(--layout-end-justified);
-				padding: 0 10px;
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+      }
+      #form {
+        @apply (--layout-flex);
+      }
+      paper-toolbar {
+        background-color: var(--things-white-background-color);
+        height: 50px;
+        @apply (--things-tight-padding);
+      }
+      paper-toolbar::shadow #bottomBar {
+        height: 50px;
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
+        padding: 0 10px;
+      }
+    </style>
 
-		<paper-toolbar>
-			<div class="bottom">
-				<things-button-bar buttons="[[buttons]]"></things-button-bar>
-			</div>
-		</paper-toolbar>		
-		
-		<form is="iron-form" 
-			id="form" 
-			action="[[action]]"
-			headers="[[headers]]"
-			with-credentials
-			content-type="application/json"
-			method="POST"
-			last-response="{{lastResponse}}">
-			<things-textarea required id="invoke-url" name ="invokeUrl" label="Invoke URL" disabled>
-			</things-textarea>
+    <paper-toolbar>
+      <div class="bottom">
+        <things-button-bar buttons="[[buttons]]"></things-button-bar>
+      </div>
+    </paper-toolbar>
 
-			<div id="param-fields" class="layout vertical flex fields"></div>
+    <form
+      is="iron-form"
+      id="form"
+      action="[[action]]"
+      headers="[[headers]]"
+      with-credentials
+      content-type="application/json"
+      method="POST"
+      last-response="{{lastResponse}}"
+    >
+      <things-textarea required id="invoke-url" name="invokeUrl" label="Invoke URL" disabled> </things-textarea>
 
-			<things-textarea id="result" label="Result" rows=16>
-			</things-textarea>
-		</form>
-	</template>
+      <div id="param-fields" class="layout vertical flex fields"></div>
 
-	<script>
-		Polymer({
+      <things-textarea id="result" label="Result" rows="16"> </things-textarea>
+    </form>
+  </template>
 
-			is: 'things-base-diy-service-detail-test',
+  <script>
+    Polymer({
+      is: "things-base-diy-service-detail-test",
 
-			properties: {
-				/**
-				 * Resource
-				 */
-				resource: {
-					type: Object,
-					observer: '_onResourceChanged'
-				},
+      properties: {
+        /**
+         * Resource
+         */
+        resource: {
+          type: Object,
+          observer: "_onResourceChanged",
+        },
 
-				/**
-				 * Input Parameters
-				 */
-				inputParams: {
-					type: Array,
-					observer: '_inputParamsChanged'
-				},
+        /**
+         * Input Parameters
+         */
+        inputParams: {
+          type: Array,
+          observer: "_inputParamsChanged",
+        },
 
-				/**
-				 * 버튼 
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [ {
-							id: 'invoke-btn',
-							text: 'invoke'
-						}, {
-							id: 'reset-btn',
-							text: 'reset'
-						} ];
-					}
-				}
-			},
-			
-			behaviors: [
-				Things.FormBehavior
-			],
+        /**
+         * 버튼
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "invoke-btn",
+                text: "invoke",
+              },
+              {
+                id: "reset-btn",
+                text: "reset",
+              },
+            ];
+          },
+        },
+      },
 
-			listeners : {
-				'invoke-btn-tap' : 'invokeService',
-				'reset-btn-tap' : 'resetForm',				
-				'iron-form-presubmit' :'_preSubmitHandler',
-				'iron-form-response' :'_successResponseHandler',
-				'iron-form-error' : '_errorResponseHandler'
-			},
+      behaviors: [Things.FormBehavior],
 
-			/**
-			 * 서비스 Invoke
-			 *
-			 * @param {Event} event
-			 */
-			invokeService: function(event) {
-				this.getMyForm().submit();
-			},
+      listeners: {
+        "invoke-btn-tap": "invokeService",
+        "reset-btn-tap": "resetForm",
+        "iron-form-presubmit": "_preSubmitHandler",
+        "iron-form-response": "_successResponseHandler",
+        "iron-form-error": "_errorResponseHandler",
+      },
 
-			/**
-			 * Reset Form
-			 *
-			 * @param {Event} event
-			 */
-			resetForm: function (event) {
-				//this.resetMyForm();
-				//this._resourceChanged(this.resource);
-				this.$['result'].value = '';
-			},
+      /**
+       * 서비스 Invoke
+       *
+       * @param {Event} event
+       */
+      invokeService: function (event) {
+        this.getMyForm().submit();
+      },
 
-			/**
-			 * Submit 전에 전처리
-			 *
-			 * @param {Event} event
-			 */
-			_preSubmitHandler: function(event) {
-				var form = this.getMyForm();
-				if(form.request.body && Object.keys(form.request.body).length > 0) {
-					form.request.body = { input : form.request.body };
-				}
-			},
+      /**
+       * Reset Form
+       *
+       * @param {Event} event
+       */
+      resetForm: function (event) {
+        //this.resetMyForm();
+        //this._resourceChanged(this.resource);
+        this.$["result"].value = "";
+      },
 
-			/**
-			 * Resource가 변경되었을 경우
-			 *
-			 * @param {Object} resource
-			 */
-			_onResourceChanged: function(resource) {
-				this.actionUrl = 'diy_services/' + resource.name + '/shoot.json';
-				this.$['invoke-url'].value = this.actionUrl;
-				this.inputParams = resource.service_in_params;
-			},
+      /**
+       * Submit 전에 전처리
+       *
+       * @param {Event} event
+       */
+      _preSubmitHandler: function (event) {
+        var form = this.getMyForm();
+        if (form.request.body && Object.keys(form.request.body).length > 0) {
+          form.request.body = { input: form.request.body };
+        }
+      },
 
-			/**
-			 * InputParams가 변경되었을 경우
-			 *
-			 * @param {Array} inputParams
-			 */
-			_inputParamsChanged: function(inputParams) {
-				if(inputParams && inputParams.length > 0) {
-					this.formFields = inputParams.map(function(param) {
-						return { name : param.name, label : param.name, type : 'textarea', rows : 1 };
-					});
-				}
-			},
+      /**
+       * Resource가 변경되었을 경우
+       *
+       * @param {Object} resource
+       */
+      _onResourceChanged: function (resource) {
+        this.actionUrl = "diy_services/" + resource.name + "/shoot.json";
+        this.$["invoke-url"].value = this.actionUrl;
+        this.inputParams = resource.service_in_params;
+      },
 
-			/**
-			 * 리소스 폼 화면을 구성. formFields 정보로 동적으로 폼 하위 엘리먼트를 생성하여 폼을 구성한다. 
-			 */
-			reconfigureMyForm: function() {
-				this._clearFormFields();
+      /**
+       * InputParams가 변경되었을 경우
+       *
+       * @param {Array} inputParams
+       */
+      _inputParamsChanged: function (inputParams) {
+        if (inputParams && inputParams.length > 0) {
+          this.formFields = inputParams.map(function (param) {
+            return { name: param.name, label: param.name, type: "textarea", rows: 1 };
+          });
+        }
+      },
 
-				for(index in this.formFields) {
-					var field = this.formFields[index];
-					var newElement = this._createFormElement(field);
-					if(!newElement) continue;
+      /**
+       * 리소스 폼 화면을 구성. formFields 정보로 동적으로 폼 하위 엘리먼트를 생성하여 폼을 구성한다.
+       */
+      reconfigureMyForm: function () {
+        this._clearFormFields();
 
-					this.$['param-fields'].appendChild(newElement);
-				}
-			},
+        for (index in this.formFields) {
+          var field = this.formFields[index];
+          var newElement = this._createFormElement(field);
+          if (!newElement) continue;
 
-			/**
-			 * Clear Parameter element
-			 */
-			_clearFormFields: function() {
-				var children = this.$['param-fields'].childNodes;
-				if(children && children.length > 0) {
-					var childCount = children.length;
-					for(var i = 0 ; i < childCount ; i++) {
-						var childElement = this.$['param-fields'].childNodes[0];
-						this.$['param-fields'].removeChild(childElement);
-					}
-				}
-			},
+          this.$["param-fields"].appendChild(newElement);
+        }
+      },
 
-			/**
-			 * Invoke 후 성공시 핸들러
-			 *
-			 * @param {Event} event
-			 */
-			_successResponseHandler: function (event) {
-				if(event.detail.xhr.response) {
-					this.$.result.value = JSON.stringify(event.detail.xhr.response, null, 4);
-				} else {
-					this.$.result.value = 'OK';
-				}
-			},
+      /**
+       * Clear Parameter element
+       */
+      _clearFormFields: function () {
+        var children = this.$["param-fields"].childNodes;
+        if (children && children.length > 0) {
+          var childCount = children.length;
+          for (var i = 0; i < childCount; i++) {
+            var childElement = this.$["param-fields"].childNodes[0];
+            this.$["param-fields"].removeChild(childElement);
+          }
+        }
+      },
 
-			/**
-			 * Invoke 후 실패시 핸들러
-			 *
-			 * @param {Event} event
-			 */
-			_errorResponseHandler: function (event) {
-				if(event.detail.request.xhr.response) {
-					this.$.result.value = JSON.stringify(event.detail.request.xhr.response, null, 4);
-				} else {
-					this.$.result.value = 'Unknown Error';
-				}
-			}
-		});
-	</script>
+      /**
+       * Invoke 후 성공시 핸들러
+       *
+       * @param {Event} event
+       */
+      _successResponseHandler: function (event) {
+        if (event.detail.xhr.response) {
+          this.$.result.value = JSON.stringify(event.detail.xhr.response, null, 4);
+        } else {
+          this.$.result.value = "OK";
+        }
+      },
+
+      /**
+       * Invoke 후 실패시 핸들러
+       *
+       * @param {Event} event
+       */
+      _errorResponseHandler: function (event) {
+        if (event.detail.request.xhr.response) {
+          this.$.result.value = JSON.stringify(event.detail.request.xhr.response, null, 4);
+        } else {
+          this.$.result.value = "Unknown Error";
+        }
+      },
+    });
+  </script>
 </dom-module>

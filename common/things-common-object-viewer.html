@@ -1,6 +1,6 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 <!--
 PDF viewer using native browser object as application/pdf
@@ -35,108 +35,104 @@ Card example:
 @demo demo/index.html
 -->
 <dom-module id="things-common-object-viewer">
-    <template>
+  <template>
+    <style>
+      :host {
+        display: none;
+        flex: inherit;
+      }
+      :host([file]) {
+        display: inherit;
+      }
+    </style>
 
-        <style>
-            :host {
-                display: none;
-                flex: inherit;
-            }
-            :host([file]) {
-                display: inherit;
-            }
-        </style>
+    <object data="[[file]]" type="[[mediaType]]" width="[[width]]" height="[[height]]">
+      <p>{{notSupportedMessage}} <a href="[[file]]">{{notSupportedLinkMessage}}</a></p>
+    </object>
+  </template>
 
-        <object data="[[file]]" type="[[mediaType]]" width="[[width]]" height="[[height]]">
-            <p>
-                {{notSupportedMessage}} <a href="[[file]]">{{notSupportedLinkMessage}}</a>
-            </p>
-        </object>
-
-    </template>
-
-    <script>
-        Polymer({
-            is: 'things-common-object-viewer',
-            properties: {
-                /**
-                 * The location of the Object file.
-                 *
-                 * @type String
-                 */
-                file: {
-                    type: String,
-                    value: undefined,
-                    reflectToAttribute: true
-                },
-                /**
-                 * The message when browser doesn't support pdf object
-                 *
-                 * @type String
-                 */
-                notSupportedMessage: {
-                    type: String,
-                    value: 'It appears your Web browser is not configured to display files. No worries, just'
-                },
-                /**
-                 * 
-                 */
-                mediaType :{
-                    type: String,
-                    value:'image/png'
-                },
-                /**
-                 * The PDF link message when browser doesn't support pdf object
-                 *
-                 * @type String
-                 */
-                notSupportedLinkMessage: {
-                    type: String,
-                    value: 'click here to download the file.'
-                },
-                /**
-                 * The height of the PDF viewer.
-                 *
-                 * @type String
-                 */
-                height: {
-                    type: String,
-                    value: '100%'
-                },
-                /**
-                 * The width of the PDF viewer.
-                 *
-                 * @type String
-                 */
-                width: {
-                    type: String,
-                    value: '100%'
-                },
-                /**
-                 * Download button label.
-                 *
-                 * @type String
-                 */
-                downloadLabel: {
-                    type: String,
-                    value: 'Download'
-                },
-                /**
-                 * The z-depth of the card, from 0-5.
-                 *
-                 * @type String
-                 */
-                elevation: {
-                    type: String,
-                    value: '1'
-                }
-            },
-            /**
-             * Clear PDF container
-             */
-            clear: function() {
-                this.file = undefined;
-            }
-        });
-    </script>
+  <script>
+    Polymer({
+      is: "things-common-object-viewer",
+      properties: {
+        /**
+         * The location of the Object file.
+         *
+         * @type String
+         */
+        file: {
+          type: String,
+          value: undefined,
+          reflectToAttribute: true,
+        },
+        /**
+         * The message when browser doesn't support pdf object
+         *
+         * @type String
+         */
+        notSupportedMessage: {
+          type: String,
+          value: "It appears your Web browser is not configured to display files. No worries, just",
+        },
+        /**
+         *
+         */
+        mediaType: {
+          type: String,
+          value: "image/png",
+        },
+        /**
+         * The PDF link message when browser doesn't support pdf object
+         *
+         * @type String
+         */
+        notSupportedLinkMessage: {
+          type: String,
+          value: "click here to download the file.",
+        },
+        /**
+         * The height of the PDF viewer.
+         *
+         * @type String
+         */
+        height: {
+          type: String,
+          value: "100%",
+        },
+        /**
+         * The width of the PDF viewer.
+         *
+         * @type String
+         */
+        width: {
+          type: String,
+          value: "100%",
+        },
+        /**
+         * Download button label.
+         *
+         * @type String
+         */
+        downloadLabel: {
+          type: String,
+          value: "Download",
+        },
+        /**
+         * The z-depth of the card, from 0-5.
+         *
+         * @type String
+         */
+        elevation: {
+          type: String,
+          value: "1",
+        },
+      },
+      /**
+       * Clear PDF container
+       */
+      clear: function () {
+        this.file = undefined;
+      },
+    });
+  </script>
 </dom-module>

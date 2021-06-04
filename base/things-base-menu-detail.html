@@ -1,175 +1,175 @@
 <!--
 @license
-Copyright © Weixun Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-card/paper-card.html" />
 
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-card/paper-card.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-
-<link rel="import" href="./things-base-menu-detail-buttons.html">
-<link rel="import" href="./things-base-menu-detail-columns.html">
-<link rel="import" href="./things-base-menu-detail-main.html">
+<link rel="import" href="./things-base-menu-detail-buttons.html" />
+<link rel="import" href="./things-base-menu-detail-columns.html" />
+<link rel="import" href="./things-base-menu-detail-main.html" />
 
 <!--
 메뉴 셋업 뷰 - 좌/우 분할 & 우측 상하 분할 레이아웃
 -->
 <dom-module id="things-base-menu-detail">
-    <template>
-        <style>
-            :host {
-                display: inline-block;
-                @apply(--things-base-menu-detail);
-                @apply(--layout-horizontal);
-            }
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        @apply (--things-base-menu-detail);
+        @apply (--layout-horizontal);
+      }
 
-            paper-card {
-                @apply(--layout-vertical);
-                @apply(--layout-flex);
-                @apply(--layout-wrap);
-                @apply(--things-base-menu-detail-container);
+      paper-card {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-wrap);
+        @apply (--things-base-menu-detail-container);
 
-                --paper-card-header-text: {
-                    font-size: 14px;
-                    @apply(--things-detail-header-text);
-                }
-            }
+        --paper-card-header-text: {
+          font-size: 14px;
+          @apply (--things-detail-header-text);
+        }
+      }
 
-            .container {
-                @apply(--things-base-menu-detail);
-                @apply(--layout-flex);
-                @apply(--layout-horizontal);
-            }
+      .container {
+        @apply (--things-base-menu-detail);
+        @apply (--layout-flex);
+        @apply (--layout-horizontal);
+      }
 
-            .detail-flex {
-                @apply(--layout-flex);
-            }
+      .detail-flex {
+        @apply (--layout-flex);
+      }
 
-            .layout-content {
-                @apply(--layout-flex);
-                @apply(--layout-vertical);
-            }
+      .layout-content {
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
+      }
 
-            .card-actions {
-                @apply(--layout-horizontal-reverse);
-            }
+      .card-actions {
+        @apply (--layout-horizontal-reverse);
+      }
 
-            #left {
-                @apply(--layout-flex);
-                @apply(--layout-vertical);
-                @apply(--things-base-menu-detail-left);
-            }
+      #left {
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
+        @apply (--things-base-menu-detail-left);
+      }
 
-            #left-top {
-                @apply(--layout-flex-4);
-                @apply(--things-base-menu-detail-right-top);
-            }
+      #left-top {
+        @apply (--layout-flex-4);
+        @apply (--things-base-menu-detail-right-top);
+      }
 
-            #left-bottom {
-                @apply(--layout-flex-3);
-                @apply(--things-base-menu-detail-right-bottom);
-            }
+      #left-bottom {
+        @apply (--layout-flex-3);
+        @apply (--things-base-menu-detail-right-bottom);
+      }
 
-            #right {
-                @apply(--layout-flex);
-                @apply(--layout-vertical);
-                @apply(--things-base-menu-detail-right);
-            }
+      #right {
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
+        @apply (--things-base-menu-detail-right);
+      }
 
-            .subtitle:before {
-                content: '';
-                @apply(--things-subtitle-icon);
-            }
-            .subtitle {
-                padding-top: 5px;
-                padding-left: 20px;
-                @apply(--things-subtitle);
-            }
-        </style>
+      .subtitle:before {
+        content: "";
+        @apply (--things-subtitle-icon);
+      }
+      .subtitle {
+        padding-top: 5px;
+        padding-left: 20px;
+        @apply (--things-subtitle);
+      }
+    </style>
 
-        <div class="container">
-            <!-- left -->
-            <div id="left">
-                <!-- top -->
-                <paper-card id="left-top" elevation="1" animated-shadow="false">
-                    <things-i18n-msg msg="{{leftTopContentTitle}}" msgid="label.menu_detail" auto hidden>Menu Detail</things-i18n-msg>
-                    <span class="subtitle">[[leftTopContentTitle]]</span>
-                    <things-base-menu-detail-main 
-                        class="detail-flex" 
-                        resource-id="[[resourceId]]"
-                        menu-detail-id="{{menuDetailId}}">
-                    </things-base-menu-detail-main>
-                </paper-card>
+    <div class="container">
+      <!-- left -->
+      <div id="left">
+        <!-- top -->
+        <paper-card id="left-top" elevation="1" animated-shadow="false">
+          <things-i18n-msg msg="{{leftTopContentTitle}}" msgid="label.menu_detail" auto hidden
+            >Menu Detail</things-i18n-msg
+          >
+          <span class="subtitle">[[leftTopContentTitle]]</span>
+          <things-base-menu-detail-main
+            class="detail-flex"
+            resource-id="[[resourceId]]"
+            menu-detail-id="{{menuDetailId}}"
+          >
+          </things-base-menu-detail-main>
+        </paper-card>
 
-                <!-- bottom -->
-                <paper-card id="left-bottom" elevation="1" animated-shadow="false">
-                    <things-i18n-msg msg="{{leftBottomContentTitle}}" msgid="label.menu_detail_buttons" auto hidden>Menu Detail Buttons</things-i18n-msg>
-                    <span class="subtitle">[[leftBottomContentTitle]]</span>
-                    <things-base-menu-detail-buttons 
-                        class="detail-flex" 
-                        resource-id="{{menuDetailId}}">
-                    </things-base-menu-detail-buttons>
-                </paper-card>
-            </div>
+        <!-- bottom -->
+        <paper-card id="left-bottom" elevation="1" animated-shadow="false">
+          <things-i18n-msg msg="{{leftBottomContentTitle}}" msgid="label.menu_detail_buttons" auto hidden
+            >Menu Detail Buttons</things-i18n-msg
+          >
+          <span class="subtitle">[[leftBottomContentTitle]]</span>
+          <things-base-menu-detail-buttons class="detail-flex" resource-id="{{menuDetailId}}">
+          </things-base-menu-detail-buttons>
+        </paper-card>
+      </div>
 
-            <!-- right -->
-            <paper-card id="right" elevation="1" animated-shadow="false">
-                <things-i18n-msg msg="{{rightContentTitle}}" msgid="label.menu_detail_columns" auto hidden>Menu Detail Columns</things-i18n-msg>
-                <span class="subtitle">[[rightContentTitle]]</span>
-                <things-base-menu-detail-columns 
-                    class="detail-flex" 
-                    resource-id="{{menuDetailId}}">
-                </things-base-menu-detail-columns>
-            </paper-card>
-        </div>
-    </template>
+      <!-- right -->
+      <paper-card id="right" elevation="1" animated-shadow="false">
+        <things-i18n-msg msg="{{rightContentTitle}}" msgid="label.menu_detail_columns" auto hidden
+          >Menu Detail Columns</things-i18n-msg
+        >
+        <span class="subtitle">[[rightContentTitle]]</span>
+        <things-base-menu-detail-columns class="detail-flex" resource-id="{{menuDetailId}}">
+        </things-base-menu-detail-columns>
+      </paper-card>
+    </div>
+  </template>
 
-    <script>
-        Polymer({
-            is: 'things-base-menu-detail',
+  <script>
+    Polymer({
+      is: "things-base-menu-detail",
 
-            behaviors: [
-                Things.ViewOpenBehavior
-            ],
+      behaviors: [Things.ViewOpenBehavior],
 
-            properties: {
-                /**
-                 * Title Of This Content
-                 */
-                title: {
-                    type: String
-                },
+      properties: {
+        /**
+         * Title Of This Content
+         */
+        title: {
+          type: String,
+        },
 
-                /**
-                 * Resource ID
-                 */
-                resourceId: {
-                    type: String
-                },
+        /**
+         * Resource ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-                /**
-                 * Menu Detail ID
-                 */
-                menuDetailId: {
-                    type: String,
-                    notify: true
-                }
-            },
+        /**
+         * Menu Detail ID
+         */
+        menuDetailId: {
+          type: String,
+          notify: true,
+        },
+      },
 
-            /**
-             * Detail 화면을 오픈한다.
-             *
-             * @param {String} resourceId
-             * @param {Object} resource
-             */
-            showDetailView: function (resourceId, resource) {
-                if (this.resourceId != resourceId) {
-                    this.resourceId = resourceId;
-                }
+      /**
+       * Detail 화면을 오픈한다.
+       *
+       * @param {String} resourceId
+       * @param {Object} resource
+       */
+      showDetailView: function (resourceId, resource) {
+        if (this.resourceId != resourceId) {
+          this.resourceId = resourceId;
+        }
 
-                this.openPopupView(this, true);
-            }
-        });
-    </script>
+        this.openPopupView(this, true);
+      },
+    });
+  </script>
 </dom-module>

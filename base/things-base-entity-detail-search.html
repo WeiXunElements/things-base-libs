@@ -1,14 +1,14 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
 
 <!--
   엔티티 검색 조건 설정 화면
@@ -19,21 +19,18 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
       iron-pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
-    <things-ajax
-      id="delete-service"
-      method="DELETE">
-    </things-ajax>
+    <things-ajax id="delete-service" method="DELETE"> </things-ajax>
 
     <things-resource-grid
       id="grid"
@@ -42,19 +39,16 @@ Copyright © HatioLab Inc. All rights reserved.
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
+      buttons="[[buttons]]"
+    >
     </things-resource-grid>
   </template>
 
   <script>
     Polymer({
+      is: "things-base-entity-detail-search",
 
-      is: 'things-base-entity-detail-search',
-
-      behaviors: [
-        Things.MsgBoxBehavior,
-        Things.ViewOpenBehavior
-      ],
+      behaviors: [Things.MsgBoxBehavior, Things.ViewOpenBehavior],
 
       properties: {
         /**
@@ -62,14 +56,14 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         lastResponse: {
           type: Object,
-          observer: '_responseChanged'
+          observer: "_responseChanged",
         },
 
         /**
          * Entity Id
          */
         resourceId: {
-          type: String
+          type: String,
         },
 
         /**
@@ -78,28 +72,28 @@ Copyright © HatioLab Inc. All rights reserved.
         resourceColumns: {
           type: Array,
           notify: true,
-          observer: '_resourceColumnsChanged'
+          observer: "_resourceColumnsChanged",
         },
 
         /**
          * resourceColumns를 가공한 Grid에 표시할 실제 Entity Columns 데이터
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         /**
          * Grid Model
          */
         gridModel: {
-          type: Array
+          type: Array,
         },
 
         /**
          * Grid Column
          */
         gridColumns: {
-          type: Array
+          type: Array,
         },
 
         /**
@@ -107,7 +101,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: '_computeEntityColumnSaveUrl(resourceId)'
+          computed: "_computeEntityColumnSaveUrl(resourceId)",
         },
 
         /**
@@ -115,110 +109,226 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridColumns: {
           type: Array,
-          value: function() {
-            var colTypes = ['', 'binary', 'boolean', 'date', 'datetime', 'decimal', 'double', 'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'];
-            var editors = ['', 'hidden', 'readonly', 'text', 'number', 'checkbox', 'tristate-radio', 'textarea', 'code-combo', 'resource-field', 'resource-code', 'resource-selector', 'resource-format-selector', 'resource-combo', 'reference-query', 'image-selector', 'date-picker', 'time-picker', 'datetime-picker', 'date-from-to-picker', 'time-input'];
-            var searchOpers = ['', 'contains', 'dnew', 'dnsw', 'eq', 'ew', 'gt', 'gte', 'between', 'in', 'is_blank', 'is_false', 'is_not_false', 'is_not_null','is_not_true', 'is_null', 'is_present', 'is_true', 'like','lt', 'lte', 'nlike', 'noteq', 'notin', 'sw' ];
+          value: function () {
+            var colTypes = [
+              "",
+              "binary",
+              "boolean",
+              "date",
+              "datetime",
+              "decimal",
+              "double",
+              "float",
+              "integer",
+              "long",
+              "string",
+              "text",
+              "time",
+              "timestamp",
+            ];
+            var editors = [
+              "",
+              "hidden",
+              "readonly",
+              "text",
+              "number",
+              "checkbox",
+              "tristate-radio",
+              "textarea",
+              "code-combo",
+              "resource-field",
+              "resource-code",
+              "resource-selector",
+              "resource-format-selector",
+              "resource-combo",
+              "reference-query",
+              "image-selector",
+              "date-picker",
+              "time-picker",
+              "datetime-picker",
+              "date-from-to-picker",
+              "time-input",
+            ];
+            var searchOpers = [
+              "",
+              "contains",
+              "dnew",
+              "dnsw",
+              "eq",
+              "ew",
+              "gt",
+              "gte",
+              "between",
+              "in",
+              "is_blank",
+              "is_false",
+              "is_not_false",
+              "is_not_null",
+              "is_not_true",
+              "is_null",
+              "is_present",
+              "is_true",
+              "like",
+              "lt",
+              "lte",
+              "nlike",
+              "noteq",
+              "notin",
+              "sw",
+            ];
 
-            return [ {
-              fieldName: 'id', name: 'id', width: 0
-            }, {
-              fieldName: 'entity_id', name: 'entity_id', width: 0
-            }, {
-              fieldName: 'search_rank', name: 'search_rank', width: 50, type: 'number',
-              header: {
-                text: Things.DataGlobal.t('label.rank')
+            return [
+              {
+                fieldName: "id",
+                name: "id",
+                width: 0,
               },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              fieldName: 'name', name: 'name', width: 135,
-              header: {
-                text: Things.DataGlobal.t('label.name')
-              }
-            }, {
-              fieldName: 'term', name: 'term', width: 135, editable: false,
-              valueType: 'text', type: 'calced',
-              header: {
-                text: Things.DataGlobal.t('label.term')
+              {
+                fieldName: "entity_id",
+                name: "entity_id",
+                width: 0,
               },
-              valueCallback: function(column, row) {
-                var term = row.getValue('term');
-                return term ? Things.DataGlobal.t(term) : '';
-              }
-            }, {
-              name: 'col_type', fieldName: 'col_type', width: 80, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.col_type')
-              }
-            }, {
-              fieldName: 'ref_type', name: 'ref_type', width: 100, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.ref_type')
-              }
-            }, {
-              fieldName: 'ref_name', name: 'ref_name', width: 150, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.ref_name')
-             }
-            }, {
-              fieldName: 'sort_rank', name: 'sort_rank', width: 65, type: 'number',
-              header: {
-                text: Things.DataGlobal.t('label.sort_rank')
+              {
+                fieldName: "search_rank",
+                name: "search_rank",
+                width: 50,
+                type: "number",
+                header: {
+                  text: Things.DataGlobal.t("label.rank"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
               },
-              styles: {
-                textAlignment: 'center'
-              }
-            }, {
-              fieldName: 'reverse_sort', name: 'reverse_sort', width: 80, editable: false,
-              header: {
-                text: Things.DataGlobal.t('label.reverse_sort')
+              {
+                fieldName: "name",
+                name: "name",
+                width: 135,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
               },
-              renderer: {
-                type:'check',
-                editable: true,
-                threeStates: false,
-                trueValues: 'true',
-                falseValues: 'false'
-              }
-            }, {
-              name: 'search_editor', fieldName: 'search_editor', width: 150, lookupDisplay: true,
-              header: {
-                text: Things.DataGlobal.t('label.editor')
+              {
+                fieldName: "term",
+                name: "term",
+                width: 135,
+                editable: false,
+                valueType: "text",
+                type: "calced",
+                header: {
+                  text: Things.DataGlobal.t("label.term"),
+                },
+                valueCallback: function (column, row) {
+                  var term = row.getValue("term");
+                  return term ? Things.DataGlobal.t(term) : "";
+                },
               },
-              editor: {
-                type: 'list',
-                domainOnly: true
+              {
+                name: "col_type",
+                fieldName: "col_type",
+                width: 80,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.col_type"),
+                },
               },
-              lookupValues: editors,
-              lookupLabels: editors
-            }, {
-              name: 'search_name', fieldName: 'search_name', width: 90,
-              header: {
-                text: Things.DataGlobal.t('label.search_name')
-              }
-            }, {
-              fieldName: 'search_oper', name: 'search_oper', width: 80, lookupDisplay: true,
-              header: {
-                text: Things.DataGlobal.t('label.search_oper')
+              {
+                fieldName: "ref_type",
+                name: "ref_type",
+                width: 100,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.ref_type"),
+                },
               },
-              editor: {
-                type: 'list',
-                domainOnly: true
+              {
+                fieldName: "ref_name",
+                name: "ref_name",
+                width: 150,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.ref_name"),
+                },
               },
-              lookupValues: searchOpers,
-              lookupLabels: searchOpers
-            }, {
-              name: 'search_init_val', fieldName: 'search_init_val', width: 100,
-              header: {
-                text: Things.DataGlobal.t('label.search_init_val')
+              {
+                fieldName: "sort_rank",
+                name: "sort_rank",
+                width: 65,
+                type: "number",
+                header: {
+                  text: Things.DataGlobal.t("label.sort_rank"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
               },
-              editor: {
-                maxLength: 256
-              }
-            } ];
-          }
+              {
+                fieldName: "reverse_sort",
+                name: "reverse_sort",
+                width: 80,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.reverse_sort"),
+                },
+                renderer: {
+                  type: "check",
+                  editable: true,
+                  threeStates: false,
+                  trueValues: "true",
+                  falseValues: "false",
+                },
+              },
+              {
+                name: "search_editor",
+                fieldName: "search_editor",
+                width: 150,
+                lookupDisplay: true,
+                header: {
+                  text: Things.DataGlobal.t("label.editor"),
+                },
+                editor: {
+                  type: "list",
+                  domainOnly: true,
+                },
+                lookupValues: editors,
+                lookupLabels: editors,
+              },
+              {
+                name: "search_name",
+                fieldName: "search_name",
+                width: 90,
+                header: {
+                  text: Things.DataGlobal.t("label.search_name"),
+                },
+              },
+              {
+                fieldName: "search_oper",
+                name: "search_oper",
+                width: 80,
+                lookupDisplay: true,
+                header: {
+                  text: Things.DataGlobal.t("label.search_oper"),
+                },
+                editor: {
+                  type: "list",
+                  domainOnly: true,
+                },
+                lookupValues: searchOpers,
+                lookupLabels: searchOpers,
+              },
+              {
+                name: "search_init_val",
+                fieldName: "search_init_val",
+                width: 100,
+                header: {
+                  text: Things.DataGlobal.t("label.search_init_val"),
+                },
+                editor: {
+                  maxLength: 256,
+                },
+              },
+            ];
+          },
         },
 
         /**
@@ -226,7 +336,8 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         buttons: {
           type: Array,
-          value: [ /*{
+          value: [
+            /*{
             id: 'delete-table-btn',
             text: 'delete_table'
           }, {
@@ -235,24 +346,26 @@ Copyright © HatioLab Inc. All rights reserved.
           }, {
             id: 'delete-svc-btn',
             text: 'delete_service'
-          }, */{
-            id: 'save-btn',
-            text: 'save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete'
-          } ]
-        }
+          }, */ {
+              id: "save-btn",
+              text: "save",
+            },
+            {
+              id: "delete-btn",
+              text: "delete",
+            },
+          ],
+        },
       },
 
       listeners: {
-        'things-detail-view-selected' : '_myTabSelected',
-        'grid.things-grid-handle-built-writedata' : '_setupWriteData',
-        'grid.things-grid-save-success' : '_responseTransaction',
-        'delete-table-btn-tap' : 'deleteTable',
-        'delete-entity-btn-tap' : 'deleteEntity',
-        'delete-svc-btn-tap' : 'deleteService',
-        'delete-service.things-ajax-response' : '_generationSuccess',
+        "things-detail-view-selected": "_myTabSelected",
+        "grid.things-grid-handle-built-writedata": "_setupWriteData",
+        "grid.things-grid-save-success": "_responseTransaction",
+        "delete-table-btn-tap": "deleteTable",
+        "delete-entity-btn-tap": "deleteEntity",
+        "delete-svc-btn-tap": "deleteService",
+        "delete-service.things-ajax-response": "_generationSuccess",
       },
 
       /**
@@ -260,14 +373,15 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      deleteTable: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
-            var service = this.$['delete-service'];
-            service.resourceUrl = 'code_generator/code/table/' + this.resourceId;
-            service.generateRequest();
-          }.bind(this));
-
+      deleteTable: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["delete-service"];
+              service.resourceUrl = "code_generator/code/table/" + this.resourceId;
+              service.generateRequest();
+            }.bind(this)
+          );
         } else {
           this._warningNotReady();
         }
@@ -278,14 +392,15 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      deleteEntity: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
-            var service = this.$['delete-service'];
-            service.resourceUrl = 'code_generator/code/entity/' + this.resourceId;
-            service.generateRequest();
-          }.bind(this));
-
+      deleteEntity: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["delete-service"];
+              service.resourceUrl = "code_generator/code/entity/" + this.resourceId;
+              service.generateRequest();
+            }.bind(this)
+          );
         } else {
           this._warningNotReady();
         }
@@ -296,14 +411,15 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 버튼 클릭 이벤트
        */
-      deleteService: function(e) {
-        if(this.resource.table_name) {
-          this._confirmAndInvoke(function() {
-            var service = this.$['delete-service'];
-            service.resourceUrl = 'code_generator/code/controller/' + this.resourceId;
-            service.generateRequest();
-          }.bind(this));
-
+      deleteService: function (e) {
+        if (this.resource.table_name) {
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["delete-service"];
+              service.resourceUrl = "code_generator/code/controller/" + this.resourceId;
+              service.generateRequest();
+            }.bind(this)
+          );
         } else {
           this._warningNotReady();
         }
@@ -312,28 +428,31 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * 서비스 호출 준비가 안 된 상태라는 메시지 출력
        */
-      _warningNotReady: function() {
-        var tableName = Things.DataGlobal.t('label.table_name');
-        var msg = Things.DataGlobal.t('error.SHOULD_NOT_BE_EMPTY', { value : tableName });
+      _warningNotReady: function () {
+        var tableName = Things.DataGlobal.t("label.table_name");
+        var msg = Things.DataGlobal.t("error.SHOULD_NOT_BE_EMPTY", { value: tableName });
 
         this.openInfoMsg({
-          type : 'warning',
-          title : msg,
+          type: "warning",
+          title: msg,
           showCancelButton: true,
-          closeOnConfirm : true
+          closeOnConfirm: true,
         });
       },
 
       /**
        * 사용자에게 확인 후 서비스 호출
        */
-      _confirmAndInvoke: function(func) {
-        this.openConfirmMsg({
-          type : 'info',
-          title : Things.DataGlobal.t('text.Sure to Delete'),
-          showCancelButton: true,
-          closeOnConfirm : true
-        }, func);
+      _confirmAndInvoke: function (func) {
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: Things.DataGlobal.t("text.Sure to Delete"),
+            showCancelButton: true,
+            closeOnConfirm: true,
+          },
+          func
+        );
       },
 
       /**
@@ -341,19 +460,19 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _generationSuccess: function(e) {
+      _generationSuccess: function (e) {
         this.openInfoMsg({
-          title : Things.DataGlobal.t('label.success'),
-          type : 'info',
-          text : Things.DataGlobal.t('text.Success to Delete'),
-          closeOnConfirm: true
+          title: Things.DataGlobal.t("label.success"),
+          type: "info",
+          text: Things.DataGlobal.t("text.Success to Delete"),
+          closeOnConfirm: true,
         });
       },
 
       /**
        * 상세 탭 선택시 ...
        */
-      _myTabSelected: function(e) {
+      _myTabSelected: function (e) {
         this.$.grid.resizeGrid();
       },
 
@@ -363,8 +482,8 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} Save entity columns url
        */
-      _computeEntityColumnSaveUrl: function(resourceId) {
-        return 'entities/' + resourceId + '/update_multiple_entity_columns.json';
+      _computeEntityColumnSaveUrl: function (resourceId) {
+        return "entities/" + resourceId + "/update_multiple_entity_columns.json";
       },
 
       /**
@@ -372,7 +491,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _responseChanged: function(lastResponse) {
+      _responseChanged: function (lastResponse) {
         this.resourceColumns = lastResponse.items ? lastResponse.items : [];
       },
 
@@ -381,14 +500,14 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _resourceColumnsChanged: function(resourceColumns) {
+      _resourceColumnsChanged: function (resourceColumns) {
         var items = null;
 
-        if(resourceColumns && resourceColumns.length > 0) {
-          items = resourceColumns.filter(function(column) {
+        if (resourceColumns && resourceColumns.length > 0) {
+          items = resourceColumns.filter(function (column) {
             return (column.search_rank && column.search_rank > 0) || (column.sort_rank && column.sort_rank > 0);
           });
-          if(items && items.length > 0) this._sortColumns(items, 'search_rank');
+          if (items && items.length > 0) this._sortColumns(items, "search_rank");
         }
 
         this.items = items ? items : [];
@@ -397,9 +516,9 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * list sorting
        */
-      _sortColumns: function(list, sortField) {
-        list.sort(function(a, b) {
-          return (a[sortField] > b[sortField]) ? 1 : ((b[sortField] > a[sortField]) ? -1 : 0);
+      _sortColumns: function (list, sortField) {
+        list.sort(function (a, b) {
+          return a[sortField] > b[sortField] ? 1 : b[sortField] > a[sortField] ? -1 : 0;
         });
       },
 
@@ -408,24 +527,23 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _setupWriteData: function(event) {
+      _setupWriteData: function (event) {
         var writeData = event.detail;
-        if(writeData && writeData.length > 0) {
+        if (writeData && writeData.length > 0) {
           var entityId = this.resourceId;
 
-          writeData.forEach(function(changedData) {
+          writeData.forEach(function (changedData) {
             changedData.entity_id = entityId;
-            if(!changedData.uniq_rank) changedData.uniq_rank = 0;
+            if (!changedData.uniq_rank) changedData.uniq_rank = 0;
 
-
-            if(!changedData.search_rank || 0 == changedData.search_rank || '0' === changedData.search_rank) {
+            if (!changedData.search_rank || 0 == changedData.search_rank || "0" === changedData.search_rank) {
               changedData.search_check = false;
             }
 
-            delete changedData['ref_name_editor'];
-            delete changedData['trans'];
-            delete changedData['search_check'];
-            delete changedData['grid_check'];
+            delete changedData["ref_name_editor"];
+            delete changedData["trans"];
+            delete changedData["search_check"];
+            delete changedData["grid_check"];
           });
         }
       },
@@ -435,9 +553,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 트랜잭션 성공 이벤트
        */
-      _responseTransaction: function(e) {
+      _responseTransaction: function (e) {
         this.lastResponse = e.detail;
-      }
+      },
     });
   </script>
 </dom-module>

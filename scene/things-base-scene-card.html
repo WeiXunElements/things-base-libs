@@ -1,15 +1,15 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html" />
+<link rel="import" href="../../paper-tooltip/paper-tooltip.html" />
 
-<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html">
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-card-image/things-card-image-list.html">
-<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html" />
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-card-image/things-card-image-list.html" />
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html" />
 
 <!--
   Scene Card 화면
@@ -20,84 +20,85 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        background-color:var(--things-whitegrey-background-color);
+        background-color: var(--things-whitegrey-background-color);
       }
       paper-toolbar {
-        background-color:var(--things-primary-background-color);
-        height:45px;
-        margin-top:0px !important;
-        @apply(--things-padding-clear)
+        background-color: var(--things-primary-background-color);
+        height: 45px;
+        margin-top: 0px !important;
+        @apply (--things-padding-clear);
       }
       paper-toolbar::shadow #topBar {
-        height:45px;
-        padding:0;
+        height: 45px;
+        padding: 0;
       }
       paper-toolbar::shadow #bottomBar {
         height: 45px;
-        @apply(--layout-horizontal);
-        @apply(--layout-end-justified);
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
         padding: 0 10px;
       }
       paper-toolbar .title {
-        margin-left:32px !important;
-        line-height:initial !important;
+        margin-left: 32px !important;
+        line-height: initial !important;
       }
       #button-toolbar {
-        background-color:var(--things-whitegrey-background-color);
-        height:45px;
-        margin-top:0px !important;
-        @apply(--things-padding-clear)
+        background-color: var(--things-whitegrey-background-color);
+        height: 45px;
+        margin-top: 0px !important;
+        @apply (--things-padding-clear);
       }
       .detail-card {
-        @apply(--layout-vertical);
-        min-width:600px;
-        max-width:800px;
+        @apply (--layout-vertical);
+        min-width: 600px;
+        max-width: 800px;
       }
       .detail-content {
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
       .detail-content:first-child {
-        @apply(--layout-horizontal);
+        @apply (--layout-horizontal);
       }
       .detail-content:last-child::shadow input {
-        width:68%;
+        width: 68%;
       }
       .close-btn {
-        @apply(--things-header-button);
-        background:url(/images/icon-close.png) 100% 50% no-repeat;
-        margin-right:10px;
+        @apply (--things-header-button);
+        background: url(/images/icon-close.png) 100% 50% no-repeat;
+        margin-right: 10px;
       }
       .container {
         height: 90vh;
         overflow: auto;
       }
       #card-list::shadow paper-card {
-        padding:6px 4px;
-        min-height:85px
+        padding: 6px 4px;
+        min-height: 85px;
       }
       #card-list::shadow iron-image {
-        width:100%;
-        height:120px;
+        width: 100%;
+        height: 120px;
       }
       #card-list::shadow iron-image::shadow img {
-        height:initial !important;
+        height: initial !important;
       }
-      #card-list::shadow .title-text,#card-list::shadow .card-info {
-        display:none;
+      #card-list::shadow .title-text,
+      #card-list::shadow .card-info {
+        display: none;
       }
       #card-list::shadow #card-detail span {
-        display:none;
-        overflow-x:hidden;
-        font-size:12px;
-        color:var(--things-primary-text-color);
-        white-space:nowrap;
+        display: none;
+        overflow-x: hidden;
+        font-size: 12px;
+        color: var(--things-primary-text-color);
+        white-space: nowrap;
       }
       #card-list::shadow #card-detail span.name {
-        display:block;
-        padding:3px 0 0 5px;
-        font-size:13px;
-        font-weight:bold;
-        color:var(--things-focus-background-color);
+        display: block;
+        padding: 3px 0 0 5px;
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--things-focus-background-color);
       }
       /*#card-list::shadow #card-detail span.homepage {
         margin-top:4px;
@@ -126,80 +127,97 @@ Copyright © HatioLab Inc. All rights reserved.
         background-position:50% -99px;
       }*/
       .detail-card iron-image {
-        float:left;
-        min-width:580px;
-        min-height:380px;
-        max-width:780px;
-        max-height:580px;
+        float: left;
+        min-width: 580px;
+        min-height: 380px;
+        max-width: 780px;
+        max-height: 580px;
       }
       .detail-card iron-image::shadow img {
-        margin:auto;
-        max-width:100%
+        margin: auto;
+        max-width: 100%;
       }
       .topinfo {
-        float:right;
+        float: right;
       }
       .import-dialog {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
       .dialog-container {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       .bottom {
-        @apply(--layout-horizontal);
-        @apply(--layout-end-justified);
-      }      
-      paper-dialog paper-toolbar:last-child {
-        background-color:transparent;
-        margin-bottom:5px;
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
       }
-      @media only all and (min-width: 400px) { things-card-image-list::shadow paper-card { width: 98% !important; }}
-      @media only all and (min-width: 500px) { things-card-image-list::shadow paper-card { width: 47% !important; }}
-      @media only all and (min-width: 600px) { things-card-image-list::shadow paper-card { width: 98% !important; }}
-      @media only all and (min-width: 750px) { things-card-image-list::shadow paper-card { width: 48% !important; }}
-      @media only all and (min-width: 1150px) { things-card-image-list::shadow paper-card { width: 31% !important; }}
-      @media only all and (min-width: 1450px) { things-card-image-list::shadow paper-card { width: 23.5% !important; }}
-      @media only all and (min-width: 1800px) { things-card-image-list::shadow paper-card { width: 18.5% !important; }}
+      paper-dialog paper-toolbar:last-child {
+        background-color: transparent;
+        margin-bottom: 5px;
+      }
+      @media only all and (min-width: 400px) {
+        things-card-image-list::shadow paper-card {
+          width: 98% !important;
+        }
+      }
+      @media only all and (min-width: 500px) {
+        things-card-image-list::shadow paper-card {
+          width: 47% !important;
+        }
+      }
+      @media only all and (min-width: 600px) {
+        things-card-image-list::shadow paper-card {
+          width: 98% !important;
+        }
+      }
+      @media only all and (min-width: 750px) {
+        things-card-image-list::shadow paper-card {
+          width: 48% !important;
+        }
+      }
+      @media only all and (min-width: 1150px) {
+        things-card-image-list::shadow paper-card {
+          width: 31% !important;
+        }
+      }
+      @media only all and (min-width: 1450px) {
+        things-card-image-list::shadow paper-card {
+          width: 23.5% !important;
+        }
+      }
+      @media only all and (min-width: 1800px) {
+        things-card-image-list::shadow paper-card {
+          width: 18.5% !important;
+        }
+      }
     </style>
 
-    <things-ajax 
-      id="find-scene-ajax"
-      resource-action="find"
-      last-response="{{importData}}">
-    </things-ajax>
+    <things-ajax id="find-scene-ajax" resource-action="find" last-response="{{importData}}"> </things-ajax>
 
     <things-ajax
       id="scene-group-ajax"
       resource-url="scene_groups"
       resource-action="index"
-      last-response="{{sceneGroups}}">
+      last-response="{{sceneGroups}}"
+    >
     </things-ajax>
 
-    <things-ajax 
-      id="create-scene-ajax"
-      resource-action="create"
-      resource-url="scenes">
+    <things-ajax id="create-scene-ajax" resource-action="create" resource-url="scenes"> </things-ajax>
+
+    <things-ajax auto id="resource-meta" method="GET" resource-url="[[menuMetaUrl]]" last-response="{{metaData}}">
     </things-ajax>
 
-    <things-ajax 
-      auto
-      id="resource-meta"
-      method="GET"
-      resource-url="[[menuMetaUrl]]"
-      last-response="{{metaData}}">
-    </things-ajax>
-
-    <things-search-form 
+    <things-search-form
       id="search-form"
       title="[[menuInfo.title]]"
-      form-fields="[[searchFormFields]]" 
+      form-fields="[[searchFormFields]]"
       select-fields="[[selectFields]]"
       sort-fields="[[sortFields]]"
-      action-url="[[menuInfo.resource_url]]" 
+      action-url="[[menuInfo.resource_url]]"
       page="{{page}}"
       limit="{{limit}}"
-      last-response="{{lastResponse}}">
+      last-response="{{lastResponse}}"
+    >
     </things-search-form>
 
     <div id="card-list" class="container">
@@ -208,15 +226,12 @@ Copyright © HatioLab Inc. All rights reserved.
         use-file-service-url
         image-field="path"
         detail-fields="name,description,version,status,attachment"
-        is-selector>
+        is-selector
+      >
       </things-card-image-list>
     </div>
 
-    <paper-dialog
-      modal
-      id="dialog"
-      entry-animation="scale-up-animation"
-      exit-animation="fade-out-animation">
+    <paper-dialog modal id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <paper-toolbar>
         <span class="title">Name: [[singleItem.name]]</span>
         <div class="buttonsGroup">
@@ -251,10 +266,7 @@ Copyright © HatioLab Inc. All rights reserved.
       </div>
     </paper-toolbar>
 
-    <iron-scroll-threshold
-      id="scroller"
-      scroll-target="card-list"
-      on-lower-threshold="goNextPage">
+    <iron-scroll-threshold id="scroller" scroll-target="card-list" on-lower-threshold="goNextPage">
     </iron-scroll-threshold>
 
     <paper-dialog
@@ -262,7 +274,8 @@ Copyright © HatioLab Inc. All rights reserved.
       modal
       id="import-dialog"
       entry-animation="scale-up-animation"
-      exit-animation="fade-out-animation">
+      exit-animation="fade-out-animation"
+    >
       <paper-toolbar class="top-bar">
         <span class="title">[[dialogTitle]]</span>
         <div class="buttonsGroup">
@@ -271,47 +284,37 @@ Copyright © HatioLab Inc. All rights reserved.
       </paper-toolbar>
 
       <div class="dialog-container">
-        <things-input-field
-          label="[[urlLabel]]"
-          value="{{targetUrl}}">
-        </things-input-field>
+        <things-input-field label="[[urlLabel]]" value="{{targetUrl}}"> </things-input-field>
 
-        <things-combo
-          label="[[groupListLabel]]"
-          items="[[sceneGroups.items]]"
-          value="{{groupId}}"
-          value-path="id">
+        <things-combo label="[[groupListLabel]]" items="[[sceneGroups.items]]" value="{{groupId}}" value-path="id">
         </things-combo>
 
         <div class="bottom">
           <things-button-bar id="button-group" buttons="[[dialogButtons]]"></things-button-bar>
         </div>
       </div>
-    </paper-dialog>    
-	</template>
+    </paper-dialog>
+  </template>
 
   <script>
     Polymer({
-      is: 'things-base-scene-card',
+      is: "things-base-scene-card",
 
-      behaviors: [
-        Things.ResourceMenuContentBehavior,
-        Things.ViewOpenBehavior
-      ],
+      behaviors: [Things.ResourceMenuContentBehavior, Things.ViewOpenBehavior],
 
       properties: {
         /**
          * 데이터의 total count
          */
         totalCount: {
-          type: Number
+          type: Number,
         },
 
         /**
          * list에서 선택된 개별 아이템
          */
         singleItem: {
-          type: Object
+          type: Object,
         },
 
         /**
@@ -319,7 +322,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         importData: {
           type: Object,
-          observer: 'importDataChange'
+          observer: "importDataChange",
         },
 
         /**
@@ -327,22 +330,24 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         dialogTitle: {
           type: String,
-          value: function() {
-            return Things.DataGlobal.t('button.import');
-          }
+          value: function () {
+            return Things.DataGlobal.t("button.import");
+          },
         },
 
         /**
          * import dialog buttons
          */
         dialogButtons: {
-          type: Array, 
-          value: function() {
-            return [{
-              id: 'confirm-btn',
-              text: 'confirm'
-            }]
-          }
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "confirm-btn",
+                text: "confirm",
+              },
+            ];
+          },
         },
 
         /**
@@ -350,9 +355,9 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         urlLabel: {
           type: String,
-          value: function() {
-            return Things.DataGlobal.t('label.url');
-          }
+          value: function () {
+            return Things.DataGlobal.t("label.url");
+          },
         },
 
         /**
@@ -360,24 +365,24 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         groupListLabel: {
           type: String,
-          value: function() {
-            return Things.DataGlobal.t('label.scene_group');
-          }
-        }
+          value: function () {
+            return Things.DataGlobal.t("label.scene_group");
+          },
+        },
       },
 
       listeners: {
-        'things-card-image-selected': '_onImageSelected',
-        'scroller.lower-threshold': 'goNextPage',
-        'create-scene-ajax.things-ajax-response': 'sceneImported',
-        'import-btn-tap': 'importFromUrl',
-        'confirm-btn-tap': 'confirmButtonTapped'
+        "things-card-image-selected": "_onImageSelected",
+        "scroller.lower-threshold": "goNextPage",
+        "create-scene-ajax.things-ajax-response": "sceneImported",
+        "import-btn-tap": "importFromUrl",
+        "confirm-btn-tap": "confirmButtonTapped",
       },
 
       /**
        * Life Cycle - Ready
        */
-      ready: function() {
+      ready: function () {
         this.page = 1;
         this.limit = 50;
       },
@@ -387,19 +392,20 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _responseChanged: function(lastResponse) {
-        var items = (this.itemsProp && lastResponse[this.itemsProp]) ? lastResponse[this.itemsProp] : lastResponse;
-        this.totalCount = (this.totalProp && lastResponse[this.totalProp]) ? lastResponse[this.totalProp] : lastResponse.length;
+      _responseChanged: function (lastResponse) {
+        var items = this.itemsProp && lastResponse[this.itemsProp] ? lastResponse[this.itemsProp] : lastResponse;
+        this.totalCount =
+          this.totalProp && lastResponse[this.totalProp] ? lastResponse[this.totalProp] : lastResponse.length;
 
-        if(items && items.length > 0) {
-          items.forEach(function(item) { 
-            item.version = 'Version : ' + item.version;
-            item.status = 'Status : ' + item.status;
+        if (items && items.length > 0) {
+          items.forEach(function (item) {
+            item.version = "Version : " + item.version;
+            item.status = "Status : " + item.status;
             item.path = item.attachment ? item.attachment.path : null;
           });
         }
 
-        if(this.page <= 1 || !this.items) {
+        if (this.page <= 1 || !this.items) {
           this.items = items;
         } else {
           this.items = this.items.concat(items);
@@ -410,32 +416,32 @@ Copyright © HatioLab Inc. All rights reserved.
        * item 클릭시 발생하는 이벤트
        * 클릭한 아이템의 meta 정보를 초기화 하고 dialog를 오픈 합니다.
        */
-      _onImageSelected: function(e) {
+      _onImageSelected: function (e) {
         var scene = e.detail;
 
-        if(scene.attachment_id || scene.attachment) {
+        if (scene.attachment_id || scene.attachment) {
           var attchmentId = scene.attachment_id ? scene.attachment_id : scene.attachment.id;
-          var baseUrl = this.get('globals.baseUrl');
-          
-          if(baseUrl && attchmentId.indexOf(baseUrl) === -1) {
-            scene.attachment_id = baseUrl + '/download/' + attchmentId + '?dc=' + scene.updated_at;
-          } 
+          var baseUrl = this.get("globals.baseUrl");
+
+          if (baseUrl && attchmentId.indexOf(baseUrl) === -1) {
+            scene.attachment_id = baseUrl + "/download/" + attchmentId + "?dc=" + scene.updated_at;
+          }
         }
 
         this.singleItem = scene;
-        this.$['dialog'].open();
+        this.$["dialog"].open();
       },
 
       /**
        * 다음 페이지 이동
        */
-      goNextPage: function() {
-        if(this.totalCount == 0) {
+      goNextPage: function () {
+        if (this.totalCount == 0) {
           this.$.scroller.clearTriggers();
           return;
         }
 
-        if((this.page * this.limit) < this.totalCount) {
+        if (this.page * this.limit < this.totalCount) {
           this.page = this.page + 1;
         }
 
@@ -445,17 +451,17 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * 다른 URL로 부터 데이터를 받아서 import
        */
-      importFromUrl: function(e) {
-        this.$['scene-group-ajax'].generateRequest();
-        this.$['import-dialog'].open();
+      importFromUrl: function (e) {
+        this.$["scene-group-ajax"].generateRequest();
+        this.$["import-dialog"].open();
       },
 
       /**
        * 다이얼로그 확인 버튼 누를시
        */
-      confirmButtonTapped: function() {
-        if(this.groupId && this.targetUrl) {
-          this.$['import-dialog'].close();
+      confirmButtonTapped: function () {
+        if (this.groupId && this.targetUrl) {
+          this.$["import-dialog"].close();
           this.createScene(this.targetUrl);
         }
       },
@@ -463,22 +469,22 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Create Scene
        */
-      createScene: function(targetUrl) {
-        if(targetUrl) {
-          this.$['find-scene-ajax'].resourceUrl = targetUrl;
-          this.$['find-scene-ajax'].generateRequest();
+      createScene: function (targetUrl) {
+        if (targetUrl) {
+          this.$["find-scene-ajax"].resourceUrl = targetUrl;
+          this.$["find-scene-ajax"].generateRequest();
         }
       },
 
       /**
-       * Import Data 변경시 
+       * Import Data 변경시
        */
-      importDataChange: function(importData) {
-        if(importData) {
-          delete importData['id'];
+      importDataChange: function (importData) {
+        if (importData) {
+          delete importData["id"];
           importData.scene_group.id = this.groupId;
           importData.domain_id = Things.DataGlobal.user.domain_id;
-          var createAjax = this.$['create-scene-ajax'];
+          var createAjax = this.$["create-scene-ajax"];
           createAjax.body = importData;
           createAjax.generateRequest();
           this.clearValue();
@@ -488,21 +494,21 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Scene import 후 value clear
        */
-      clearValue: function() {
-        this.targetUrl = '';
-        this.groupId = '';
+      clearValue: function () {
+        this.targetUrl = "";
+        this.groupId = "";
       },
 
       /**
-       * Scene이 Import된 이 후 
+       * Scene이 Import된 이 후
        */
-      sceneImported: function(event) {
+      sceneImported: function (event) {
         this.refreshData();
         this.openInfoMsg({
-          text : Things.DataGlobal.t('button.import') + ' ' + Things.DataGlobal.t('label.success'),
-          title : Things.DataGlobal.t('label.success')
+          text: Things.DataGlobal.t("button.import") + " " + Things.DataGlobal.t("label.success"),
+          title: Things.DataGlobal.t("label.success"),
         });
-      }
+      },
     });
   </script>
 </dom-module>

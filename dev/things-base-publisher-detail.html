@@ -1,201 +1,186 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../../paper-tabs/paper-tabs.html">
-<link rel="import" href="../../iron-pages/iron-pages.html">
-<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-header-panel/paper-header-panel.html" />
+<link rel="import" href="../../paper-tabs/paper-tabs.html" />
+<link rel="import" href="../../iron-pages/iron-pages.html" />
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-code-editor/things-code-editor.html">
-<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
-<link rel="import" href="../../things-form/things-resource-form.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-code-editor/things-code-editor.html" />
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html" />
+<link rel="import" href="../../things-form/things-resource-form.html" />
 
 <!--
 	Publisher 상세 View
 -->
 
 <dom-module id="things-base-publisher-detail">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}			
-			.container {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			.form {
-				@apply(--layout-flex-2);
-			}
-			.editor {
-				@apply(--layout-flex-3);
-			}
-			.subtitle:before {
-				content: "";
-				@apply(--things-subtitle-icon);
-			}
-			.subtitle {
-				@apply(--things-default-padding);
-				padding-bottom: 7px;
-				@apply(--things-subtitle);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .container {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .form {
+        @apply (--layout-flex-2);
+      }
+      .editor {
+        @apply (--layout-flex-3);
+      }
+      .subtitle:before {
+        content: "";
+        @apply (--things-subtitle-icon);
+      }
+      .subtitle {
+        @apply (--things-default-padding);
+        padding-bottom: 7px;
+        @apply (--things-subtitle);
+      }
+    </style>
 
-		<things-ajax 
-			auto
-			id="get-resource"
-			method="GET"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			last-response="{{resource}}">
-		</things-ajax>
+    <things-ajax
+      auto
+      id="get-resource"
+      method="GET"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      last-response="{{resource}}"
+    >
+    </things-ajax>
 
-		<things-ajax 
-			id="save-ajax" 
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="update">
-		</things-ajax>
+    <things-ajax id="save-ajax" resource-url="[[resourceUrl]]" resource-id="[[resourceId]]" resource-action="update">
+    </things-ajax>
 
-		<div id="editor-container" class="container">
-			<things-form
-				class="form"
-				id="query-setting-form"
-				form-fields="[[formFields]]">
-			</things-form>
+    <div id="editor-container" class="container">
+      <things-form class="form" id="query-setting-form" form-fields="[[formFields]]"> </things-form>
 
-			<span class="subtitle">
-				<things-i18n-msg msgid="title.service_logic"></things-i18n-msg>
-			</span>
+      <span class="subtitle">
+        <things-i18n-msg msgid="title.service_logic"></things-i18n-msg>
+      </span>
 
-			<things-code-editor
-				id="code-editor"
-				class="editor"
-				theme="ace/theme/monokai"
-				mode="ace/mode/groovy"
-				resource="{{resource}}"
-				code-field="logic">
-			</things-code-editor>
-		</div>
-	</template>
+      <things-code-editor
+        id="code-editor"
+        class="editor"
+        theme="ace/theme/monokai"
+        mode="ace/mode/groovy"
+        resource="{{resource}}"
+        code-field="logic"
+      >
+      </things-code-editor>
+    </div>
+  </template>
 
-	<script>
-		Polymer({
+  <script>
+    Polymer({
+      is: "things-base-publisher-detail",
 
-			is: 'things-base-publisher-detail',
+      behaviors: [Things.ResourceDetailTabViewBahavior],
 
-			behaviors: [ 
-				Things.ResourceDetailTabViewBahavior
-			],
+      properties: {
+        /**
+         * resource
+         */
+        resource: {
+          type: Object,
+          observer: "resourceChanged",
+        },
+      },
 
-			properties: {
-				/**
-				 * resource
-				 */
-				resource: {
-					type: Object,
-					observer: 'resourceChanged'
-				}
-			},
+      listeners: {
+        "things-combo-value-changed": "comboValueChanged",
+        "code-editor.things-template-editor-handle-save": "saveResource",
+      },
 
-			listeners: {
-				'things-combo-value-changed': 'comboValueChanged',
-				'code-editor.things-template-editor-handle-save': 'saveResource'
-			},
+      /**
+       * resource가 변화하면 두번째 탭의 화면을 구성함
+       *********
+       * @param {Object} resource
+       */
+      resourceChanged: function (resource) {
+        var format = resource.handler_type == "query" ? resource.format : "DISABLE_ALL";
+        this.consistForm(format);
+        this.$["query-setting-form"].setFormData(resource);
+      },
 
-			/**
-			 * resource가 변화하면 두번째 탭의 화면을 구성함
-			 *********
-			 * @param {Object} resource
-			 */
-			resourceChanged: function(resource) {
-				var format = (resource.handler_type == 'query') ? resource.format : 'DISABLE_ALL';
-				this.consistForm(format);
-				this.$['query-setting-form'].setFormData(resource);
-			},
+      /**
+       * 코드 콤보의 값이 변화하면 호출되고
+       * 코드 콤보의 name이 format, handler_type 이라면 해당 값에 따라 화면을 폼을 구성함
+       *********
+       * @param {Object} event
+       */
+      comboValueChanged: function (event) {
+        event.preventDefault();
 
-			/**
-			 * 코드 콤보의 값이 변화하면 호출되고 
-			 * 코드 콤보의 name이 format, handler_type 이라면 해당 값에 따라 화면을 폼을 구성함
-			 *********
-			 * @param {Object} event
-			 */
-			comboValueChanged: function(event) {
-				event.preventDefault();
+        if (event.target.name == "format") {
+          var format = event.detail.value;
+          this.consistForm(format);
+        } else if (event.target.name == "handler_type") {
+          var rscForm = this.$["query-setting-form"].serializeMyForm();
+          var format = event.detail.value == "query" ? rscForm.format : "DISABLE_ALL";
+          this.consistForm(format);
+        }
+      },
 
-				if(event.target.name == 'format') {
-					var format = event.detail.value;
-					this.consistForm(format);
+      /**
+       * format에 따라 폼을 구성함
+       *********
+       * @param {String} format
+       */
+      consistForm: function (format) {
+        var queryForm = this.$["query-setting-form"];
 
-				} else if(event.target.name == 'handler_type') {
-					var rscForm = this.$['query-setting-form'].serializeMyForm();
-					var format = (event.detail.value == 'query') ? rscForm.format : 'DISABLE_ALL';
-					this.consistForm(format);
-				}
-			},
+        if (format == "K_V_ARR") {
+          queryForm.disableElement("format_key");
+          queryForm.enableElement("variable");
+          queryForm.disableElement("format_value");
+        } else if (format == "K_V_OBJ") {
+          queryForm.enableElement("format_key");
+          queryForm.disableElement("variable");
+          queryForm.enableElement("format_value");
+        } else if (format == "K_OBJ_OBJ") {
+          queryForm.enableElement("format_key");
+          queryForm.disableElement("variable");
+          queryForm.disableElement("format_value");
+        } else if (format == "SINGLE_VAR") {
+          queryForm.disableElement("format_key");
+          queryForm.enableElement("variable");
+          queryForm.disableElement("format_value");
+        } else if (format == "DISABLE_ALL") {
+          queryForm.disableElement("format_key");
+          queryForm.disableElement("variable");
+          queryForm.disableElement("format_value");
+        } else {
+          queryForm.disableElement("format_key");
+          queryForm.disableElement("variable");
+          queryForm.disableElement("format_value");
+        }
 
-			/**
-			 * format에 따라 폼을 구성함
-			 *********
-			 * @param {String} format
-			 */
-			consistForm: function(format) {
-				var queryForm = this.$['query-setting-form'];
+        queryForm.reconfigureMyForm();
+      },
 
-				if(format == 'K_V_ARR') {
-					queryForm.disableElement('format_key');
-					queryForm.enableElement('variable');
-					queryForm.disableElement('format_value');
+      /**
+       * save 버튼 누를시 호출
+       *********
+       * @param {Object} event
+       */
+      saveResource: function (event) {
+        event.preventDefault();
+        var logic = event.target.resource.logic;
+        var formData = this.$["query-setting-form"].serializeMyForm();
+        formData.logic = logic;
 
-				} else if (format == 'K_V_OBJ') {
-					queryForm.enableElement('format_key');
-					queryForm.disableElement('variable');
-					queryForm.enableElement('format_value');
-
-				} else if (format == 'K_OBJ_OBJ') {
-					queryForm.enableElement('format_key');
-					queryForm.disableElement('variable');
-					queryForm.disableElement('format_value');
-
-				} else if (format == 'SINGLE_VAR') {
-					queryForm.disableElement('format_key');
-					queryForm.enableElement('variable');
-					queryForm.disableElement('format_value');
-
-				} else if (format == 'DISABLE_ALL') {
-					queryForm.disableElement('format_key');
-					queryForm.disableElement('variable');
-					queryForm.disableElement('format_value');
-
-				} else {
-					queryForm.disableElement('format_key');
-					queryForm.disableElement('variable');
-					queryForm.disableElement('format_value');
-				}
-
-				queryForm.reconfigureMyForm();
-			},
-
-			/**
-			 * save 버튼 누를시 호출
-			 *********
-			 * @param {Object} event
-			 */
-			saveResource: function(event) {
-				event.preventDefault();
-				var logic = event.target.resource.logic;
-				var formData = this.$['query-setting-form'].serializeMyForm();
-				formData.logic = logic;
-
-				var saveAjax = this.$['save-ajax'];
-				saveAjax.body = formData;
-				saveAjax.generateRequest();
-			}
-		});
-	</script>
+        var saveAjax = this.$["save-ajax"];
+        saveAjax.body = formData;
+        saveAjax.generateRequest();
+      },
+    });
+  </script>
 </dom-module>

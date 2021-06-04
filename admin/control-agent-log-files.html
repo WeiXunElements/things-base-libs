@@ -1,692 +1,714 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-code-editor/things-code-editor.html">
-<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html">
-<link rel="import" href="../../things-form/things-search-form.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-code-editor/things-code-editor.html" />
+<link rel="import" href="../../things-detail/things-resource-detail-tab-view-behavior.html" />
+<link rel="import" href="../../things-form/things-search-form.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
-<link rel="import" href="./material-toggle-button.html">
+<link rel="import" href="./material-toggle-button.html" />
 
 <!--
 	Control Agent가 관리하는 컨트롤 애플리케이션 리스트 화면 
 -->
 
 <dom-module id="control-agent-log-files">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			.content {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}			
-			.grid {
-				@apply(--layout-flex);
-				min-height: 135px;
-			}
-			.app-info {
-				@apply(--layout-flex-4);
-				@apply(--layout-vertical);
-			}
-			.rate-content {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-				float: left;
-			}
-			.card-content {
-				@apply(--layout-flex);
-				@apply(--layout-horizontal);
-				float: left;
-			}
-			.container {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}			
-			.subtitle:before {
-				content:"";
-				@apply(--things-subtitle-icon);
-			}
-			.subtitle {
-				/*@apply(--things-default-padding);*/
-				padding: 0 0 0 25px;
-				@apply(--things-subtitle);
-			}			
-			material-toggle-button {
-				margin-top: 8px;
-				margin-bottom: 8px; 
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .content {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .grid {
+        @apply (--layout-flex);
+        min-height: 135px;
+      }
+      .app-info {
+        @apply (--layout-flex-4);
+        @apply (--layout-vertical);
+      }
+      .rate-content {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+        float: left;
+      }
+      .card-content {
+        @apply (--layout-flex);
+        @apply (--layout-horizontal);
+        float: left;
+      }
+      .container {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .subtitle:before {
+        content: "";
+        @apply (--things-subtitle-icon);
+      }
+      .subtitle {
+        /*@apply(--things-default-padding);*/
+        padding: 0 0 0 25px;
+        @apply (--things-subtitle);
+      }
+      material-toggle-button {
+        margin-top: 8px;
+        margin-bottom: 8px;
+      }
+    </style>
 
-		<!-- Application List Ajax -->
-		<things-ajax
-			id="app-list-ajax"
-			resource-url="[[resourceUrl]]"
-			resource-id="[[resourceId]]"
-			resource-action="index"
-			last-response="{{apps}}">
-		</things-ajax>
+    <!-- Application List Ajax -->
+    <things-ajax
+      id="app-list-ajax"
+      resource-url="[[resourceUrl]]"
+      resource-id="[[resourceId]]"
+      resource-action="index"
+      last-response="{{apps}}"
+    >
+    </things-ajax>
 
-		<!-- Log File List Ajax -->
-		<things-ajax
-			id="log-list-ajax"
-			resource-url="[[ctlAgentLogListUrl]]"
-			resource-id="[[appId]]"
-			resource-action="index"
-			last-response="{{logList}}">
-		</things-ajax>
+    <!-- Log File List Ajax -->
+    <things-ajax
+      id="log-list-ajax"
+      resource-url="[[ctlAgentLogListUrl]]"
+      resource-id="[[appId]]"
+      resource-action="index"
+      last-response="{{logList}}"
+    >
+    </things-ajax>
 
-		<!-- Delete Log File Ajax -->
-		<things-ajax
-			id="delete-log-ajax"
-			resource-url="[[ctlAgentDeleteLogUrl]]"
-			resource-id="[[appId]]"
-			resource-action="delete">
-		</things-ajax>
+    <!-- Delete Log File Ajax -->
+    <things-ajax
+      id="delete-log-ajax"
+      resource-url="[[ctlAgentDeleteLogUrl]]"
+      resource-id="[[appId]]"
+      resource-action="delete"
+    >
+    </things-ajax>
 
-		<!-- Log View Ajax -->
-		<things-ajax
-			id="log-ajax"
-			resource-url="[[ctlAgentLogUrl]]"
-			resource-id="[[appId]]"
-			resource-action="find"
-			params="[[logParams]]"
-			last-response="{{logObj}}">
-		</things-ajax>
+    <!-- Log View Ajax -->
+    <things-ajax
+      id="log-ajax"
+      resource-url="[[ctlAgentLogUrl]]"
+      resource-id="[[appId]]"
+      resource-action="find"
+      params="[[logParams]]"
+      last-response="{{logObj}}"
+    >
+    </things-ajax>
 
-		<div class="content">
-			<things-resource-grid 
-				id="grid"
-				class="grid"
-				config="[[gridConfig]]"
-				model="[[gridModel]]" 
-				columns="[[gridColumns]]"
-				data="[[apps]]"
-				fixed-column-count="0"
-				enable-toolbar="[[gridEnableToolbar]]">
-			</things-resource-grid>
+    <div class="content">
+      <things-resource-grid
+        id="grid"
+        class="grid"
+        config="[[gridConfig]]"
+        model="[[gridModel]]"
+        columns="[[gridColumns]]"
+        data="[[apps]]"
+        fixed-column-count="0"
+        enable-toolbar="[[gridEnableToolbar]]"
+      >
+      </things-resource-grid>
 
-			<paper-card class="app-info rate" elevation=0>
-				<div class="rate-content">
-					<span class="subtitle">[[app.name]]</span>
+      <paper-card class="app-info rate" elevation="0">
+        <div class="rate-content">
+          <span class="subtitle">[[app.name]]</span>
 
-					<things-layout-hades
-						id="tab"
-						current-tab-idx="{{tabIndex}}"
-						sections="[[sections]]">
+          <things-layout-hades id="tab" current-tab-idx="{{tabIndex}}" sections="[[sections]]">
+            <!-- 1. Log Files -->
+            <div tab-content-1 class="container">
+              <things-resource-grid
+                id="log-grid"
+                class="flex"
+                config="[[logGridConfig]]"
+                model="[[logGridModel]]"
+                columns="[[logGridColumns]]"
+                data="[[logList]]"
+                fixed-column-count="0"
+                buttons="[[emptyButtons]]"
+              >
+              </things-resource-grid>
+            </div>
 
-						<!-- 1. Log Files -->
-						<div tab-content-1 class="container">
-							<things-resource-grid 
-								id="log-grid"
-								class="flex"
-								config="[[logGridConfig]]"
-								model="[[logGridModel]]" 
-								columns="[[logGridColumns]]"
-								data="[[logList]]"
-								fixed-column-count="0"
-								buttons="[[emptyButtons]]">
-							</things-resource-grid>
-						</div>
+            <!-- 2. Code Editor -->
+            <div tab-content-2 class="container">
+              <things-code-editor
+                id="log-viewer"
+                class="flex"
+                theme="ace/theme/monokai"
+                resource="[[logObj]]"
+                code-field="log"
+                mode="ace/mode/json"
+                buttons="[[emptyButtons]]"
+              >
+              </things-code-editor>
+            </div>
+          </things-layout-hades>
 
-						<!-- 2. Code Editor -->
-						<div tab-content-2 class="container">
-							<things-code-editor 
-								id="log-viewer"
-								class="flex"
-								theme="ace/theme/monokai"
-								resource="[[logObj]]"
-								code-field="log"
-								mode="ace/mode/json"
-								buttons="[[emptyButtons]]">
-							</things-code-editor>
-						</div>
-					</things-layout-hades>
+          <div class="card-actions">
+            <div class="horizontal justified">
+              <material-toggle-button on-tap="refreshApps" active>
+                <iron-icon icon="apps"></iron-icon>apps
+              </material-toggle-button>
 
-					<div class="card-actions">
-						<div class="horizontal justified">
-							<material-toggle-button 
-								on-tap="refreshApps"
-								active>
-								<iron-icon icon="apps"></iron-icon>apps
-							</material-toggle-button>
+              <material-toggle-button on-tap="listLogFiles" active>
+                <iron-icon icon="av:replay"></iron-icon>log files
+              </material-toggle-button>
 
-							<material-toggle-button 
-								on-tap="listLogFiles"
-								active>
-								<iron-icon icon="av:replay"></iron-icon>log files
-							</material-toggle-button>
+              <material-toggle-button on-tap="deleteLogFile" active="[[logSelected]]" disabled="[[!logSelected]]">
+                <iron-icon icon="delete"></iron-icon>delete
+              </material-toggle-button>
 
-							<material-toggle-button 
-								on-tap="deleteLogFile"
-								active="[[logSelected]]" 
-								disabled="[[!logSelected]]">
-								<iron-icon icon="delete"></iron-icon>delete
-							</material-toggle-button>
-
-							<!--material-toggle-button 
+              <!--material-toggle-button 
 								on-tap="showLog"
 								active="[[logSelected]]" 
 								disabled="[[!logSelected]]">
 								<iron-icon icon="av:library-books"></iron-icon>view
 							</material-toggle-button-->
 
-							<material-toggle-button 
-								on-tap="downloadLogFile"
-								active="[[logSelected]]" 
-								disabled="[[!logSelected]]">
-								<iron-icon icon="file-download"></iron-icon>download
-							</material-toggle-button>
-						</div>
-					</div>
-				</div>
-			</paper-card>
-		</div>
-	</template>
+              <material-toggle-button on-tap="downloadLogFile" active="[[logSelected]]" disabled="[[!logSelected]]">
+                <iron-icon icon="file-download"></iron-icon>download
+              </material-toggle-button>
+            </div>
+          </div>
+        </div>
+      </paper-card>
+    </div>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'control-agent-log-files',
+  <script>
+    Polymer({
+      is: "control-agent-log-files",
 
-			behaviors: [
-				Things.MsgBoxBehavior,
-				Things.ResourceDetailTabViewBahavior
-			],
+      behaviors: [Things.MsgBoxBehavior, Things.ResourceDetailTabViewBahavior],
 
-			properties: {
-				/**
-				 * Tab sections
-				 */
-				sections: {
-					type: Array,
-					value: function() {
-						return [ {
-							title: 'Log Files',
-							tabId: 'log-files',
-							isTab: true
-						}, {
-							title: 'Log View',
-							tabId: 'log-file-viewer',
-							isTab: true
-						} ];
-					}
-				},
+      properties: {
+        /**
+         * Tab sections
+         */
+        sections: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                title: "Log Files",
+                tabId: "log-files",
+                isTab: true,
+              },
+              {
+                title: "Log View",
+                tabId: "log-file-viewer",
+                isTab: true,
+              },
+            ];
+          },
+        },
 
-				/**
-				 * 그리드 툴바 제거 
-				 */
-				gridEnableToolbar: {
-					type: Boolean,
-					value: false
-				},
+        /**
+         * 그리드 툴바 제거
+         */
+        gridEnableToolbar: {
+          type: Boolean,
+          value: false,
+        },
 
-				/**
-				 * 선택된 Control Agent 정보 
-				 */
-				resource: {
-					type: Object,
-					observer: '_resourceChanged'
-				},
+        /**
+         * 선택된 Control Agent 정보
+         */
+        resource: {
+          type: Object,
+          observer: "_resourceChanged",
+        },
 
-				/**
-				 * 선택된 Control Agent ID
-				 */
-				resourceId: {
-					type: String
-				},
+        /**
+         * 선택된 Control Agent ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-				/**
-				 * 선택된 Application ID
-				 */
-				appId: {
-					type: String
-				},
+        /**
+         * 선택된 Application ID
+         */
+        appId: {
+          type: String,
+        },
 
-				/**
-				 * 리소스 URL
-				 */
-				resourceUrl: {
-					type: String,
-					observer: '_resourceUrlChanged'
-				},
+        /**
+         * 리소스 URL
+         */
+        resourceUrl: {
+          type: String,
+          observer: "_resourceUrlChanged",
+        },
 
-				/**
-				 * 로그 조회를 위한 파라미터 
-				 */
-				logParams: {
-					type: Object,
-					value: function() {
-						return { lines : 1000 };
-					}
-				},
+        /**
+         * 로그 조회를 위한 파라미터
+         */
+        logParams: {
+          type: Object,
+          value: function () {
+            return { lines: 1000 };
+          },
+        },
 
-				/**
-				 * 로그 내용을 감싸는 Object
-				 */
-				logList: {
-					type: Array
-				},
+        /**
+         * 로그 내용을 감싸는 Object
+         */
+        logList: {
+          type: Array,
+        },
 
-				/**
-				 * 선택된 로그 파일 
-				 */
-				log: {
-					type: Object
-				},
+        /**
+         * 선택된 로그 파일
+         */
+        log: {
+          type: Object,
+        },
 
-				/**
-				 * 로그 내용을 감싸는 Object
-				 */
-				logObj: {
-					type: Object
-				},
+        /**
+         * 로그 내용을 감싸는 Object
+         */
+        logObj: {
+          type: Object,
+        },
 
-				/**
-				 * 로그가 선택되었는지 여부 
-				 */
-				logSelected: {
-					type: Boolean
-				},
+        /**
+         * 로그가 선택되었는지 여부
+         */
+        logSelected: {
+          type: Boolean,
+        },
 
-				/**
-				 * Grid Config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									visible: false
-								}
-							}
-						}
-					}
-				},
-				
-				/**
-				 * Grid Model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'id'
-						}, {
-							fieldName: 'name'
-						}, {
-							fieldName: 'port'
-						}, {
-							fieldName: 'status'
-						}, {
-							fieldName: 'stage'
-						} ];
-					}
-				},
+        /**
+         * Grid Config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  visible: false,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Grid Columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'id',
-							fieldName: 'id',
-							width: 150,
-							editable: false,
-							header: {
-								text: Things.DataGlobal.t('label.id')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'name',
-							fieldName: 'name',
-							width: 235,
-							editable: false,
-							header: {
-								text: Things.DataGlobal.t('label.name')
-							}
-						}, {
-							name: 'port',
-							fieldName: 'port',
-							width: 70,
-							header: {
-								text: Things.DataGlobal.t('label.port')
-							}
-						}, {
-							name: 'status',
-							fieldName: 'status',
-							width: 90,
-							header: {
-								text: Things.DataGlobal.t('label.status')
-							}
-						}, {
-							name: 'stage',
-							fieldName: 'stage',
-							width: 100,
-							header: {
-								text: 'Stage'
-							}
-						} ];
-					}
-				},
+        /**
+         * Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "id",
+              },
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "port",
+              },
+              {
+                fieldName: "status",
+              },
+              {
+                fieldName: "stage",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * 로그 그리드 
-				 */
-				logGridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									exclusive: true
-								}
-							}
-						}
-					}
-				},
+        /**
+         * Grid Columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "id",
+                fieldName: "id",
+                width: 150,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.id"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "name",
+                fieldName: "name",
+                width: 235,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+              },
+              {
+                name: "port",
+                fieldName: "port",
+                width: 70,
+                header: {
+                  text: Things.DataGlobal.t("label.port"),
+                },
+              },
+              {
+                name: "status",
+                fieldName: "status",
+                width: 90,
+                header: {
+                  text: Things.DataGlobal.t("label.status"),
+                },
+              },
+              {
+                name: "stage",
+                fieldName: "stage",
+                width: 100,
+                header: {
+                  text: "Stage",
+                },
+              },
+            ];
+          },
+        },
 
-				/**
-				 * 로그 그리드 모델 
-				 */
-				logGridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'id'
-						}, {
-							fieldName: 'name'
-						}, {
-							fieldName: 'size',
-							dataType: 'number'
-						} ];
-					}
-				},
+        /**
+         * 로그 그리드
+         */
+        logGridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  exclusive: true,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Grid Columns
-				 */
-				logGridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							name: 'id',
-							fieldName: 'id',
-							width: 0,
-							editable: false,
-							header: {
-								text: Things.DataGlobal.t('label.id')
-							},
-							styles: {
-								textAlignment: 'center'
-							}
-						}, {
-							name: 'name',
-							fieldName: 'name',
-							width: 300,
-							editable: false,
-							header: {
-								text: Things.DataGlobal.t('label.name')
-							}
-						}, {
-							name: 'size',
-							fieldName: 'size',
-							width: 150,
-							header: {
-								text: Things.DataGlobal.t('label.size') + ' (Byte)'
-							},
-							styles: {
-								textAlignment: 'far',
-								numberFormat: '0,000'
-							}
-						} ];
-					},
+        /**
+         * 로그 그리드 모델
+         */
+        logGridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "id",
+              },
+              {
+                fieldName: "name",
+              },
+              {
+                fieldName: "size",
+                dataType: "number",
+              },
+            ];
+          },
+        },
 
-					/**
-					 * 버튼 
-					 */
-					emptyButtons: {
-						type: 'Array',
-						value: null
-					}
-				},
+        /**
+         * Grid Columns
+         */
+        logGridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                name: "id",
+                fieldName: "id",
+                width: 0,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.id"),
+                },
+                styles: {
+                  textAlignment: "center",
+                },
+              },
+              {
+                name: "name",
+                fieldName: "name",
+                width: 300,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.name"),
+                },
+              },
+              {
+                name: "size",
+                fieldName: "size",
+                width: 150,
+                header: {
+                  text: Things.DataGlobal.t("label.size") + " (Byte)",
+                },
+                styles: {
+                  textAlignment: "far",
+                  numberFormat: "0,000",
+                },
+              },
+            ];
+          },
 
-				/**
-				 * Application List
-				 */
-				apps: {
-					type: Array
-				},
+          /**
+           * 버튼
+           */
+          emptyButtons: {
+            type: "Array",
+            value: null,
+          },
+        },
 
-				/**
-				 * 선택된 애플리케이션 
-				 */
-				app: {
-					type: Object
-				},
+        /**
+         * Application List
+         */
+        apps: {
+          type: Array,
+        },
 
-				/**
-				 * Agent Base URL
-				 */
-				agentBaseUrl: {
-					type: String
-				},
+        /**
+         * 선택된 애플리케이션
+         */
+        app: {
+          type: Object,
+        },
 
-				/**
-				 * Control Agent : Log File List URL
-				 */
-				ctlAgentLogListUrl: {
-					type: String
-				},
+        /**
+         * Agent Base URL
+         */
+        agentBaseUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Delete Log File URL
-				 */
-				ctlAgentDeleteLogUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Log File List URL
+         */
+        ctlAgentLogListUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Log URL
-				 */
-				ctlAgentLogUrl: {
-					type: String
-				},
+        /**
+         * Control Agent : Delete Log File URL
+         */
+        ctlAgentDeleteLogUrl: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent : Log Download URL
-				 */
-				ctlAgentLogDownloadUrl: {
-					type: String
-				}
-			},
+        /**
+         * Control Agent : Log URL
+         */
+        ctlAgentLogUrl: {
+          type: String,
+        },
 
-			listeners: {
-				'grid.things-grid-row-data-select': '_appSelectChanged',
-				'log-grid.things-grid-row-data-select' : '_logSelectChanged',
-				'delete-log-ajax.things-ajax-response' : 'listLogFiles',
-				'tab.things-layout-tab-changed' : '_tabChanged'
-			},
+        /**
+         * Control Agent : Log Download URL
+         */
+        ctlAgentLogDownloadUrl: {
+          type: String,
+        },
+      },
 
-			/**
-			 * resource가 변경된 이 후...
-			 *
-			 * @param {Object} resource
-			 */
-			_resourceChanged: function(resource) {
-				this.clearLog();
+      listeners: {
+        "grid.things-grid-row-data-select": "_appSelectChanged",
+        "log-grid.things-grid-row-data-select": "_logSelectChanged",
+        "delete-log-ajax.things-ajax-response": "listLogFiles",
+        "tab.things-layout-tab-changed": "_tabChanged",
+      },
 
-				if(resource) {
-					this.agentBaseUrl = resource.base_url;
-					this.resourceUrl = this.agentBaseUrl + '/apps/infos';
-					this.ctlAgentLogListUrl = this.agentBaseUrl + '/apps/:id/log/files';
-					this.ctlAgentDeleteLogUrl = this.agentBaseUrl + '/apps/:id/log/:file_name/delete';
-					this.ctlAgentLogUrl = this.agentBaseUrl + '/apps/:id/log/:file_name/read';
-					this.ctlAgentLogDownloadUrl = this.agentBaseUrl + '/apps/:id/log/:file_name/download';
-				}
-			},
+      /**
+       * resource가 변경된 이 후...
+       *
+       * @param {Object} resource
+       */
+      _resourceChanged: function (resource) {
+        this.clearLog();
 
-			/**
-			 * resourceUrl이 변경된 이 후 ...
-			 *
-			 * @param {String} resourceUrl
-			 */
-			_resourceUrlChanged: function(resourceUrl) {
-				this.refreshApps();
-			},
+        if (resource) {
+          this.agentBaseUrl = resource.base_url;
+          this.resourceUrl = this.agentBaseUrl + "/apps/infos";
+          this.ctlAgentLogListUrl = this.agentBaseUrl + "/apps/:id/log/files";
+          this.ctlAgentDeleteLogUrl = this.agentBaseUrl + "/apps/:id/log/:file_name/delete";
+          this.ctlAgentLogUrl = this.agentBaseUrl + "/apps/:id/log/:file_name/read";
+          this.ctlAgentLogDownloadUrl = this.agentBaseUrl + "/apps/:id/log/:file_name/download";
+        }
+      },
 
-			/**
-			 * app 선택이 변경된 이 후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_appSelectChanged: function(event) {
-				this.app = event.detail;
-				this.appId = event.detail.id;
-				this.listLogFiles();
-			},
+      /**
+       * resourceUrl이 변경된 이 후 ...
+       *
+       * @param {String} resourceUrl
+       */
+      _resourceUrlChanged: function (resourceUrl) {
+        this.refreshApps();
+      },
 
-			/**
-			 * log 선택이 변경된 이 후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_logSelectChanged: function(event) {
-				this.log = event.detail;
-				this.logSelected = this.log ? true : false;
-				this.showLog();
-			},
+      /**
+       * app 선택이 변경된 이 후 ...
+       *
+       * @param {Object} event
+       */
+      _appSelectChanged: function (event) {
+        this.app = event.detail;
+        this.appId = event.detail.id;
+        this.listLogFiles();
+      },
 
-			/**
-			 * Tab 선택이 변경된 이 후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_tabChanged: function(event) {
-				var tabId = event.detail.model.__data__.item.tabId;
-				if(tabId == 'log-files') {
-					this.tabIndex = 0;
-				}
-			},
+      /**
+       * log 선택이 변경된 이 후 ...
+       *
+       * @param {Object} event
+       */
+      _logSelectChanged: function (event) {
+        this.log = event.detail;
+        this.logSelected = this.log ? true : false;
+        this.showLog();
+      },
 
-			/**
-			 * Refresh Application List
-			 */
-			refreshApps: function(event) {
-				this.$['app-list-ajax'].generateRequest();
-			},
+      /**
+       * Tab 선택이 변경된 이 후 ...
+       *
+       * @param {Object} event
+       */
+      _tabChanged: function (event) {
+        var tabId = event.detail.model.__data__.item.tabId;
+        if (tabId == "log-files") {
+          this.tabIndex = 0;
+        }
+      },
 
-			/**
-			 * Log File List
-			 *
-			 * @param {Object} event
-			 */
-			listLogFiles: function(event) {
-				this.$['log-list-ajax'].generateRequest();
-			},
+      /**
+       * Refresh Application List
+       */
+      refreshApps: function (event) {
+        this.$["app-list-ajax"].generateRequest();
+      },
 
-			/**
-			 * Delete Log File
-			 *
-			 * @param {Object} event
-			 */
-			deleteLogFile: function(event) {
-				if(this.appId && this.log) {
-					var deleteLogAjax = this.$['delete-log-ajax'];
-					var deleteLogUrl = this.ctlAgentDeleteLogUrl.replace(':id', this.appId).replace(':file_name', this.log.name);
-					deleteLogAjax.resourceUrl = deleteLogUrl;
+      /**
+       * Log File List
+       *
+       * @param {Object} event
+       */
+      listLogFiles: function (event) {
+        this.$["log-list-ajax"].generateRequest();
+      },
 
-					this.executeApp('Log file [' + this.log.name + '] Selected', 'Do you want to delete this log?', deleteLogAjax);
-				}
-			},
+      /**
+       * Delete Log File
+       *
+       * @param {Object} event
+       */
+      deleteLogFile: function (event) {
+        if (this.appId && this.log) {
+          var deleteLogAjax = this.$["delete-log-ajax"];
+          var deleteLogUrl = this.ctlAgentDeleteLogUrl.replace(":id", this.appId).replace(":file_name", this.log.name);
+          deleteLogAjax.resourceUrl = deleteLogUrl;
 
-			/**
-			 * Application 수행 
-			 *
-			 * @param {String} executeStr
-			 * @param {String} ajax
-			 */
-			executeApp: function(title, text, ajax) {
-				this.openConfirmMsg({
-					type : 'info',
-					title : title,
-					text : text,
-					showCancelButton: true
-				}, function() {
-					ajax.generateRequest();
-				});
-			},
+          this.executeApp(
+            "Log file [" + this.log.name + "] Selected",
+            "Do you want to delete this log?",
+            deleteLogAjax
+          );
+        }
+      },
 
-			/**
-			 * 로그 클리어 ...
-			 */
-			clearLog: function() {
-				this.logObj = { id : 3, log : '' };
-			},
+      /**
+       * Application 수행
+       *
+       * @param {String} executeStr
+       * @param {String} ajax
+       */
+      executeApp: function (title, text, ajax) {
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: title,
+            text: text,
+            showCancelButton: true,
+          },
+          function () {
+            ajax.generateRequest();
+          }
+        );
+      },
 
-			/**
-			 * 로그 보기 
-			 *
-			 * @param {Object} event
-			 */
-			showLog: function(event) {
-				if(this.appId && this.log) {
-					var logAjax = this.$['log-ajax'];
-					var showLogUrl = this.ctlAgentLogUrl.replace(':id', this.appId).replace(':file_name', this.log.name);
-					logAjax.resourceUrl = showLogUrl; 
-					logAjax.generateRequest();
-					this.tabIndex = 1;
-				}
-			},
+      /**
+       * 로그 클리어 ...
+       */
+      clearLog: function () {
+        this.logObj = { id: 3, log: "" };
+      },
 
-			/**
-			 * 로그 파일 다운로드
-			 *
-			 * @param {Object} event
-			 */
-			downloadLogFile: function(event) {
-				if(this.log && this.ctlAgentLogDownloadUrl) {
-					var downloadUrl = 
-						this.ctlAgentLogDownloadUrl.replace(':id', this.appId).replace(':file_name', this.log.name);
+      /**
+       * 로그 보기
+       *
+       * @param {Object} event
+       */
+      showLog: function (event) {
+        if (this.appId && this.log) {
+          var logAjax = this.$["log-ajax"];
+          var showLogUrl = this.ctlAgentLogUrl.replace(":id", this.appId).replace(":file_name", this.log.name);
+          logAjax.resourceUrl = showLogUrl;
+          logAjax.generateRequest();
+          this.tabIndex = 1;
+        }
+      },
 
-					this.openConfirmMsg({
-						type : 'info',
-						title : Things.DataGlobal.t('text.Want to download file'),
-						text : Things.DataGlobal.t('text.You can download file'),
-						showCancelButton: true
-					}, function() {
-						window.location = downloadUrl;
-					});
-				}
-			},
+      /**
+       * 로그 파일 다운로드
+       *
+       * @param {Object} event
+       */
+      downloadLogFile: function (event) {
+        if (this.log && this.ctlAgentLogDownloadUrl) {
+          var downloadUrl = this.ctlAgentLogDownloadUrl.replace(":id", this.appId).replace(":file_name", this.log.name);
 
-			/**
-			 * Detail 화면을 오픈한다.
-			 *
-			 * @param {String} resourceId
-			 * @param {Object} resource
-			 * @param {Function} openCallback
-			 * @param {Function} closeCallback
-			 */
-			showDetailView: function(resourceId, resource, openCallback, closeCallback) {
-				if(this.resource != resource) {
-					this.resourceId = resourceId;
-					this.resource = resource;
-				}
+          this.openConfirmMsg(
+            {
+              type: "info",
+              title: Things.DataGlobal.t("text.Want to download file"),
+              text: Things.DataGlobal.t("text.You can download file"),
+              showCancelButton: true,
+            },
+            function () {
+              window.location = downloadUrl;
+            }
+          );
+        }
+      },
 
-				this.openPopupView(this, true, openCallback, closeCallback);
-			}
-		})
-	</script>
+      /**
+       * Detail 화면을 오픈한다.
+       *
+       * @param {String} resourceId
+       * @param {Object} resource
+       * @param {Function} openCallback
+       * @param {Function} closeCallback
+       */
+      showDetailView: function (resourceId, resource, openCallback, closeCallback) {
+        if (this.resource != resource) {
+          this.resourceId = resourceId;
+          this.resource = resource;
+        }
+
+        this.openPopupView(this, true, openCallback, closeCallback);
+      },
+    });
+  </script>
 </dom-module>

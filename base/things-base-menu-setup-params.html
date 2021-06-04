@@ -1,14 +1,14 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-icon/iron-icon.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../iron-icon/iron-icon.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-resource-selector/things-resource-selector-behavior.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
 
 <!--
   메뉴 파라미터 설정 화면 
@@ -18,52 +18,53 @@ Copyright © HatioLab Inc. All rights reserved.
   <template>
     <style>
       :host {
-        display:block;
-        @apply(--layout-vertical);
+        display: block;
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
     <things-ajax
-      auto 
+      auto
       id="params-ajax"
       method="GET"
       resource-url="menus/:id/menu_meta?no_trans_term=true"
       resource-id="[[resourceId]]"
-      last-response="{{menuMeta}}">
+      last-response="{{menuMeta}}"
+    >
     </things-ajax>
 
-    <things-resource-grid 
+    <things-resource-grid
       id="grid"
       config="[[gridConfig]]"
-      model="[[gridModel]]" 
+      model="[[gridModel]]"
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
+      buttons="[[buttons]]"
+    >
     </things-resource-grid>
   </template>
 
   <script>
     Polymer({
-
-      is: 'things-base-menu-setup-params',
+      is: "things-base-menu-setup-params",
 
       properties: {
         /**
          * Menu ID
          */
         resourceId: {
-          type: String
+          type: String,
         },
 
         /**
          * Menu
          */
         resource: {
-          type: Object
+          type: Object,
         },
 
         /**
@@ -72,14 +73,14 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         menuMeta: {
           type: Object,
-          observer: '_onmenuMetaChanged'
-        },        
+          observer: "_onmenuMetaChanged",
+        },
 
         /**
-         * menu columns 조회 정보 
+         * menu columns 조회 정보
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         /**
@@ -87,13 +88,13 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridConfig: {
           type: Object,
-          value: function() {
+          value: function () {
             return {
-              "displayOptions" : {
-                "fitStyle" : DataLudi.GridFitStyle.EVEN_FILL
-              }
-            }
-          }
+              displayOptions: {
+                fitStyle: DataLudi.GridFitStyle.EVEN_FILL,
+              },
+            };
+          },
         },
 
         /**
@@ -101,25 +102,31 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridModel: {
           type: Array,
-          value: [ { 
-            fieldName: 'id' 
-          }, { 
-            fieldName: 'menu_id' 
-          }, { 
-            fieldName: 'name' 
-          }, { 
-            fieldName: 'description' 
-          }, { 
-            fieldName: 'value' 
-          } ]
+          value: [
+            {
+              fieldName: "id",
+            },
+            {
+              fieldName: "menu_id",
+            },
+            {
+              fieldName: "name",
+            },
+            {
+              fieldName: "description",
+            },
+            {
+              fieldName: "value",
+            },
+          ],
         },
-        
+
         /**
          * grid columns
          */
         gridColumns: {
           type: Array,
-          value: []
+          value: [],
         },
 
         /**
@@ -127,87 +134,107 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: '_computeParamSaveUrl(resourceId)'
+          computed: "_computeParamSaveUrl(resourceId)",
         },
 
         /**
-         * 버튼 정보 
+         * 버튼 정보
          */
         buttons: {
           type: Array,
-          value: [ {
-            id: 'add-btn',
-            text: 'add',
-            icon: 'icons:add'
-          }, {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete',
-            icon: 'icons:delete'
-          } ]
-        }
+          value: [
+            {
+              id: "add-btn",
+              text: "add",
+              icon: "icons:add",
+            },
+            {
+              id: "save-btn",
+              text: "save",
+              icon: "icons:save",
+            },
+            {
+              id: "delete-btn",
+              text: "delete",
+              icon: "icons:delete",
+            },
+          ],
+        },
       },
 
       listeners: {
-        'things-detail-view-selected' : '_detailTabSelected',
-        'grid.things-grid-handle-save' : '_beforeButtonSave',
-        'grid.things-grid-save-success' : '_reloadGrid',
-        'params-ajax.things-ajax-response': '_afterParamsLoaded'
+        "things-detail-view-selected": "_detailTabSelected",
+        "grid.things-grid-handle-save": "_beforeButtonSave",
+        "grid.things-grid-save-success": "_reloadGrid",
+        "params-ajax.things-ajax-response": "_afterParamsLoaded",
       },
 
       /**
        * Life Cycle - Attached
        */
-      attached : function() {
-        this.gridColumns = [ { 
-          fieldName: 'id', name: 'id', width: 0 
-        }, { 
-          fieldName: 'menu_id', name: 'menu_id', width: 0 
-        }, { 
-          fieldName: 'name', name: 'name', width: 250, nullable: false,
-          header: { 
-            text: Things.DataGlobal.t('label.key')
+      attached: function () {
+        this.gridColumns = [
+          {
+            fieldName: "id",
+            name: "id",
+            width: 0,
           },
-          editor: { 
-            maxLength : 32 
-          }
-        }, {
-          fieldName: 'value', name: 'value', width: 250,
-          header: {
-            text: Things.DataGlobal.t('label.value')
+          {
+            fieldName: "menu_id",
+            name: "menu_id",
+            width: 0,
           },
-          editor: { 
-            maxLength : 2000 
-          }
-        }, {
-          fieldName: 'description', name: 'description',
-          header: {
-            text: Things.DataGlobal.t('label.description')
+          {
+            fieldName: "name",
+            name: "name",
+            width: 250,
+            nullable: false,
+            header: {
+              text: Things.DataGlobal.t("label.key"),
+            },
+            editor: {
+              maxLength: 32,
+            },
           },
-          editor: { 
-            maxLength : 255 
-          }
-        } ];
+          {
+            fieldName: "value",
+            name: "value",
+            width: 250,
+            header: {
+              text: Things.DataGlobal.t("label.value"),
+            },
+            editor: {
+              maxLength: 2000,
+            },
+          },
+          {
+            fieldName: "description",
+            name: "description",
+            header: {
+              text: Things.DataGlobal.t("label.description"),
+            },
+            editor: {
+              maxLength: 255,
+            },
+          },
+        ];
       },
 
       /**
        * 상세 탭 선택시 ...
        *
-       * param {Object} e 탭 선택 이벤트 
+       * param {Object} e 탭 선택 이벤트
        */
-      _detailTabSelected: function(e) {
+      _detailTabSelected: function (e) {
         this.$.grid.resizeGrid();
-      },      
+      },
 
       /**
        * menuMeta 변경시
        *
        * @param {Object} menuMeta
        */
-      _onmenuMetaChanged: function(menuMeta) {
+      _onmenuMetaChanged: function (menuMeta) {
         this.items = menuMeta.menu_params;
       },
 
@@ -217,31 +244,31 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} Param Save Url
        */
-      _computeParamSaveUrl: function(resourceId) {
-        return 'menus/' + resourceId + '/menu_params/update_multiple';
+      _computeParamSaveUrl: function (resourceId) {
+        return "menus/" + resourceId + "/menu_params/update_multiple";
       },
 
       /**
-       * Menu Params Grid 저장 후 
+       * Menu Params Grid 저장 후
        *
        * @param {Object} event
        */
-      _afterParamsLoaded: function(event) {
+      _afterParamsLoaded: function (event) {
         this.menuMeta = event.detail;
       },
 
       /**
-       * Menu Params Grid 저장 전 
+       * Menu Params Grid 저장 전
        *
        * @param {Object} event
        */
-      _beforeButtonSave: function(event) {
+      _beforeButtonSave: function (event) {
         var grid = event.target;
-        if(grid.writeData && grid.writeData.length > 0) {
+        if (grid.writeData && grid.writeData.length > 0) {
           var resourceId = this.resourceId;
-          grid.writeData.forEach(function(changedData) {
-            delete changedData['term'];
-            if(changedData.cud_flag_ == 'c') {
+          grid.writeData.forEach(function (changedData) {
+            delete changedData["term"];
+            if (changedData.cud_flag_ == "c") {
               changedData.menu_id = resourceId;
             }
           });
@@ -253,9 +280,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _reloadGrid: function(e) {
-        this.$['params-ajax'].generateRequest();
-      }
+      _reloadGrid: function (e) {
+        this.$["params-ajax"].generateRequest();
+      },
     });
   </script>
 </dom-module>

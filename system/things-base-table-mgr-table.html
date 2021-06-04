@@ -1,745 +1,788 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-global-behavior/things-global-behavior.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-global-behavior/things-global-behavior.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
 
 <!--
 	엔티티 컬럼 관리 화면 - 테이블 생성, 삭제, 변경
 -->
 
 <dom-module id="things-base-table-mgr-table">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-			paper-toolbar {
-				background-color:var(--things-primary-background-color);
-				height:45px;
-				margin-top:0px !important;
-				@apply(--things-padding-clear)
-			}
-			paper-toolbar::shadow #topBar {
-				height:45px;
-				@apply(--things-padding-clear)
-			}
-			paper-toolbar .title {
-				margin-left:32px !important;
-				line-height:initial !important;
-			}
-			.close-btn {
-				@apply(--things-header-button);
-				background:url(/images/icon-close.png) 100% 50% no-repeat;
-				margin-right:10px;
-			}
-			.bottom {
-				@apply(--layout-horizontal);
-				@apply(--layout-end-justified);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+      paper-toolbar {
+        background-color: var(--things-primary-background-color);
+        height: 45px;
+        margin-top: 0px !important;
+        @apply (--things-padding-clear);
+      }
+      paper-toolbar::shadow #topBar {
+        height: 45px;
+        @apply (--things-padding-clear);
+      }
+      paper-toolbar .title {
+        margin-left: 32px !important;
+        line-height: initial !important;
+      }
+      .close-btn {
+        @apply (--things-header-button);
+        background: url(/images/icon-close.png) 100% 50% no-repeat;
+        margin-right: 10px;
+      }
+      .bottom {
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
+      }
+    </style>
 
-		<!-- 테이블 생성용 ajax -->
-		<things-ajax
-			id="create-table"
-			method="POST"
-			content-type="application/json">
-		</things-ajax>
+    <!-- 테이블 생성용 ajax -->
+    <things-ajax id="create-table" method="POST" content-type="application/json"> </things-ajax>
 
-		<!-- 테이블 생성용 ajax -->
-		<things-ajax
-			id="modify-table"
-			method="PUT"
-			content-type="application/json">
-		</things-ajax>
+    <!-- 테이블 생성용 ajax -->
+    <things-ajax id="modify-table" method="PUT" content-type="application/json"> </things-ajax>
 
-		<!-- 테이블 삭제용 ajax -->
-		<things-ajax
-			id="drop-table"
-			method="DELETE">
-		</things-ajax>
+    <!-- 테이블 삭제용 ajax -->
+    <things-ajax id="drop-table" method="DELETE"> </things-ajax>
 
-		<!-- 테이블 텝에 초기화 시킬 table과 entity의 컬럼을 조회를 위한 ajax -->
-		<things-ajax
-			id="diff-columns-ajax"
-			resource-url="ddl/table/diff_columns/:id"
-			resource-action="index"
-			last-response="{{diffColumns}}">
-		</things-ajax>
+    <!-- 테이블 텝에 초기화 시킬 table과 entity의 컬럼을 조회를 위한 ajax -->
+    <things-ajax
+      id="diff-columns-ajax"
+      resource-url="ddl/table/diff_columns/:id"
+      resource-action="index"
+      last-response="{{diffColumns}}"
+    >
+    </things-ajax>
 
-		<paper-dialog
-			modal
-			id="input-dialog"
-			entry-animation="scale-up-animation"
-			exit-animation="fade-out-animation">
-			<paper-toolbar class="top-bar">
-				<span class="title">[[inputLabel]]</span>
-				<div class="buttonsGroup">
-					<button dialog-dismiss class="close-btn"></button>
-				</div>
-			</paper-toolbar>
+    <paper-dialog modal id="input-dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <paper-toolbar class="top-bar">
+        <span class="title">[[inputLabel]]</span>
+        <div class="buttonsGroup">
+          <button dialog-dismiss class="close-btn"></button>
+        </div>
+      </paper-toolbar>
 
-			<div class="detail-card">
-				<div class="detail-content">
-					<things-combo
-						label="[[selectTargetColumn]]"
-						items="[[tableList]]"
-						value="{{targetColumnName}}">
-					</things-combo>
-				</div>
+      <div class="detail-card">
+        <div class="detail-content">
+          <things-combo label="[[selectTargetColumn]]" items="[[tableList]]" value="{{targetColumnName}}">
+          </things-combo>
+        </div>
 
-				<div class="bottom">
-					<things-button-bar id="button-group" buttons="[[dialogButtons]]"></things-button-bar>
-				</div>
-			</div>
-		</paper-dialog>
+        <div class="bottom">
+          <things-button-bar id="button-group" buttons="[[dialogButtons]]"></things-button-bar>
+        </div>
+      </div>
+    </paper-dialog>
 
-		<things-resource-grid
-			content
-			id="table-columns-grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[diffColumns]]"
-			buttons="[[buttons]]"
-			fixed-column-count="0">
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      content
+      id="table-columns-grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[diffColumns]]"
+      buttons="[[buttons]]"
+      fixed-column-count="0"
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'things-base-table-mgr-table',
+  <script>
+    Polymer({
+      is: "things-base-table-mgr-table",
 
-			behaviors: [
-				Things.GlobalBehavior,
-				Things.MsgBoxBehavior
-			],
+      behaviors: [Things.GlobalBehavior, Things.MsgBoxBehavior],
 
-			properties: {
-				/**
-				 * grid config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									exclusive: true
-								}
-							}
-						}
-					}
-				},
+      properties: {
+        /**
+         * grid config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  exclusive: true,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * table grid model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [ {
-							fieldName: 'table_col_name'
-						}, {
-							fieldName: 'table_col_desc'
-						}, {
-							fieldName: 'table_col_data_type'
-						}, {
-							fieldName: 'table_col_length'
-						}, {
-							fieldName: 'table_col_nullable',
-							dataType: 'boolean'
-						}, {
-							fieldName: 'entity_col_name'
-						}, {
-							fieldName: 'entity_col_desc'
-						}, {
-							fieldName: 'entity_col_data_type'
-						}, {
-							fieldName: 'entity_col_length'
-						}, {
-							fieldName: 'entity_col_nullable',
-							dataType: 'boolean'
-						}, {
-							fieldName: 'type_diff',
-							dataType: 'boolean'
-						}, {
-							fieldName: 'size_diff',
-							dataType: 'boolean'
-						} ];
-					}
-				},
+        /**
+         * table grid model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                fieldName: "table_col_name",
+              },
+              {
+                fieldName: "table_col_desc",
+              },
+              {
+                fieldName: "table_col_data_type",
+              },
+              {
+                fieldName: "table_col_length",
+              },
+              {
+                fieldName: "table_col_nullable",
+                dataType: "boolean",
+              },
+              {
+                fieldName: "entity_col_name",
+              },
+              {
+                fieldName: "entity_col_desc",
+              },
+              {
+                fieldName: "entity_col_data_type",
+              },
+              {
+                fieldName: "entity_col_length",
+              },
+              {
+                fieldName: "entity_col_nullable",
+                dataType: "boolean",
+              },
+              {
+                fieldName: "type_diff",
+                dataType: "boolean",
+              },
+              {
+                fieldName: "size_diff",
+                dataType: "boolean",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * table grid columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [ {
-							type: 'Entity',
-							header: {
-								text: Things.DataGlobal.t('menu.Entity')
-							},
-							width: 500,
-							columns: [{
-								fieldName: 'entity_col_name',
-								name: 'entity_col_name',
-								width: 120,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.columns')
-								},
-								editor: {
-									maxLength: 32
-								}
-							}, {
-								fieldName: 'entity_col_desc',
-								name: 'entity_col_desc',
-								width: 150,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.description')
-								},
-								editor: {
-									maxLength: 32
-								}
-							}, {
-								name: 'entity_col_data_type',
-								fieldName: 'entity_col_data_type',
-								width: 100,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.col_type')
-								}
-							}, {
-								fieldName: 'entity_col_length',
-								name: 'entity_col_length',
-								width: 70,
-								editable: false,
-								type: 'number',
-								header: {
-									text: Things.DataGlobal.t('label.col_size')
-								},
-								styles: {
-									textAlignment: 'far'
-								}
-							}, {
-								name: 'entity_col_nullable',
-								fieldName: 'entity_col_nullable',
-								width: 55,
-								editable: false,
-								header: {
-									text: Things.DataGlobal.t('label.nullable')
-								},
-								renderer: {
-									type: 'check',
-									editable: false,
-									threeStates: false,
-									trueValues: 'true',
-									falseValues: 'false'
-								}
-							}]
-						}, {
-							type: 'Table',
-							width: 575,
-							header: {
-								text: Things.DataGlobal.t('label.table')
-							},
-							columns: [{
-								fieldName: 'table_col_name',
-								name: 'table_col_name',
-								width: 120,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.columns')
-								},
-								editor: {
-									maxLength: 32
-								},
-								dynamicStyles: [{
-									expression: "values['table_col_name'] != values['entity_col_name']",
-									styles: {
-										background: '#ffcccc'
-									}
-								}]
-							}, {
-								fieldName: 'table_col_desc',
-								name: 'table_col_desc',
-								width: 150,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.description')
-								},
-								editor: {
-									maxLength: 32
-								}
-							}, {
-								name: 'table_col_data_type',
-								fieldName: 'table_col_data_type',
-								width: 175,
-								editable: false,
-								nullable: false,
-								header: {
-									text: Things.DataGlobal.t('label.col_type')
-								},
-								dynamicStyles: [{
-									expression: "values['type_diff'] == true",
-									styles: {
-										background: '#ffcccc'
-									}
-								}]
-							}, {
-								fieldName: 'table_col_length',
-								name: 'table_col_length',
-								width: 70,
-								editable: false,
-								type: 'number',
-								header: {
-									text: Things.DataGlobal.t('label.col_size')
-								},
-								styles: {
-									textAlignment: 'far'
-								},
-								dynamicStyles: [{
-									expression: "values['size_diff'] == true",
-									styles: {
-										background: '#ffcccc'
-									}
-								}]
-							}, {
-								name: 'table_col_nullable',
-								fieldName: 'table_col_nullable',
-								width: 55,
-								editable: false,
-								header: {
-									text: Things.DataGlobal.t('label.nullable')
-								},
-								dynamicStyles: [{
-									expression: "values['table_col_nullable'] != values['entity_col_nullable']",
-									styles: {
-										background: '#ffcccc'
-									}
-								}],
-								renderer: {
-									type: 'check',
-									editable: false,
-									threeStates: false,
-									trueValues: 'true',
-									falseValues: 'false'
-								}
-							} ]
-						} ];
-					}
-				},
+        /**
+         * table grid columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                type: "Entity",
+                header: {
+                  text: Things.DataGlobal.t("menu.Entity"),
+                },
+                width: 500,
+                columns: [
+                  {
+                    fieldName: "entity_col_name",
+                    name: "entity_col_name",
+                    width: 120,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.columns"),
+                    },
+                    editor: {
+                      maxLength: 32,
+                    },
+                  },
+                  {
+                    fieldName: "entity_col_desc",
+                    name: "entity_col_desc",
+                    width: 150,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.description"),
+                    },
+                    editor: {
+                      maxLength: 32,
+                    },
+                  },
+                  {
+                    name: "entity_col_data_type",
+                    fieldName: "entity_col_data_type",
+                    width: 100,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.col_type"),
+                    },
+                  },
+                  {
+                    fieldName: "entity_col_length",
+                    name: "entity_col_length",
+                    width: 70,
+                    editable: false,
+                    type: "number",
+                    header: {
+                      text: Things.DataGlobal.t("label.col_size"),
+                    },
+                    styles: {
+                      textAlignment: "far",
+                    },
+                  },
+                  {
+                    name: "entity_col_nullable",
+                    fieldName: "entity_col_nullable",
+                    width: 55,
+                    editable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.nullable"),
+                    },
+                    renderer: {
+                      type: "check",
+                      editable: false,
+                      threeStates: false,
+                      trueValues: "true",
+                      falseValues: "false",
+                    },
+                  },
+                ],
+              },
+              {
+                type: "Table",
+                width: 575,
+                header: {
+                  text: Things.DataGlobal.t("label.table"),
+                },
+                columns: [
+                  {
+                    fieldName: "table_col_name",
+                    name: "table_col_name",
+                    width: 120,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.columns"),
+                    },
+                    editor: {
+                      maxLength: 32,
+                    },
+                    dynamicStyles: [
+                      {
+                        expression: "values['table_col_name'] != values['entity_col_name']",
+                        styles: {
+                          background: "#ffcccc",
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    fieldName: "table_col_desc",
+                    name: "table_col_desc",
+                    width: 150,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.description"),
+                    },
+                    editor: {
+                      maxLength: 32,
+                    },
+                  },
+                  {
+                    name: "table_col_data_type",
+                    fieldName: "table_col_data_type",
+                    width: 175,
+                    editable: false,
+                    nullable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.col_type"),
+                    },
+                    dynamicStyles: [
+                      {
+                        expression: "values['type_diff'] == true",
+                        styles: {
+                          background: "#ffcccc",
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    fieldName: "table_col_length",
+                    name: "table_col_length",
+                    width: 70,
+                    editable: false,
+                    type: "number",
+                    header: {
+                      text: Things.DataGlobal.t("label.col_size"),
+                    },
+                    styles: {
+                      textAlignment: "far",
+                    },
+                    dynamicStyles: [
+                      {
+                        expression: "values['size_diff'] == true",
+                        styles: {
+                          background: "#ffcccc",
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    name: "table_col_nullable",
+                    fieldName: "table_col_nullable",
+                    width: 55,
+                    editable: false,
+                    header: {
+                      text: Things.DataGlobal.t("label.nullable"),
+                    },
+                    dynamicStyles: [
+                      {
+                        expression: "values['table_col_nullable'] != values['entity_col_nullable']",
+                        styles: {
+                          background: "#ffcccc",
+                        },
+                      },
+                    ],
+                    renderer: {
+                      type: "check",
+                      editable: false,
+                      threeStates: false,
+                      trueValues: "true",
+                      falseValues: "false",
+                    },
+                  },
+                ],
+              },
+            ];
+          },
+        },
 
-				/**
-				 * dialog의 input label
-				 */
-				inputLabel: {
-					type: String,
-					value: function() {
-						return Things.DataGlobal.t('title.columns');
-					}
-				},
+        /**
+         * dialog의 input label
+         */
+        inputLabel: {
+          type: String,
+          value: function () {
+            return Things.DataGlobal.t("title.columns");
+          },
+        },
 
-				/**
-				 * dialog의 타이틀
-				 */
-				selectTargetColumn: {
-					type: String,
-					value: function() {
-						return Things.DataGlobal.t('button.select');
-					}
-				},
+        /**
+         * dialog의 타이틀
+         */
+        selectTargetColumn: {
+          type: String,
+          value: function () {
+            return Things.DataGlobal.t("button.select");
+          },
+        },
 
-				/**
-				 * grid buttons
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [ {
-							id: 'add-column-btn',
-							text: 'add'
-						}, {
-							id: 'name-change-btn',
-							text: 'rename'
-						}, {
-							id: 'type-change-btn',
-							text: 'type_change'
-						}, {
-							id: 'nullable-change-btn',
-							text: 'nullable_change'
-						}, {
-							id: 'create-table-btn',
-							text: 'generate_table'
-						}/*, {
+        /**
+         * grid buttons
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "add-column-btn",
+                text: "add",
+              },
+              {
+                id: "name-change-btn",
+                text: "rename",
+              },
+              {
+                id: "type-change-btn",
+                text: "type_change",
+              },
+              {
+                id: "nullable-change-btn",
+                text: "nullable_change",
+              },
+              {
+                id: "create-table-btn",
+                text: "generate_table",
+              } /*, {
 							id: 'drop-table-btn',
 							text: 'delete_table'
 						}, {
 							id: 'modify-table-btn',
 							text: 'alter_table'
-						}*/ ];
-					}
-				},
+						}*/,
+            ];
+          },
+        },
 
-				dialogButtons: {
-					type: Array,
-					value: function() {
-						return [{
-							id: 'confirm-btn',
-							text: 'confirm'
-						}]
-					}
-				},
+        dialogButtons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "confirm-btn",
+                text: "confirm",
+              },
+            ];
+          },
+        },
 
-				/**
-				 * empty buttons
-				 */
-				emptyButtons: {
-					type: Array,
-					value: []
-				},
+        /**
+         * empty buttons
+         */
+        emptyButtons: {
+          type: Array,
+          value: [],
+        },
 
-				/**
-				 * resource
-				 */
-				resource: {
-					type: Object
-				},
+        /**
+         * resource
+         */
+        resource: {
+          type: Object,
+        },
 
-				/**
-				 * Table Columns List
-				 */
-				diffColumns: {
-					type: Array,
-					observer: 'diffColumnsChanged'
-				}
-			},
+        /**
+         * Table Columns List
+         */
+        diffColumns: {
+          type: Array,
+          observer: "diffColumnsChanged",
+        },
+      },
 
-			listeners: {
-				'add-column-btn-tap': 'alterColumn',
-				'name-change-btn-tap': 'renameColumn',
-				'type-change-btn-tap': 'alterColumn',
-				'nullable-change-btn-tap': 'alterColumn',
-				'confirm-btn-tap': 'confirmButtonTapped',
-				'create-table-btn-tap': 'createTable',
-				'drop-table-btn-tap': 'deleteTable',
-				'modify-table-btn-tap': 'modifyTable',
-				'create-table.things-ajax-response': '_successHandler',
-				'drop-table.things-ajax-response': '_successHandler',
+      listeners: {
+        "add-column-btn-tap": "alterColumn",
+        "name-change-btn-tap": "renameColumn",
+        "type-change-btn-tap": "alterColumn",
+        "nullable-change-btn-tap": "alterColumn",
+        "confirm-btn-tap": "confirmButtonTapped",
+        "create-table-btn-tap": "createTable",
+        "drop-table-btn-tap": "deleteTable",
+        "modify-table-btn-tap": "modifyTable",
+        "create-table.things-ajax-response": "_successHandler",
+        "drop-table.things-ajax-response": "_successHandler",
 
-				'table-columns-grid.things-grid-row-data-select': '_rowDataSelect'
-			},
+        "table-columns-grid.things-grid-row-data-select": "_rowDataSelect",
+      },
 
-			/**
-			 * 컬럼 리스트가 변경되면 things-combo에 필요한 tableList를 Array를 만든다.
-			 */
-			diffColumnsChanged: function(diffColumns) {
-				var tableList = [];
-				diffColumns.forEach(function(column) {
-					tableList.push({
-						name: column.entity_col_name,
-						description: column.entity_col_name
-					});
-				});
+      /**
+       * 컬럼 리스트가 변경되면 things-combo에 필요한 tableList를 Array를 만든다.
+       */
+      diffColumnsChanged: function (diffColumns) {
+        var tableList = [];
+        diffColumns.forEach(function (column) {
+          tableList.push({
+            name: column.entity_col_name,
+            description: column.entity_col_name,
+          });
+        });
 
-				this.tableList = tableList;
-			},
+        this.tableList = tableList;
+      },
 
-			/**
-			 * Create Table
-			 *
-			 * @param {Object} e 버튼 클릭 이벤트
-			 */
-			createTable: function(e) {
-				if(this.resource.table_name) {
-					var title = Things.DataGlobal.t('text.Sure to Generate');
+      /**
+       * Create Table
+       *
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      createTable: function (e) {
+        if (this.resource.table_name) {
+          var title = Things.DataGlobal.t("text.Sure to Generate");
 
-					this._confirmAndInvoke(function() {
-						var service = this.$['create-table'];
-						service.resourceUrl = 'ddl/table/generate/' + this.resource.id;
-						service.generateRequest();
-					}.bind(this), title);
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["create-table"];
+              service.resourceUrl = "ddl/table/generate/" + this.resource.id;
+              service.generateRequest();
+            }.bind(this),
+            title
+          );
+        } else {
+          this._warningNotReady();
+        }
+      },
 
-				} else {
-					this._warningNotReady();
-				}
-			},
+      /**
+       * Delete Table
+       *
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      deleteTable: function (e) {
+        if (this.resource.table_name) {
+          var title = Things.DataGlobal.t("text.Sure to Delete");
 
-			/**
-			 * Delete Table
-			 *
-			 * @param {Object} e 버튼 클릭 이벤트
-			 */
-			deleteTable: function(e) {
-				if(this.resource.table_name) {
-					var title = Things.DataGlobal.t('text.Sure to Delete');
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["drop-table"];
+              service.resourceUrl = "ddl/table/" + this.resource.id;
+              service.generateRequest();
+            }.bind(this),
+            title
+          );
+        } else {
+          this._warningNotReady();
+        }
+      },
 
-					this._confirmAndInvoke(function() {
-						var service = this.$['drop-table'];
-						service.resourceUrl = 'ddl/table/' + this.resource.id;
-						service.generateRequest();
-					}.bind(this), title);
+      /**
+       * Modify Table
+       *
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      modifyTable: function (e) {
+        if (this.resource.table_name) {
+          var title = Things.DataGlobal.t("text.Sure to process");
 
-				} else {
-					this._warningNotReady();
-				}
-			},
+          this._confirmAndInvoke(
+            function () {
+              var service = this.$["modify-table"];
+              service.resourceUrl = "ddl/table/" + this.resource.id;
+              service.generateRequest();
+            }.bind(this),
+            title
+          );
+        } else {
+          this._warningNotReady();
+        }
+      },
 
-			/**
-			 * Modify Table
-			 *
-			 * @param {Object} e 버튼 클릭 이벤트
-			 */
-			modifyTable: function(e) {
-				if(this.resource.table_name) {
-					var title = Things.DataGlobal.t('text.Sure to process');
+      /**
+       * 서비스 호출 준비가 안 된 상태라는 메시지 출력
+       */
+      _warningNotReady: function () {
+        var tableName = Things.DataGlobal.t("label.table_name");
+        var msg = Things.DataGlobal.t("error.SHOULD_NOT_BE_EMPTY", { value: tableName });
 
-					this._confirmAndInvoke(function() {
-						var service = this.$['modify-table'];
-						service.resourceUrl = 'ddl/table/' + this.resource.id;
-						service.generateRequest();
-					}.bind(this), title);
+        this.openInfoMsg({
+          type: "warning",
+          title: msg,
+          showCancelButton: true,
+          closeOnConfirm: true,
+        });
+      },
 
-				} else {
-					this._warningNotReady();
-				}
-			},
+      /**
+       * 사용자에게 확인 후 서비스 호출
+       *
+       * @param {String} func
+       */
+      _confirmAndInvoke: function (func, title) {
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: title,
+            showCancelButton: true,
+            closeOnConfirm: true,
+          },
+          func
+        );
+      },
 
-			/**
-			 * 서비스 호출 준비가 안 된 상태라는 메시지 출력
-			 */
-			_warningNotReady: function() {
-				var tableName = Things.DataGlobal.t('label.table_name');
-				var msg = Things.DataGlobal.t('error.SHOULD_NOT_BE_EMPTY', { value : tableName });
+      /**
+       * 그리드 오브젝트를 리턴
+       */
+      getGridObject: function () {
+        return this.$["table-columns-grid"].getGridObject();
+      },
 
-				this.openInfoMsg({
-					type : 'warning',
-					title : msg,
-					showCancelButton: true,
-					closeOnConfirm : true
-				});
-			},
+      /**
+       * 선택한 로우의 오브젝트를 리턴
+       */
+      getSelectedRowObject: function () {
+        var grid = this.getGridObject();
+        var checkedRows = grid.getCheckedRows();
+        var rowObj = null;
 
-			/**
-			 * 사용자에게 확인 후 서비스 호출
-			 *
-			 * @param {String} func
-			 */
-			_confirmAndInvoke: function(func, title) {
-				this.openConfirmMsg({
-					type : 'info',
-					title : title,
-					showCancelButton: true,
-					closeOnConfirm : true
-				}, func);
-			},
+        if (checkedRows && checkedRows.length == 1) {
+          var checkedRow = checkedRows[0];
+          rowObj = checkedRow.getRowObject();
+        }
 
-			/**
-			 * 그리드 오브젝트를 리턴
-			 */
-			getGridObject: function() {
-				return this.$['table-columns-grid'].getGridObject();
-			},
+        return rowObj;
+      },
 
-			/**
-			 * 선택한 로우의 오브젝트를 리턴
-			 */
-			getSelectedRowObject: function() {
-				var grid = this.getGridObject();
-				var checkedRows = grid.getCheckedRows();
-				var rowObj = null;
+      /**
+       * 컬럼 리네임, 컬럼 타입 변경, 컬럼 nullable 변경의
+       * 서비스 호출을 수행
+       */
+      changeAjaxGenerator: function (resourceUrl, resourceAction, body) {
+        if (this.changeAjax == null) {
+          this.changeAjax = document.createElement("things-ajax");
+          this.changeAjax.addEventListener(
+            "things-ajax-response",
+            function (ev) {
+              this.refreshTable();
+            }.bind(this)
+          );
+        }
 
-				if(checkedRows && checkedRows.length == 1) {
-					var checkedRow = checkedRows[0];
-					rowObj = checkedRow.getRowObject();
-				};
+        this.changeAjax.setAttribute("id", "change-ajax");
+        this.changeAjax.setAttribute("resource-url", resourceUrl);
+        this.changeAjax.setAttribute("resource-action", resourceAction);
+        this.changeAjax.body = body;
+        this.changeAjax.generateRequest();
+      },
 
-				return rowObj;
-			},
+      /**
+       * rename buttons 클릭시 다이얼로그를 오픈
+       */
+      renameColumn: function () {
+        this.targetColumnName = "";
+        var rowObj = this.getSelectedRowObject();
+        if (rowObj) {
+          this.$["input-dialog"].toggle();
+        } else {
+          this.nothingSelected();
+        }
+      },
 
-			/**
-			 * 컬럼 리네임, 컬럼 타입 변경, 컬럼 nullable 변경의
-			 * 서비스 호출을 수행
-			 */
-			changeAjaxGenerator: function(resourceUrl, resourceAction, body) {
-				if(this.changeAjax == null) {
-					this.changeAjax = document.createElement('things-ajax');
-					this.changeAjax.addEventListener("things-ajax-response", function(ev) {
-						this.refreshTable();
-					}.bind(this));
-				}
+      /**
+       * 다이얼로그에서 확인 버튼을 누르면
+       * 선택한 값이 있는지 확인하고 chageAjaxGenerator를 호출
+       */
+      confirmButtonTapped: function () {
+        var resourceUrl = "ddl/table/" + this.resource.id + "/column/rename";
+        var resourceAction = "update";
+        var title = Things.DataGlobal.t("text.Sure to process");
+        var rowObj = this.getSelectedRowObject();
 
-				this.changeAjax.setAttribute('id', 'change-ajax');
-				this.changeAjax.setAttribute('resource-url', resourceUrl);
-				this.changeAjax.setAttribute('resource-action', resourceAction);
-				this.changeAjax.body = body;
-				this.changeAjax.generateRequest();
-			},
+        if (rowObj && this.targetColumnName) {
+          rowObj.entity_col_name = this.targetColumnName;
+          this._confirmAndInvoke(
+            function () {
+              this.$["input-dialog"].close();
+              this.changeAjaxGenerator(resourceUrl, resourceAction, rowObj);
+            }.bind(this),
+            title
+          );
+        } else {
+          this.nothingSelected();
+        }
+      },
 
-			/**
-			 * rename buttons 클릭시 다이얼로그를 오픈
-			 */
-			renameColumn: function() {
-				this.targetColumnName = '';
-				var rowObj = this.getSelectedRowObject();
-				if(rowObj) {
-					this.$['input-dialog'].toggle();
-				} else {
-					this.nothingSelected();
-				}
-			},
+      /**
+       * 컬럼 타입 변경, 컬럼 nullable변경 버튼 클릭시
+       * 버튼의 종류에 따라 서비스를 초기화 하고 서비스를 호출 함
+       */
+      alterColumn: function (event) {
+        var buttonId = event.target.id;
+        var resourceUrl = "";
+        var resourceAction = "";
+        var title = Things.DataGlobal.t("text.Sure to process");
+        var rowObj = this.getSelectedRowObject();
 
-			/**
-			 * 다이얼로그에서 확인 버튼을 누르면
-			 * 선택한 값이 있는지 확인하고 chageAjaxGenerator를 호출
-			 */
-			confirmButtonTapped: function() {
-				var resourceUrl = 'ddl/table/' + this.resource.id + '/column/rename';
-				var resourceAction = 'update';
-				var title = Things.DataGlobal.t('text.Sure to process');
-				var rowObj = this.getSelectedRowObject();
+        if (rowObj) {
+          switch (buttonId) {
+            case "add-column-btn":
+              resourceUrl = "ddl/table/" + this.resource.id + "/column/add";
+              resourceAction = "create";
+              break;
 
-				if(rowObj && this.targetColumnName) {
-					rowObj.entity_col_name = this.targetColumnName;
-					this._confirmAndInvoke(function() {
-						this.$['input-dialog'].close();
-						this.changeAjaxGenerator(resourceUrl, resourceAction, rowObj);
-					}.bind(this), title);
-				} else {
-					this.nothingSelected();
-				}
-			},
+            case "type-change-btn":
+              resourceUrl = "ddl/table/" + this.resource.id + "/column/change_type";
+              resourceAction = "update";
+              break;
 
-			/**
-			 * 컬럼 타입 변경, 컬럼 nullable변경 버튼 클릭시
-			 * 버튼의 종류에 따라 서비스를 초기화 하고 서비스를 호출 함
-			 */
-			alterColumn: function(event) {
-				var buttonId = event.target.id;
-				var resourceUrl = '';
-				var resourceAction = '';
-				var title = Things.DataGlobal.t('text.Sure to process');
-				var rowObj = this.getSelectedRowObject();
+            case "nullable-change-btn":
+              resourceUrl = "ddl/table/" + this.resource.id + "/column/change_nullable";
+              resourceAction = "update";
+              break;
+          }
 
-				if(rowObj) {
-					switch (buttonId) {
-						case 'add-column-btn':
-							resourceUrl = 'ddl/table/' + this.resource.id + '/column/add';
-							resourceAction = 'create';
-							break;
+          this._confirmAndInvoke(
+            function () {
+              this.changeAjaxGenerator(resourceUrl, resourceAction, rowObj);
+            }.bind(this),
+            title
+          );
+        } else {
+          this.nothingSelected();
+        }
+      },
 
-						case 'type-change-btn':
-							resourceUrl = 'ddl/table/' + this.resource.id + '/column/change_type';
-							resourceAction = 'update';
-							break;
+      /**
+       * 변경 버튼 클릭하였을 때 선택한 로우가 없으면
+       * 메시지 팝업을 출력함
+       */
+      nothingSelected: function () {
+        this.openInfoMsg({
+          title: Things.DataGlobal.t("label.failure"),
+          type: "info",
+          text: Things.DataGlobal.t("text.NOTHING_SELECTED"),
+          closeOnConfirm: true,
+        });
+      },
 
-						case 'nullable-change-btn':
-							resourceUrl = 'ddl/table/' + this.resource.id + '/column/change_nullable';
-							resourceAction = 'update';
-							break;
-					};
+      /**
+       * 서비스 생성 성공시
+       *
+       * @param {Object} e
+       */
+      _successHandler: function (e) {
+        this.openInfoMsg({
+          title: Things.DataGlobal.t("label.success"),
+          type: "info",
+          text: Things.DataGlobal.t("text.Success to Process"),
+          closeOnConfirm: true,
+        });
 
-					this._confirmAndInvoke(function() {
-						this.changeAjaxGenerator(resourceUrl, resourceAction, rowObj);
-					}.bind(this), title);
-				} else {
-					this.nothingSelected();
-				}
-			},
+        this.refreshTable();
+      },
 
-			/**
-			 * 변경 버튼 클릭하였을 때 선택한 로우가 없으면
-			 * 메시지 팝업을 출력함
-			 */
-			nothingSelected: function() {
-				this.openInfoMsg({
-					title: Things.DataGlobal.t('label.failure'),
-					type: 'info',
-					text: Things.DataGlobal.t('text.NOTHING_SELECTED'),
-					closeOnConfirm: true
-				})
-			},
+      /**
+       * Refresh Table
+       */
+      refreshTable: function () {
+        var diffColumnsAjax = this.$["diff-columns-ajax"];
+        diffColumnsAjax.resourceId = this.resource.id;
+        diffColumnsAjax.generateRequest();
+      },
 
-			/**
-			 * 서비스 생성 성공시
-			 *
-			 * @param {Object} e
-			 */
-			_successHandler: function(e) {
-				this.openInfoMsg({
-					title : Things.DataGlobal.t('label.success'),
-					type : 'info',
-					text : Things.DataGlobal.t('text.Success to Process'),
-					closeOnConfirm: true
-				});
+      /**
+       * 그리드 선택시 이벤트
+       *********
+       * @param {Object} event
+       */
+      _rowDataSelect: function (event) {
+        this._cancelAllCheck(event.target.id);
+        this._gridSelectCheck(event.target.id);
+      },
 
-				this.refreshTable();
-			},
+      /**
+       * 그리드 선택시 체크
+       *********
+       * @param {String} gridId
+       */
+      _gridSelectCheck: function (gridId) {
+        let gridObj = this.$[gridId].getGridObject();
+        let focusedCell = gridObj.getFocusedCellView();
+        if (focusedCell.getIcon() && !focusedCell.value()) {
+          return;
+        }
 
-			/**
-			 * Refresh Table
-			 */
-			refreshTable: function() {
-				var diffColumnsAjax = this.$['diff-columns-ajax'];
-				diffColumnsAjax.resourceId = this.resource.id;
-				diffColumnsAjax.generateRequest();
-			},
+        let focusedRow = gridObj.focusedRow();
+        let currentStatus = focusedRow.$_checked;
+        gridObj.setChecked(focusedRow, !currentStatus);
+      },
 
-			/**
-			 * 그리드 선택시 이벤트
-			 *********
-			 * @param {Object} event
-			 */
-			_rowDataSelect: function(event) {
-				this._cancelAllCheck(event.target.id);
-				this._gridSelectCheck(event.target.id);
-			},
-
-			/**
-			 * 그리드 선택시 체크
-			 *********
-			 * @param {String} gridId
-			 */
-			_gridSelectCheck: function(gridId) {
-                let gridObj = this.$[gridId].getGridObject();
-                let focusedCell = gridObj.getFocusedCellView();
-                if (focusedCell.getIcon() && !focusedCell.value()) {
-                    return;
-                }
-
-                let focusedRow = gridObj.focusedRow();
-                let currentStatus = focusedRow.$_checked;
-                gridObj.setChecked(focusedRow, !currentStatus);
-            },
-
-			/**
-			 * 선택된 그리드 모두 취소
-			 *********
-			 * @param {String} gridId
-			 */
-            _cancelAllCheck: function(gridId) {
-                if (this.$[gridId].getGridObject()) {
-                    this.$[gridId].getGridObject().checkAll(false);
-                }
-            }
-		})
-	</script>
+      /**
+       * 선택된 그리드 모두 취소
+       *********
+       * @param {String} gridId
+       */
+      _cancelAllCheck: function (gridId) {
+        if (this.$[gridId].getGridObject()) {
+          this.$[gridId].getGridObject().checkAll(false);
+        }
+      },
+    });
+  </script>
 </dom-module>

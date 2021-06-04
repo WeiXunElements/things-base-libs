@@ -1,37 +1,37 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
 <dom-module id="things-base-procedure-detail">
   <template>
     <style>
       :host {
         display: block;
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       paper-header-panel {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       iron-pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       things-editor-script {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
         width: 98%;
         margin: 7px 0 0 7px;
         overflow: auto;
       }
       .vertical {
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
       .flex {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
@@ -40,7 +40,8 @@ Copyright © HatioLab Inc. All rights reserved.
       method="POST"
       content-type="application/json"
       resource-url="procedures/:id/create_procedure"
-      resource-id="[[resourceId]]">
+      resource-id="[[resourceId]]"
+    >
     </things-ajax>
 
     <things-ajax
@@ -48,7 +49,8 @@ Copyright © HatioLab Inc. All rights reserved.
       method="POST"
       content-type="application/json"
       resource-url="procedures/:id/delete_procedure"
-      resource-id="[[resourceId]]">
+      resource-id="[[resourceId]]"
+    >
     </things-ajax>
 
     <paper-tabs id="tabGroup" class="paper-header" selected="{{currentTabIdx}}" noink scrollable>
@@ -57,182 +59,185 @@ Copyright © HatioLab Inc. All rights reserved.
       </template>
     </paper-tabs>
 
-    <things-ajax 
+    <things-ajax
       auto
       id="get-resource"
       method="GET"
       resource-url="procedures/:id"
       resource-id="[[resourceId]]"
-      last-response="{{procedure}}">
+      last-response="{{procedure}}"
+    >
     </things-ajax>
 
     <iron-pages id="tabPages" selected="{{currentTabIdx}}" class="iron-pages">
       <things-resource-form
-        id="resource-form" 
+        id="resource-form"
         resource-url="[[resourceUrl]]"
         resource="{{procedure}}"
         form-fields="[[formFields]]"
-        remove-fields-on-save="[[removeFieldsOnSave]]">
+        remove-fields-on-save="[[removeFieldsOnSave]]"
+      >
       </things-resource-form>
 
       <div class="vertical flex">
-        <things-editor-script
-          id="script-editor"
-          theme="ace/theme/monokai"
-          mode="ace/mode/sql"
-          wrapmode>
+        <things-editor-script id="script-editor" theme="ace/theme/monokai" mode="ace/mode/sql" wrapmode>
         </things-editor-script>
 
         <paper-toolbar justify="end">
           <things-button-bar id="button-bar" buttons="[[scriptButtons]]"></things-button-bar>
-        </paper-toolbar>      
+        </paper-toolbar>
       </div>
     </iron-pages>
-
   </template>
 
   <script>
     Polymer({
-      is: 'things-base-procedure-detail',
+      is: "things-base-procedure-detail",
 
-      behaviors: [
-        Things.DetailTabViewBahavior,
-        Things.MsgBoxBehavior
-      ],
+      behaviors: [Things.DetailTabViewBahavior, Things.MsgBoxBehavior],
 
       properties: {
         resource: {
-          type: Object
+          type: Object,
         },
 
         _panels: {
           type: Array,
-          value: function() {
-            return [{
-              title: Things.DataGlobal.t('title.basic_info')
-            }, {
-              title: Things.DataGlobal.t('label.script')
-            }]
-          }
+          value: function () {
+            return [
+              {
+                title: Things.DataGlobal.t("title.basic_info"),
+              },
+              {
+                title: Things.DataGlobal.t("label.script"),
+              },
+            ];
+          },
         },
 
         isScriptExist: {
           type: Boolean,
-          value: false
+          value: false,
         },
 
         scriptButtons: {
           type: Array,
-          value: function() {
-            return [{
-              id: 'delete-btn',
-              text: 'delete'
-            }, {
-              id: 'save-btn',
-              text: 'save'
-            }]
-          }
-        }
+          value: function () {
+            return [
+              {
+                id: "delete-btn",
+                text: "delete",
+              },
+              {
+                id: "save-btn",
+                text: "save",
+              },
+            ];
+          },
+        },
       },
 
       listeners: {
-        'get-resource.things-ajax-response': '_procedureResponsed',
-        'script-editor.editor-ready': '_onEditorReady',
-        'button-bar.save-btn-tap': '_scriptSave',
-        'button-bar.delete-btn-tap': '_confirmBeforeDelete',
-        'save-procedure-ajax.things-ajax-response': '_saveProcedureResponsed',
-        'delete-procedure-ajax.things-ajax-response': '_deleteProcedureResponsed'
+        "get-resource.things-ajax-response": "_procedureResponsed",
+        "script-editor.editor-ready": "_onEditorReady",
+        "button-bar.save-btn-tap": "_scriptSave",
+        "button-bar.delete-btn-tap": "_confirmBeforeDelete",
+        "save-procedure-ajax.things-ajax-response": "_saveProcedureResponsed",
+        "delete-procedure-ajax.things-ajax-response": "_deleteProcedureResponsed",
       },
 
-      _onEditorReady: function(event) {
+      _onEditorReady: function (event) {
         event.detail.renderer.setShowGutter(false);
-        event.target.value = '';
+        event.target.value = "";
       },
 
-      _getScriptValue: function() {
-        return this.$['script-editor'].value;
-      },      
+      _getScriptValue: function () {
+        return this.$["script-editor"].value;
+      },
 
-      _procedureResponsed: function(event) {
+      _procedureResponsed: function (event) {
         var script = event.detail.script;
-        if(script) {
+        if (script) {
           this.isScriptExist = true;
           this._setScriptValue(event.detail.script);
-        };
+        }
       },
 
-      _setScriptValue: function(script) {
-        this.$['script-editor'].value = script;
+      _setScriptValue: function (script) {
+        this.$["script-editor"].value = script;
       },
 
-      _scriptSave: function() {
-        if(this._validateBeforeSaveScript()) {
-          var saveProcedureAjax = this.$['save-procedure-ajax'];
+      _scriptSave: function () {
+        if (this._validateBeforeSaveScript()) {
+          var saveProcedureAjax = this.$["save-procedure-ajax"];
           saveProcedureAjax.body = {
-            script: this._getScriptValue()
+            script: this._getScriptValue(),
           };
           saveProcedureAjax.generateRequest();
         }
       },
 
-      _confirmBeforeDelete: function() {
+      _confirmBeforeDelete: function () {
         var me = this;
-        this.openConfirmMsg({
-          type: 'warning',
-          title: this.procedure.name, 
-          text: Things.DataGlobal.t('text.Sure to Delete'),
-          showCancelButton: true
-        }, function() {
-          me._scriptDelete();
-        });
+        this.openConfirmMsg(
+          {
+            type: "warning",
+            title: this.procedure.name,
+            text: Things.DataGlobal.t("text.Sure to Delete"),
+            showCancelButton: true,
+          },
+          function () {
+            me._scriptDelete();
+          }
+        );
       },
 
-      _scriptDelete: function() {
-        if(this._validateBeforeDeleteScript()) {
-          var deleteProcedureAjax = this.$['delete-procedure-ajax'];
+      _scriptDelete: function () {
+        if (this._validateBeforeDeleteScript()) {
+          var deleteProcedureAjax = this.$["delete-procedure-ajax"];
           deleteProcedureAjax.generateRequest();
         }
       },
-      
-      _saveProcedureResponsed: function() {
+
+      _saveProcedureResponsed: function () {
         this.isScriptExist = true;
       },
 
-      _deleteProcedureResponsed: function() {
-        this._setScriptValue('');
+      _deleteProcedureResponsed: function () {
+        this._setScriptValue("");
         this.isScriptExist = false;
       },
 
-      _validateBeforeSaveScript: function() {
+      _validateBeforeSaveScript: function () {
         var isValid = true;
-        var script = this.$['script-editor'].value;
+        var script = this.$["script-editor"].value;
 
-        if(!script) {
+        if (!script) {
           isValid = false;
           this.openConfirmMsg({
-            type: 'info',
-            title: Things.DataGlobal.t('error.VALIDATION_ERROR'),
-            text: Things.DataGlobal.t('error.SHOULD_NOT_BE_EMPTY', {value: Things.DataGlobal.t('label.script')})
-          })
-        };
+            type: "info",
+            title: Things.DataGlobal.t("error.VALIDATION_ERROR"),
+            text: Things.DataGlobal.t("error.SHOULD_NOT_BE_EMPTY", { value: Things.DataGlobal.t("label.script") }),
+          });
+        }
 
         return isValid;
       },
 
-      _validateBeforeDeleteScript: function() {
+      _validateBeforeDeleteScript: function () {
         var isValid = true;
 
-        if(!this.isScriptExist) {
+        if (!this.isScriptExist) {
           isValid = false;
           this.openConfirmMsg({
-            type: 'info',
-            title: Things.DataGlobal.t('error.VALIDATION_ERROR'),
-            text: Things.DataGlobal.t('text.VALUE_IS_NOT_EXIST', {value: Things.DataGlobal.t('label.procedure')})
-          })
-        };
+            type: "info",
+            title: Things.DataGlobal.t("error.VALIDATION_ERROR"),
+            text: Things.DataGlobal.t("text.VALUE_IS_NOT_EXIST", { value: Things.DataGlobal.t("label.procedure") }),
+          });
+        }
 
         return isValid;
-      }
-    })
+      },
+    });
   </script>
 </dom-module>

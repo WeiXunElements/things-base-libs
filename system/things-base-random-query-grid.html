@@ -1,436 +1,431 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-global-behavior/things-global-behavior.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-global-behavior/things-global-behavior.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
 
 <!--
 	테이블 데이터 조회 화면
 -->
 
 <dom-module id="things-base-random-query-grid">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<!-- 쿼리 조회 / 실행을 위한 Ajax -->
-		<things-ajax
-			id="invoke-ajax"
-			resource-url="dml/table/query"
-			resrouce-action="create"
-			content-type="application/json"
-			method="POST">
-		</things-ajax>
+    <!-- 쿼리 조회 / 실행을 위한 Ajax -->
+    <things-ajax
+      id="invoke-ajax"
+      resource-url="dml/table/query"
+      resrouce-action="create"
+      content-type="application/json"
+      method="POST"
+    >
+    </things-ajax>
 
-		<!-- 테이블 컬럼 그리드 -->
-		<things-resource-grid
-			content
-			paginatable
-			id="grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="[[dataList]]"
-			total-count="[[dataCount]]"
-			current-page="{{page}}"
-			limit="{{limit}}"
-			buttons="[[buttons]]"
-			fixed-column-count="1">
-		</things-resource-grid>
-	</template>
+    <!-- 테이블 컬럼 그리드 -->
+    <things-resource-grid
+      content
+      paginatable
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="[[dataList]]"
+      total-count="[[dataCount]]"
+      current-page="{{page}}"
+      limit="{{limit}}"
+      buttons="[[buttons]]"
+      fixed-column-count="1"
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'things-base-random-query-grid',
+  <script>
+    Polymer({
+      is: "things-base-random-query-grid",
 
-			behaviors: [
-				Things.GlobalBehavior,
-				Things.MsgBoxBehavior
-			],
+      behaviors: [Things.GlobalBehavior, Things.MsgBoxBehavior],
 
-			properties: {
-				/**
-				 * Grid Config
-				 */
-				gridConfig: {
-					type: Object,
-					value: function() {
-						return {
-							options: {
-								checkBar: {
-									exclusive: true
-								}
-							}
-						}
-					}
-				},
+      properties: {
+        /**
+         * Grid Config
+         */
+        gridConfig: {
+          type: Object,
+          value: function () {
+            return {
+              options: {
+                checkBar: {
+                  exclusive: true,
+                },
+              },
+            };
+          },
+        },
 
-				/**
-				 * Table Grid Model
-				 */
-				gridModel: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
+        /**
+         * Table Grid Model
+         */
+        gridModel: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+        },
 
-				/**
-				 * Table Grid Columns
-				 */
-				gridColumns: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
+        /**
+         * Table Grid Columns
+         */
+        gridColumns: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+        },
 
-				/**
-				 * Table Columns List
-				 */
-				tableColumns: {
-					type: Array
-				},
+        /**
+         * Table Columns List
+         */
+        tableColumns: {
+          type: Array,
+        },
 
-				/**
-				 * 데이터 조회 응답 데이터
-				 */
-				dataResponse: {
-					type: Object
-				},
+        /**
+         * 데이터 조회 응답 데이터
+         */
+        dataResponse: {
+          type: Object,
+        },
 
-				/**
-				 * Table Data List
-				 */
-				dataList: {
-					type: Array
-				},
+        /**
+         * Table Data List
+         */
+        dataList: {
+          type: Array,
+        },
 
-				/**
-				 * Table Data Total Count
-				 */
-				dataCount: {
-					type: Number
-				},
+        /**
+         * Table Data Total Count
+         */
+        dataCount: {
+          type: Number,
+        },
 
-				/**
-				 * 현재 페이지
-				 */
-				page: {
-					type: Number,
-					value: 1
-				},
+        /**
+         * 현재 페이지
+         */
+        page: {
+          type: Number,
+          value: 1,
+        },
 
-				/**
-				 * 페이지 당 레코드 수
-				 */
-				limit: {
-					type: Number,
-					value: 50
-				},
+        /**
+         * 페이지 당 레코드 수
+         */
+        limit: {
+          type: Number,
+          value: 50,
+        },
 
-				/**
-				 * Buttons
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
+        /**
+         * Buttons
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+        },
 
-				/**
-				 * 쿼리 수행
-				 */
-				sql: {
-					type: String
-				}
-			},
+        /**
+         * 쿼리 수행
+         */
+        sql: {
+          type: String,
+        },
+      },
 
-			listeners: {
-				'invoke-ajax.things-ajax-response' : 'queryResponsed'
-			},
+      listeners: {
+        "invoke-ajax.things-ajax-response": "queryResponsed",
+      },
 
-			observers: [
-				'_gridMetaChange(gridModel, gridColumns)',
-				'pageChanage(page)',
-				'limitChanage(limit)'
-			],
+      observers: ["_gridMetaChange(gridModel, gridColumns)", "pageChanage(page)", "limitChanage(limit)"],
 
-			/**
-			 * sql 문으로 쿼리를 수행
-			 *********
-			 * @param {String} sql
-			 */
-			executeQuery: function(sql) {
-				if(sql) this.sql = sql;
+      /**
+       * sql 문으로 쿼리를 수행
+       *********
+       * @param {String} sql
+       */
+      executeQuery: function (sql) {
+        if (sql) this.sql = sql;
 
-				if(this.sql) {
-					var userConfirm = this.sql.substr(0, 6).toLowerCase().indexOf('select') == 0 ? false : true;
-					if(userConfirm) {
-						this._confirmAndInvoke(function() { this.invokeQuery(); }.bind(this));
-					} else {
-						this.invokeQuery();
-					}
-				}
-			},
+        if (this.sql) {
+          var userConfirm = this.sql.substr(0, 6).toLowerCase().indexOf("select") == 0 ? false : true;
+          if (userConfirm) {
+            this._confirmAndInvoke(
+              function () {
+                this.invokeQuery();
+              }.bind(this)
+            );
+          } else {
+            this.invokeQuery();
+          }
+        }
+      },
 
-			/**
-			 * 쿼리 수행
-			 *********
-			 */
-			invokeQuery: function() {
-				var queryAjax = this.$['invoke-ajax'];
-				queryAjax.body = JSON.stringify({ sql : this.sql, page : this.page, limit : this.limit });
-				queryAjax.generateRequest();
-			},
+      /**
+       * 쿼리 수행
+       *********
+       */
+      invokeQuery: function () {
+        var queryAjax = this.$["invoke-ajax"];
+        queryAjax.body = JSON.stringify({ sql: this.sql, page: this.page, limit: this.limit });
+        queryAjax.generateRequest();
+      },
 
-			/**
-			 * sql 쿼리 수행 이 후 결과
-			 *********
-			 * @param {Object} e
-			 */
-			queryResponsed: function(e) {
-				var detail = e.detail;
+      /**
+       * sql 쿼리 수행 이 후 결과
+       *********
+       * @param {Object} e
+       */
+      queryResponsed: function (e) {
+        var detail = e.detail;
 
-				if(detail.total || detail.total == 0) {
-					this._showSelectedResult(detail);
-				} else {
-					this._showExecuteResult(detail);
-				}
-			},
+        if (detail.total || detail.total == 0) {
+          this._showSelectedResult(detail);
+        } else {
+          this._showExecuteResult(detail);
+        }
+      },
 
-			/**
-			 * 테이블 그리드를 갱신한다.
-			 *********
-			 * @param {Object} grid
-			 */
-			refreshGrid: function(grid) {
-				grid._setGridModel(this.gridModel);
-				grid._setGridColumns(this.gridColumns);
-				grid.initializeGrid();
-			},
+      /**
+       * 테이블 그리드를 갱신한다.
+       *********
+       * @param {Object} grid
+       */
+      refreshGrid: function (grid) {
+        grid._setGridModel(this.gridModel);
+        grid._setGridColumns(this.gridColumns);
+        grid.initializeGrid();
+      },
 
-			/**
-			 * 현재 페이지가 변경된 경우
-			 *********
-			 * @param {Number} page
-			 */
-			pageChanage: function(page) {
-				this.executeQuery();
-			},
+      /**
+       * 현재 페이지가 변경된 경우
+       *********
+       * @param {Number} page
+       */
+      pageChanage: function (page) {
+        this.executeQuery();
+      },
 
-			/**
-			 * 페이지 당 레코드 수가 변경된 경우
-			 *********
-			 * @param {Number} limit
-			 */
-			limitChanage: function(limit) {
-				this.executeQuery();
-			},
+      /**
+       * 페이지 당 레코드 수가 변경된 경우
+       *********
+       * @param {Number} limit
+       */
+      limitChanage: function (limit) {
+        this.executeQuery();
+      },
 
-			/**
-			 * 사용자에게 확인 후 서비스 호출
-			 *
-			 * @param {String} func
-			 */
-			_confirmAndInvoke: function(func) {
-				this.openConfirmMsg({
-					type : 'info',
-					title : Things.DataGlobal.t('text.Sure to process'),
-					showCancelButton: true,
-					closeOnConfirm : true
-				}, func);
-			},
+      /**
+       * 사용자에게 확인 후 서비스 호출
+       *
+       * @param {String} func
+       */
+      _confirmAndInvoke: function (func) {
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: Things.DataGlobal.t("text.Sure to process"),
+            showCancelButton: true,
+            closeOnConfirm: true,
+          },
+          func
+        );
+      },
 
-			/**
-			 * 쿼리 조회 데이터로 부터 그리드의 메타 데이터와 그리드 데이터를 가공하여 그리드에 표시한다.
-			 *********
-			 * @param {Object} result
-			 */
-			_showSelectedResult: function(result) {
-				var dataCount = result.total ? result.total : 0;
-				var dataList = result.items ? result.items : [];
-				var record = dataCount > 0 ? dataList[0] : null;
+      /**
+       * 쿼리 조회 데이터로 부터 그리드의 메타 데이터와 그리드 데이터를 가공하여 그리드에 표시한다.
+       *********
+       * @param {Object} result
+       */
+      _showSelectedResult: function (result) {
+        var dataCount = result.total ? result.total : 0;
+        var dataList = result.items ? result.items : [];
+        var record = dataCount > 0 ? dataList[0] : null;
 
-				this._configureGridModel(record);
-				this._configureGridColumn(record);
+        this._configureGridModel(record);
+        this._configureGridColumn(record);
 
-				if(dataCount > 0) {
-					this.dataCount = dataCount;
-					this.dataList = dataList;
-				} else {
-					this.dataCount = 0;
-					this.dataList = [{ '_type_' : 'select', '_message_' : Things.DataGlobal.t('text.emptyDataMessage') }];
-				}
-			},
+        if (dataCount > 0) {
+          this.dataCount = dataCount;
+          this.dataList = dataList;
+        } else {
+          this.dataCount = 0;
+          this.dataList = [{ _type_: "select", _message_: Things.DataGlobal.t("text.emptyDataMessage") }];
+        }
+      },
 
-			/**
-			 * 쿼리 실행 결과로 부터 그리드의 메타 데이터와 그리드 데이터를 가공하여 그리드에 표시한다.
-			 *********
-			 * @param {Object} result
-			 */
-			_showExecuteResult: function(result) {
-				this._configureGridModel(null);
-				this._configureGridColumn(null);
-				this.dataCount = 1;
-				this.dataList = result;
-			},
+      /**
+       * 쿼리 실행 결과로 부터 그리드의 메타 데이터와 그리드 데이터를 가공하여 그리드에 표시한다.
+       *********
+       * @param {Object} result
+       */
+      _showExecuteResult: function (result) {
+        this._configureGridModel(null);
+        this._configureGridColumn(null);
+        this.dataCount = 1;
+        this.dataList = result;
+      },
 
-			/**
-			 * 테이블 컬럼 변경시 gridModel, gridColumns들을 변경
-			 *********
-			 * @param {Array} gridModel
-			 * @param {Array} gridColumns
-			 */
-			_gridMetaChange: function(gridModel, gridColumns) {
-				// 그리드 모델, 컬럼 등 설정 후 데이터 리프레쉬
-				var grid = this.$.grid;
-				if(grid.getGridObject() != null) {
-					this.refreshGrid(grid);
-				}
-			},
+      /**
+       * 테이블 컬럼 변경시 gridModel, gridColumns들을 변경
+       *********
+       * @param {Array} gridModel
+       * @param {Array} gridColumns
+       */
+      _gridMetaChange: function (gridModel, gridColumns) {
+        // 그리드 모델, 컬럼 등 설정 후 데이터 리프레쉬
+        var grid = this.$.grid;
+        if (grid.getGridObject() != null) {
+          this.refreshGrid(grid);
+        }
+      },
 
-			/**
-			 * 쿼리 조회 데이터로 부터 gridModel을 구성
-			 *********
-			 * @param {Object} record
-			 */
-			_configureGridModel: function(record) {
-				var gridModel = [];
+      /**
+       * 쿼리 조회 데이터로 부터 gridModel을 구성
+       *********
+       * @param {Object} record
+       */
+      _configureGridModel: function (record) {
+        var gridModel = [];
 
-				if(record) {
-					for(var key in record) {
-						gridModel.push({fieldName : key});
-					}
-				} else {
-					gridModel.push({fieldName : '_type_'});
-					gridModel.push({fieldName : '_message_'});
-				}
+        if (record) {
+          for (var key in record) {
+            gridModel.push({ fieldName: key });
+          }
+        } else {
+          gridModel.push({ fieldName: "_type_" });
+          gridModel.push({ fieldName: "_message_" });
+        }
 
-				this.gridModel = gridModel;
-			},
+        this.gridModel = gridModel;
+      },
 
-			/**
-			 * 쿼리 조회 결과로 부터 gridColumns를 구성
-			 *********
-			 * @param {Object} record
-			 */
-			_configureGridColumn: function(record) {
-				if(record) {
-					this._configureGridColumnsByRecord(record);
-				} else {
-					this._configureBasicGridColumns();
-				}
-			},
+      /**
+       * 쿼리 조회 결과로 부터 gridColumns를 구성
+       *********
+       * @param {Object} record
+       */
+      _configureGridColumn: function (record) {
+        if (record) {
+          this._configureGridColumnsByRecord(record);
+        } else {
+          this._configureBasicGridColumns();
+        }
+      },
 
-			/**
-			 * 쿼리 결과가 없는 경우 기본 그리드 컬럼을 구성
-			 *********
-			 * @param {Object} record
-			 */
-			_configureBasicGridColumns: function() {
-				this.gridColumns = [ {
-					fieldName: '_type_',
-					width: 100,
-					editable : false,
-					header : {
-						text : Things.DataGlobal.t('label.type')
-					}
-				}, {
-					fieldName: '_message_',
-					width: 600,
-					editable : true,
-					header : {
-						text : Things.DataGlobal.t('label.message')
-					}
-				} ];
-			},
+      /**
+       * 쿼리 결과가 없는 경우 기본 그리드 컬럼을 구성
+       *********
+       * @param {Object} record
+       */
+      _configureBasicGridColumns: function () {
+        this.gridColumns = [
+          {
+            fieldName: "_type_",
+            width: 100,
+            editable: false,
+            header: {
+              text: Things.DataGlobal.t("label.type"),
+            },
+          },
+          {
+            fieldName: "_message_",
+            width: 600,
+            editable: true,
+            header: {
+              text: Things.DataGlobal.t("label.message"),
+            },
+          },
+        ];
+      },
 
-			/**
-			 * 쿼리 조회 데이터로 부터 gridColumns를 구성
-			 *********
-			 * @param {Object} record
-			 */
-			_configureGridColumnsByRecord: function(record) {
-				var gridColumns = [];
+      /**
+       * 쿼리 조회 데이터로 부터 gridColumns를 구성
+       *********
+       * @param {Object} record
+       */
+      _configureGridColumnsByRecord: function (record) {
+        var gridColumns = [];
 
-				for(var key in record) {
-					var colInfo = {
-						fieldName: key,
-						name: key,
-						width: 115,
-						editable: true,
-						header: {
-							text: key
-						}
-					};
+        for (var key in record) {
+          var colInfo = {
+            fieldName: key,
+            name: key,
+            width: 115,
+            editable: true,
+            header: {
+              text: key,
+            },
+          };
 
-					if(key == 'rownum_') {
-						colInfo.width = 50;
+          if (key == "rownum_") {
+            colInfo.width = 50;
+          } else if (key == "id") {
+            colInfo.width = 275;
+          } else if (key == "name") {
+            colInfo.width = 150;
+          } else if (key == "description") {
+            colInfo.width = 250;
+          } else if (key == "domain_id") {
+            colInfo.width = 60;
+            colInfo.styles = { textAlignment: "center" };
+          } else if (key == "version") {
+            colInfo.width = 55;
+            colInfo.styles = { textAlignment: "center" };
+          } else if (key == "updater_id") {
+            colInfo.width = 90;
+          } else if (key == "creator_id") {
+            colInfo.width = 90;
+          } else if (key == "created_at") {
+            colInfo.width = 160;
+            colInfo.styles = { textAlignment: "center" };
+          } else if (key == "updated_at") {
+            colInfo.width = 160;
+            colInfo.styles = { textAlignment: "center" };
+          } else if (key.indexOf("_flag") > 0 || key.indexOf("_able") > 0) {
+            colInfo.width = 70;
+            colInfo.styles = { textAlignment: "center" };
+          } else if (
+            key.indexOf("_id") > 0 ||
+            key.indexOf("value") >= 0 ||
+            key.indexOf("path") >= 0 ||
+            key.indexOf("url") >= 0 ||
+            key.indexOf("logic") >= 0
+          ) {
+            colInfo.width = 275;
+          }
 
-					} else if(key == 'id') {
-						colInfo.width = 275;
+          gridColumns.push(colInfo);
+        }
 
-					} else if(key == 'name') {
-						colInfo.width = 150;
-
-					} else if(key == 'description') {
-						colInfo.width = 250;
-
-					} else if(key == 'domain_id') {
-						colInfo.width = 60;
-						colInfo.styles = {textAlignment: 'center'};
-
-					} else if(key == 'version') {
-						colInfo.width = 55;
-						colInfo.styles = {textAlignment: 'center'};
-
-					} else if(key == 'updater_id') {
-						colInfo.width = 90;
-
-					} else if(key == 'creator_id') {
-						colInfo.width = 90;
-
-					} else if(key == 'created_at') {
-						colInfo.width = 160;
-						colInfo.styles = {textAlignment: 'center'};
-
-					} else if(key == 'updated_at') {
-						colInfo.width = 160;
-						colInfo.styles = {textAlignment: 'center'};
-
-					} else if(key.indexOf('_flag') > 0 ||
-										key.indexOf('_able') > 0) {
-						colInfo.width = 70;
-						colInfo.styles = {textAlignment: 'center'};
-
-					} else if(key.indexOf('_id') > 0 ||
-										key.indexOf('value') >= 0 ||
-										key.indexOf('path') >= 0 ||
-										key.indexOf('url') >= 0 ||
-										key.indexOf('logic') >= 0) {
-						colInfo.width = 275;
-					}
-
-					gridColumns.push(colInfo);
-				}
-
-				this.gridColumns = gridColumns;
-			}
-		})
-	</script>
+        this.gridColumns = gridColumns;
+      },
+    });
+  </script>
 </dom-module>

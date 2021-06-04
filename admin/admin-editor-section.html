@@ -1,8 +1,8 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
 <!--
   관리자 페이지의 파트 데이터 입력을 위한 섹션
@@ -13,9 +13,9 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
-        @apply(--layout-flex);
-        padding:5px 5px;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+        padding: 5px 5px;
       }
 
       pre {
@@ -24,76 +24,72 @@ Copyright © HatioLab Inc. All rights reserved.
       }
 
       input[type="text"] {
-        border:none;
-        vertical-align:middle;
-        font-size:16px;
+        border: none;
+        vertical-align: middle;
+        font-size: 16px;
       }
 
       #section-info table {
-        border-collapse:collapse;
+        border-collapse: collapse;
         border-spacing: 0;
-        width:100%;
+        width: 100%;
       }
 
       #section-info td {
-        border-bottom:1px solid #999;
-        padding:5px 10px;
-        font-size:14px;
+        border-bottom: 1px solid #999;
+        padding: 5px 10px;
+        font-size: 14px;
       }
 
       #section-info th {
-        background-color:#f2eeeb;
-        border-bottom:1px solid #999;
-        padding:3px 10px 3px 0;
-        color:#3f4048;
-        width:200px;
-        height:23px;
-        text-align:right;
+        background-color: #f2eeeb;
+        border-bottom: 1px solid #999;
+        padding: 3px 10px 3px 0;
+        color: #3f4048;
+        width: 200px;
+        height: 23px;
+        text-align: right;
         font-weight: bolder;
-        font-size:14px;
+        font-size: 14px;
       }
 
       .heading {
-        background-color:#7a7470;
-        padding:10px 35px;
-        border:none;
-        color:#fff;
-        text-align:left;
-        line-height:0;
-        font-size:16px;
+        background-color: #7a7470;
+        padding: 10px 35px;
+        border: none;
+        color: #fff;
+        text-align: left;
+        line-height: 0;
+        font-size: 16px;
       }
     </style>
 
     <a id="section-title" class="heading" on-click="toggleSection">[[title]]</a>
 
-    <iron-collapse id="section-info" opened >
+    <iron-collapse id="section-info" opened>
       <table>
-          <template is="dom-repeat" items="[[items]]" as="item">
-            <tr>
-              <th>[[item.name]]</th>
-              <td>[[item.value]]</td>
-            </tr>
-          </template>
-          <template is="dom-repeat" items="[[detailItems]]" as="item">
-            <tr>
-              <td colspan="2" padding="0 100 0 0">
-                <admin-editor-section
-                  title="[[item.name]]"
-                  data="[[item.value]]">
-                </admin-editor-section>
-              </td>
-            </tr>
-          </template>
+        <template is="dom-repeat" items="[[items]]" as="item">
+          <tr>
+            <th>[[item.name]]</th>
+            <td>[[item.value]]</td>
+          </tr>
+        </template>
+        <template is="dom-repeat" items="[[detailItems]]" as="item">
+          <tr>
+            <td colspan="2" padding="0 100 0 0">
+              <admin-editor-section title="[[item.name]]" data="[[item.value]]"> </admin-editor-section>
+            </td>
+          </tr>
+        </template>
       </table>
     </iron-collapse>
   </template>
 
   <script>
     Polymer({
-      is: 'admin-editor-section',
+      is: "admin-editor-section",
 
-      behaviors: [
-      ],
+      behaviors: [],
 
       properties: {
         /**
@@ -101,7 +97,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         title: {
           type: String,
-          value: 'Section'
+          value: "Section",
         },
 
         /**
@@ -109,7 +105,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         color: {
           type: String,
-          value: '#000'
+          value: "#000",
         },
 
         /**
@@ -117,46 +113,44 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         backgroundColor: {
           type: String,
-          value: '#FFFFFF'
+          value: "#FFFFFF",
         },
 
         /**
          * 데이터 오브젝트
          */
         data: {
-          type: Object
+          type: Object,
         },
 
         /**
          * 화면과 매핑되는 데이터 오브젝트
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         detailItems: {
-          type: Array
-        }
+          type: Array,
+        },
       },
 
-      observers: [
-        '_dataChanged(data)'
-      ],
+      observers: ["_dataChanged(data)"],
 
       /**
        * 데이터 변경 이후에 ...
        *
        * @param {Object} data
        */
-      _dataChanged: function(data) {
+      _dataChanged: function (data) {
         var items = [];
         var detailItems = [];
 
-        for(var key in data) {
-          if(typeof data[key] == 'object' || typeof data[key] == 'Object') {
-            detailItems.push({name : key, value : data[key]});
+        for (var key in data) {
+          if (typeof data[key] == "object" || typeof data[key] == "Object") {
+            detailItems.push({ name: key, value: data[key] });
           } else {
-            items.push({name : key, value : data[key]});
+            items.push({ name: key, value: data[key] });
           }
         }
 
@@ -167,9 +161,9 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Toggle - Show / Hide
        */
-      toggleSection: function(e) {
-        this.$['section-info'].toggle();
-      }
+      toggleSection: function (e) {
+        this.$["section-info"].toggle();
+      },
     });
   </script>
 </dom-module>

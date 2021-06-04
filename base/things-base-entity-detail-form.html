@@ -1,14 +1,14 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../polymer/polymer.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-msg-box-behavior/things-msg-box-behavior.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
 
 <!--
   엔티티 컬럼 폼 화면
@@ -19,14 +19,14 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-vertical);
+        @apply (--layout-vertical);
       }
       iron-pages {
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply (--layout-flex);
+        @apply (--layout-vertical);
       }
       things-resource-grid {
-        @apply(--layout-flex);
+        @apply (--layout-flex);
       }
     </style>
 
@@ -37,19 +37,16 @@ Copyright © HatioLab Inc. All rights reserved.
       columns="[[gridColumns]]"
       data="[[items]]"
       grid-save-action="[[gridSaveUrl]]"
-      buttons="[[buttons]]">
+      buttons="[[buttons]]"
+    >
     </things-resource-grid>
   </template>
 
   <script>
     Polymer({
+      is: "things-base-entity-detail-form",
 
-      is: 'things-base-entity-detail-form',
-
-      behaviors: [
-        Things.MsgBoxBehavior,
-        Things.ViewOpenBehavior
-      ],
+      behaviors: [Things.MsgBoxBehavior, Things.ViewOpenBehavior],
 
       properties: {
         /**
@@ -57,14 +54,14 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         lastResponse: {
           type: Object,
-          observer: '_responseChanged'
+          observer: "_responseChanged",
         },
 
         /**
          * Entity Id
          */
         resourceId: {
-          type: String
+          type: String,
         },
 
         /**
@@ -73,28 +70,28 @@ Copyright © HatioLab Inc. All rights reserved.
         resourceColumns: {
           type: Array,
           notify: true,
-          observer: '_resourceColumnsChanged'
+          observer: "_resourceColumnsChanged",
         },
 
         /**
          * resourceColumns를 가공한 Grid에 표시할 실제 Entity Columns 데이터
          */
         items: {
-          type: Array
+          type: Array,
         },
 
         /**
          * Grid Model
          */
         gridModel: {
-          type: Array
+          type: Array,
         },
 
         /**
          * Grid Column
          */
         gridColumns: {
-          type: Array
+          type: Array,
         },
 
         /**
@@ -102,7 +99,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: '_computeEntityColumnSaveUrl(resourceId)'
+          computed: "_computeEntityColumnSaveUrl(resourceId)",
         },
 
         /**
@@ -110,109 +107,201 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridColumns: {
           type: Array,
-          value: function() {
+          value: function () {
             // var validators = document.querySelector('#validators').allValidators();
-            var validators =  app.$$('#validators').allValidators();
-            var colTypes = ['', 'binary', 'boolean', 'date', 'datetime','decimal','double', 'float', 'integer', 'long', 'string', 'text', 'time', 'timestamp'];
-            var editors = ['', 'hidden', 'readonly','view-field', 'checkbox', 'text', 'number', 'password', 'tristate-radio', 'textarea', 'code-combo', 'resource-combo', 'resource-code', 'resource-field', 'resource-selector', 'resource-format-selector', 'image-selector', 'date-picker', 'time-picker', 'datetime-picker', 'time-input', 'positive-number', 'negative-number', 'ranged-date-picker'];
+            var validators = app.$$("#validators").allValidators();
+            var colTypes = [
+              "",
+              "binary",
+              "boolean",
+              "date",
+              "datetime",
+              "decimal",
+              "double",
+              "float",
+              "integer",
+              "long",
+              "string",
+              "text",
+              "time",
+              "timestamp",
+            ];
+            var editors = [
+              "",
+              "hidden",
+              "readonly",
+              "view-field",
+              "checkbox",
+              "text",
+              "number",
+              "password",
+              "tristate-radio",
+              "textarea",
+              "code-combo",
+              "resource-combo",
+              "resource-code",
+              "resource-field",
+              "resource-selector",
+              "resource-format-selector",
+              "image-selector",
+              "date-picker",
+              "time-picker",
+              "datetime-picker",
+              "time-input",
+              "positive-number",
+              "negative-number",
+              "ranged-date-picker",
+            ];
 
-            return [ {
-                fieldName: 'id', name: 'id', width: 0
-              }, {
-                fieldName: 'menu_id', name: 'menu_id', width: 0
-              }, {
-                fieldName: 'rank', name: 'rank', width: 50, type: 'number',
+            return [
+              {
+                fieldName: "id",
+                name: "id",
+                width: 0,
+              },
+              {
+                fieldName: "menu_id",
+                name: "menu_id",
+                width: 0,
+              },
+              {
+                fieldName: "rank",
+                name: "rank",
+                width: 50,
+                type: "number",
                 header: {
-                  text: Things.DataGlobal.t('label.rank')
+                  text: Things.DataGlobal.t("label.rank"),
                 },
                 styles: {
-                  textAlignment: 'center'
-                }
-              }, {
-                fieldName: 'name', name: 'name', width: 135,
-                header: {
-                  text: Things.DataGlobal.t('label.name')
-                }
-              }, {
-                fieldName: 'term', name: 'term', width: 135, editable: false,
-                valueType: 'text', type: 'calced',
-                header: {
-                  text: Things.DataGlobal.t('label.term')
+                  textAlignment: "center",
                 },
-                valueCallback: function(column, row) {
-                  var term = row.getValue('term');
-                  return term ? Things.DataGlobal.t(term) : '';
-                }
-              }, {
-                name: 'col_type', fieldName: 'col_type', width: 80, editable: false,
+              },
+              {
+                fieldName: "name",
+                name: "name",
+                width: 135,
                 header: {
-                  text: Things.DataGlobal.t('label.col_type')
-                }
-              }, {
-                fieldName: 'ref_type', name: 'ref_type', width: 100, editable: false,
+                  text: Things.DataGlobal.t("label.name"),
+                },
+              },
+              {
+                fieldName: "term",
+                name: "term",
+                width: 135,
+                editable: false,
+                valueType: "text",
+                type: "calced",
                 header: {
-                  text: Things.DataGlobal.t('label.ref_type')
-                }
-              }, {
-                fieldName: 'ref_name', name: 'ref_name', width: 150, editable: false,
+                  text: Things.DataGlobal.t("label.term"),
+                },
+                valueCallback: function (column, row) {
+                  var term = row.getValue("term");
+                  return term ? Things.DataGlobal.t(term) : "";
+                },
+              },
+              {
+                name: "col_type",
+                fieldName: "col_type",
+                width: 80,
+                editable: false,
                 header: {
-                  text: Things.DataGlobal.t('label.ref_name')
-               }
-              }, {
-                name: 'form_editor', fieldName: 'form_editor', width: 150, lookupDisplay: true,
+                  text: Things.DataGlobal.t("label.col_type"),
+                },
+              },
+              {
+                fieldName: "ref_type",
+                name: "ref_type",
+                width: 100,
+                editable: false,
                 header: {
-                  text: Things.DataGlobal.t('label.editor')
+                  text: Things.DataGlobal.t("label.ref_type"),
+                },
+              },
+              {
+                fieldName: "ref_name",
+                name: "ref_name",
+                width: 150,
+                editable: false,
+                header: {
+                  text: Things.DataGlobal.t("label.ref_name"),
+                },
+              },
+              {
+                name: "form_editor",
+                fieldName: "form_editor",
+                width: 150,
+                lookupDisplay: true,
+                header: {
+                  text: Things.DataGlobal.t("label.editor"),
                 },
                 editor: {
-                  type: 'list',
-                  domainOnly: true
+                  type: "list",
+                  domainOnly: true,
                 },
                 lookupValues: editors,
-                lookupLabels: editors
-              }, {
-                fieldName: 'form_format', name: 'form_format', width: 125,
+                lookupLabels: editors,
+              },
+              {
+                fieldName: "form_format",
+                name: "form_format",
+                width: 125,
                 header: {
-                  text: Things.DataGlobal.t('label.format')
-               }
-              }, {
-                name: 'form_validator', fieldName: 'form_validator', width: 120,
+                  text: Things.DataGlobal.t("label.format"),
+                },
+              },
+              {
+                name: "form_validator",
+                fieldName: "form_validator",
+                width: 120,
                 lookupDisplay: true,
                 lookupValues: validators,
                 lookupLabels: validators,
                 header: {
-                  text: Things.DataGlobal.t('label.validator')
+                  text: Things.DataGlobal.t("label.validator"),
                 },
                 editor: {
-                  type: 'list',
-                  domainOnly: true
-                }
-              }, {
-                fieldName: 'def_val', name: 'def_val', width: 100,
+                  type: "list",
+                  domainOnly: true,
+                },
+              },
+              {
+                fieldName: "def_val",
+                name: "def_val",
+                width: 100,
                 header: {
-                  text: Things.DataGlobal.t('label.def_val')
-               }
-              }, {
-                fieldName: 'uniq_rank', name: 'uniq_rank', width: 65, type: 'number',
+                  text: Things.DataGlobal.t("label.def_val"),
+                },
+              },
+              {
+                fieldName: "uniq_rank",
+                name: "uniq_rank",
+                width: 65,
+                type: "number",
                 header: {
-                  text: Things.DataGlobal.t('label.uniq_rank')
+                  text: Things.DataGlobal.t("label.uniq_rank"),
                 },
                 styles: {
-                  textAlignment: 'center'
-                }
-              }, {
-                fieldName: 'ignore_on_save', name: 'ignore_on_save', width: 100, editable: false,
+                  textAlignment: "center",
+                },
+              },
+              {
+                fieldName: "ignore_on_save",
+                name: "ignore_on_save",
+                width: 100,
+                editable: false,
                 header: {
-                  text: Things.DataGlobal.t('label.ignore_on_save')
+                  text: Things.DataGlobal.t("label.ignore_on_save"),
                 },
                 renderer: {
-                  type:'check',
+                  type: "check",
                   editable: true,
                   threeStates: false,
-                  trueValues: 'true',
-                  falseValues: 'false'
-                }
-              } ];
-            }
+                  trueValues: "true",
+                  falseValues: "false",
+                },
+              },
+            ];
+          },
         },
 
         /**
@@ -220,20 +309,23 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         buttons: {
           type: Array,
-          value: [ {
-            id: 'save-btn',
-            text: 'save'
-          }, {
-            id: 'delete-btn',
-            text: 'delete'
-          } ]
-        }
+          value: [
+            {
+              id: "save-btn",
+              text: "save",
+            },
+            {
+              id: "delete-btn",
+              text: "delete",
+            },
+          ],
+        },
       },
 
       listeners: {
-        'things-detail-view-selected' : '_myTabSelected',
-        'grid.things-grid-handle-built-writedata' : '_setupWriteData',
-        'grid.things-grid-save-success' : '_responseTransaction'
+        "things-detail-view-selected": "_myTabSelected",
+        "grid.things-grid-handle-built-writedata": "_setupWriteData",
+        "grid.things-grid-save-success": "_responseTransaction",
       },
 
       /**
@@ -241,7 +333,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e
        */
-      _myTabSelected: function(e) {
+      _myTabSelected: function (e) {
         this.$.grid.resizeGrid();
       },
 
@@ -251,8 +343,8 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {String} resourceId
        * @return {String} Save entity columns url
        */
-      _computeEntityColumnSaveUrl: function(resourceId) {
-        return 'entities/' + resourceId + '/update_multiple_entity_columns.json';
+      _computeEntityColumnSaveUrl: function (resourceId) {
+        return "entities/" + resourceId + "/update_multiple_entity_columns.json";
       },
 
       /**
@@ -260,7 +352,7 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _responseChanged: function(lastResponse) {
+      _responseChanged: function (lastResponse) {
         this.resourceColumns = lastResponse.items ? lastResponse.items : [];
       },
 
@@ -269,12 +361,14 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _resourceColumnsChanged: function(resourceColumns) {
+      _resourceColumnsChanged: function (resourceColumns) {
         var items = null;
 
-        if(resourceColumns && resourceColumns.length > 0) {
-          items = resourceColumns.filter(function(column) { return !column.virtual_field });
-          if(items && items.length > 0) this._sortColumns(items, 'rank');
+        if (resourceColumns && resourceColumns.length > 0) {
+          items = resourceColumns.filter(function (column) {
+            return !column.virtual_field;
+          });
+          if (items && items.length > 0) this._sortColumns(items, "rank");
         }
 
         this.items = items ? items : [];
@@ -286,9 +380,9 @@ Copyright © HatioLab Inc. All rights reserved.
        * @param {Arrayl} list
        * @param {String} sortField
        */
-      _sortColumns: function(list, sortField) {
-        list.sort(function(a, b) {
-          return (a[sortField] > b[sortField]) ? 1 : ((b[sortField] > a[sortField]) ? -1 : 0);
+      _sortColumns: function (list, sortField) {
+        list.sort(function (a, b) {
+          return a[sortField] > b[sortField] ? 1 : b[sortField] > a[sortField] ? -1 : 0;
         });
       },
 
@@ -297,24 +391,23 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _setupWriteData: function(event) {
+      _setupWriteData: function (event) {
         var writeData = event.detail;
-        if(writeData && writeData.length > 0) {
+        if (writeData && writeData.length > 0) {
           var entityId = this.resourceId;
 
-          writeData.forEach(function(changedData) {
+          writeData.forEach(function (changedData) {
             changedData.entity_id = entityId;
-            if(!changedData.uniq_rank) changedData.uniq_rank = 0;
+            if (!changedData.uniq_rank) changedData.uniq_rank = 0;
 
-
-            if(!changedData.grid_rank || 0 == changedData.grid_rank || '0' === changedData.grid_rank) {
+            if (!changedData.grid_rank || 0 == changedData.grid_rank || "0" === changedData.grid_rank) {
               changedData.grid_check = false;
             }
 
-            delete changedData['ref_name_editor'];
-            delete changedData['trans'];
-            delete changedData['search_check'];
-            delete changedData['grid_check'];
+            delete changedData["ref_name_editor"];
+            delete changedData["trans"];
+            delete changedData["search_check"];
+            delete changedData["grid_check"];
           });
         }
       },
@@ -324,9 +417,9 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} e 트랜잭션 성공 이벤트
        */
-      _responseTransaction: function(e) {
+      _responseTransaction: function (e) {
         this.lastResponse = e.detail;
-      }
+      },
     });
   </script>
 </dom-module>

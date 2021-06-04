@@ -1,354 +1,335 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-form/things-search-form.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-form/things-search-form.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html" />
 
-<link rel="import" href="../common/things-text-viewer.html">
+<link rel="import" href="../common/things-text-viewer.html" />
 
 <!--
 	Publisher 정의 화면
 -->
 
 <dom-module id="things-base-publisher">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
 
-			things-resource-grid {
-				@apply(--layout-flex);
-			}
-		</style>
+      things-resource-grid {
+        @apply (--layout-flex);
+      }
+    </style>
 
-		<things-ajax
-			auto
-			id="resource-meta"
-			method="GET"
-			resource-url="[[menuMetaUrl]]"
-			last-response="{{metaData}}">
-		</things-ajax>
+    <things-ajax auto id="resource-meta" method="GET" resource-url="[[menuMetaUrl]]" last-response="{{metaData}}">
+    </things-ajax>
 
-		<things-ajax
-			id="data"
-			method="GET"
-			content-type="application/json"
-			resource-url="publishers/:id/data">
-		</things-ajax>
+    <things-ajax id="data" method="GET" content-type="application/json" resource-url="publishers/:id/data">
+    </things-ajax>
 
-		<things-ajax
-			id="start-job"
-			method="POST"
-			content-type="application/json"
-			resource-url="publishers/:id/start_job">
-		</things-ajax>
+    <things-ajax id="start-job" method="POST" content-type="application/json" resource-url="publishers/:id/start_job">
+    </things-ajax>
 
-		<things-ajax
-			id="pause-job"
-			method="POST"
-			content-type="application/json"
-			resource-url="publishers/:id/pause_job">
-		</things-ajax>
+    <things-ajax id="pause-job" method="POST" content-type="application/json" resource-url="publishers/:id/pause_job">
+    </things-ajax>
 
-		<things-ajax
-			id="stop-job"
-			method="POST"
-			content-type="application/json"
-			resource-url="publishers/:id/delete_job">
-		</things-ajax>
+    <things-ajax id="stop-job" method="POST" content-type="application/json" resource-url="publishers/:id/delete_job">
+    </things-ajax>
 
-		<things-ajax
-			id="force-stop-job"
-			method="POST"
-			content-type="application/json"
-			resource-url="publishers/:id/interrupt_job">
-		</things-ajax>
+    <things-ajax
+      id="force-stop-job"
+      method="POST"
+      content-type="application/json"
+      resource-url="publishers/:id/interrupt_job"
+    >
+    </things-ajax>
 
-		<things-search-form
-			id="search-form"
-			title="[[menuInfo.title]]"
-			form-fields="[[searchFormFields]]"
-			select-fields="[[selectFields]]"
-			sort-fields="[[sortFields]]"
-			action-url="[[menuInfo.resource_url]]"
-			page="{{page}}"
-			limit="{{limit}}"
-			last-response="{{lastResponse}}">
-		</things-search-form>
+    <things-search-form
+      id="search-form"
+      title="[[menuInfo.title]]"
+      form-fields="[[searchFormFields]]"
+      select-fields="[[selectFields]]"
+      sort-fields="[[sortFields]]"
+      action-url="[[menuInfo.resource_url]]"
+      page="{{page}}"
+      limit="{{limit}}"
+      last-response="{{lastResponse}}"
+    >
+    </things-search-form>
 
-		<things-resource-grid
-			id="grid"
-			config="[[gridConfig]]"
-			model="[[gridModel]]"
-			columns="[[gridColumns]]"
-			data="{{items}}"
-			total-count="[[itemCount]]"
-			current-page="{{page}}"
-			limit="{{limit}}"
-			fixed-column-count="[[menuInfo.fixed_columns]]"
-			grid-save-action="[[menuInfo.grid_save_url]]"
-			export-file-name="[[menuInfo.title]]"
-			export-sheet-name="[[menuInfo.title]]"
-			delete-record-validation="[[deleteRecordValidation]]"
-			buttons="[[buttons]]">
-		</things-resource-grid>
-	</template>
+    <things-resource-grid
+      id="grid"
+      config="[[gridConfig]]"
+      model="[[gridModel]]"
+      columns="[[gridColumns]]"
+      data="{{items}}"
+      total-count="[[itemCount]]"
+      current-page="{{page}}"
+      limit="{{limit}}"
+      fixed-column-count="[[menuInfo.fixed_columns]]"
+      grid-save-action="[[menuInfo.grid_save_url]]"
+      export-file-name="[[menuInfo.title]]"
+      export-sheet-name="[[menuInfo.title]]"
+      delete-record-validation="[[deleteRecordValidation]]"
+      buttons="[[buttons]]"
+    >
+    </things-resource-grid>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'things-base-publisher',
+  <script>
+    Polymer({
+      is: "things-base-publisher",
 
-			behaviors: [
-				Things.ResourceMenuContentBehavior
-			],
+      behaviors: [Things.ResourceMenuContentBehavior],
 
-			properties: {
-				/**
-				 * 삭제해서는 안되는 조건 체크
-				 */
-				deleteRecordValidation: {
-					type: Object,
-					value: function() {
-						return { fieldName : 'status', operator : 'eq', fieldValue : 'RUNNING' };
-					}
-				}
-			},
+      properties: {
+        /**
+         * 삭제해서는 안되는 조건 체크
+         */
+        deleteRecordValidation: {
+          type: Object,
+          value: function () {
+            return { fieldName: "status", operator: "eq", fieldValue: "RUNNING" };
+          },
+        },
+      },
 
-			listeners : {
-				'grid.things-grid-configure': '_onBeforeGridConfigure',
-				'grid.things-grid-cell-data-select' : '_gridCellClicked',
-				'data.things-ajax-response': 'showInitDataResult',
-				'start-job.things-ajax-response': 'refreshGridData',
-				'pause-job.things-ajax-response': 'refreshGridData',
-				'stop-job.things-ajax-response': 'refreshGridData',
-				'legend-btn-tap': 'showLegend',
-				'force-stop-btn-tap': 'forceStop',
-				'force-stop-job.things-ajax-response': 'forceStopResponsed'
-			},
+      listeners: {
+        "grid.things-grid-configure": "_onBeforeGridConfigure",
+        "grid.things-grid-cell-data-select": "_gridCellClicked",
+        "data.things-ajax-response": "showInitDataResult",
+        "start-job.things-ajax-response": "refreshGridData",
+        "pause-job.things-ajax-response": "refreshGridData",
+        "stop-job.things-ajax-response": "refreshGridData",
+        "legend-btn-tap": "showLegend",
+        "force-stop-btn-tap": "forceStop",
+        "force-stop-job.things-ajax-response": "forceStopResponsed",
+      },
 
-			/**
-			 * 그리드 컬럼 메타 정보가 변경된 이후 ...
-			 *
-			 * @param {Object} event
-			 */
-			_onBeforeGridConfigure: function(event) {
-				// start / pause, stop column 추가 ...
-				var startColumn = {
-					fieldName: '_start_pause_',
-					name: '_start_pause_',
-					width: 30,
-					editable: false,
-					imageList: 'images',
-					header: { text: ' ' },
-					renderer: { type: 'icon' },
-					styles: { iconIndex: 'media_play.png', iconLocation: 'center' },
-					styleCallback: function(index, styles) {
-						var row = index.getRow();
-						var data = row.getRowObject();
-						var status = data.status;
-						if(!status || status == '' || status == 'PAUSED' || status == 'STOPPED') {
-							styles.setIconIndex('media_play.png');
-						} else if(status == 'RUNNING') {
-							styles.setIconIndex('media_pause.png');
-						} else {
-							styles.setIconIndex(null);
-						}
-					}
-				};
+      /**
+       * 그리드 컬럼 메타 정보가 변경된 이후 ...
+       *
+       * @param {Object} event
+       */
+      _onBeforeGridConfigure: function (event) {
+        // start / pause, stop column 추가 ...
+        var startColumn = {
+          fieldName: "_start_pause_",
+          name: "_start_pause_",
+          width: 30,
+          editable: false,
+          imageList: "images",
+          header: { text: " " },
+          renderer: { type: "icon" },
+          styles: { iconIndex: "media_play.png", iconLocation: "center" },
+          styleCallback: function (index, styles) {
+            var row = index.getRow();
+            var data = row.getRowObject();
+            var status = data.status;
+            if (!status || status == "" || status == "PAUSED" || status == "STOPPED") {
+              styles.setIconIndex("media_play.png");
+            } else if (status == "RUNNING") {
+              styles.setIconIndex("media_pause.png");
+            } else {
+              styles.setIconIndex(null);
+            }
+          },
+        };
 
-				var stopColumn = {
-					fieldName: '_stop_',
-					name: '_stop_',
-					width: 30,
-					editable: false,
-					imageList: 'images',
-					header: { text: ' ' },
-					renderer: { type: 'icon' },
-					styles: { iconIndex: 'media_stop.png', iconLocation: 'center' },
-					styleCallback: function(index, styles) {
-						var row = index.getRow();
-						var data = row.getRowObject();
-						var status = data.status;
-						if(!status || status == '' || status == 'STOPPED') {
-							styles.setIconIndex(null);
-						} else if(status == 'RUNNING' || status == 'PAUSED') {
-							styles.setIconIndex('media_stop.png');
-						}
-					}
-				};
+        var stopColumn = {
+          fieldName: "_stop_",
+          name: "_stop_",
+          width: 30,
+          editable: false,
+          imageList: "images",
+          header: { text: " " },
+          renderer: { type: "icon" },
+          styles: { iconIndex: "media_stop.png", iconLocation: "center" },
+          styleCallback: function (index, styles) {
+            var row = index.getRow();
+            var data = row.getRowObject();
+            var status = data.status;
+            if (!status || status == "" || status == "STOPPED") {
+              styles.setIconIndex(null);
+            } else if (status == "RUNNING" || status == "PAUSED") {
+              styles.setIconIndex("media_stop.png");
+            }
+          },
+        };
 
-				var testColumn = {
-					fieldName: '_test_',
-					name: '_test_',
-					width: 35,
-					editable: false,
-					imageList: 'images',
-					header: { text: Things.DataGlobal.t('button.test') },
-					renderer: { type: 'icon' },
-					styles: { iconIndex: 'error_info.png', iconLocation: 'center' }
-				};
+        var testColumn = {
+          fieldName: "_test_",
+          name: "_test_",
+          width: 35,
+          editable: false,
+          imageList: "images",
+          header: { text: Things.DataGlobal.t("button.test") },
+          renderer: { type: "icon" },
+          styles: { iconIndex: "error_info.png", iconLocation: "center" },
+        };
 
-				var gridColumns = event.detail.columns;
-				gridColumns.unshift(startColumn, stopColumn, testColumn);
-			},
+        var gridColumns = event.detail.columns;
+        gridColumns.unshift(startColumn, stopColumn, testColumn);
+      },
 
-			/**
-			 * Grid Double Click 후
-			 *
-			 * @param {Objec} event
-			 */
-			_gridCellClicked: function(event) {
-				var cell = event.detail.cell;
-				var cellName = cell.column._fieldName;
-				var grid = cell._grid;
-				var data = event.detail.row;
-				var status = data.status;
+      /**
+       * Grid Double Click 후
+       *
+       * @param {Objec} event
+       */
+      _gridCellClicked: function (event) {
+        var cell = event.detail.cell;
+        var cellName = cell.column._fieldName;
+        var grid = cell._grid;
+        var data = event.detail.row;
+        var status = data.status;
 
-				// 첫번쩨 컬럼 아이콘에 대한 로직
-				if(cellName == '_start_pause_') {
-					if(!status || status == '' || status == 'PAUSED' || status == 'STOPPED') {
-						this.startJob(data);
+        // 첫번쩨 컬럼 아이콘에 대한 로직
+        if (cellName == "_start_pause_") {
+          if (!status || status == "" || status == "PAUSED" || status == "STOPPED") {
+            this.startJob(data);
+          } else if (status == "RUNNING") {
+            this.pauseJob(data);
+          }
 
-					} else if(status == 'RUNNING') {
-						this.pauseJob(data);
-					}
+          // 두번째 컬럼 아이콘에 대한 로직
+        } else if (cellName == "_stop_") {
+          if (status == "PAUSED" || status == "RUNNING") {
+            this.stopJob(data);
+          }
 
-				// 두번째 컬럼 아이콘에 대한 로직
-				} else if(cellName == '_stop_') {
-					if (status == 'PAUSED' || status == 'RUNNING') {
-						this.stopJob(data);
-					}
+          // 세번째 컬럼 아이콘에 대한 로직
+        } else if (cellName == "_test_") {
+          this.testInvoke(data);
+        }
+      },
 
-				// 세번째 컬럼 아이콘에 대한 로직
-				} else if(cellName == '_test_') {
-					this.testInvoke(data);
-				}
-			},
+      /**
+       * Start Job
+       *
+       * @param {Object} record
+       */
+      startJob: function (record) {
+        var title = Things.DataGlobal.t("label.start");
+        this.invokeAjax("start-job", title, record);
+      },
 
-			/**
-			 * Start Job
-			 *
-			 * @param {Object} record
-			 */
-			startJob: function(record) {
-				var title = Things.DataGlobal.t('label.start');
-				this.invokeAjax('start-job', title, record);
-			},
+      /**
+       * Pause Job
+       *
+       * @param {Object} record
+       */
+      pauseJob: function (record) {
+        var title = Things.DataGlobal.t("button.pause");
+        this.invokeAjax("pause-job", title, record);
+      },
 
-			/**
-			 * Pause Job
-			 *
-			 * @param {Object} record
-			 */
-			pauseJob: function(record) {
-				var title = Things.DataGlobal.t('button.pause');
-				this.invokeAjax('pause-job', title, record);
-			},
+      /**
+       * Stop Job
+       *
+       * @param {Object} record
+       */
+      stopJob: function (record) {
+        var title = Things.DataGlobal.t("button.stop");
+        this.invokeAjax("stop-job", title, record);
+      },
 
-			/**
-			 * Stop Job
-			 *
-			 * @param {Object} record
-			 */
-			stopJob: function(record) {
-				var title = Things.DataGlobal.t('button.stop');
-				this.invokeAjax('stop-job', title, record);
-			},
+      /**
+       * Test Invoke
+       *
+       * @param {Object} record
+       */
+      testInvoke: function (record) {
+        var ajax = this.$["data"];
+        ajax.resourceId = record.id;
+        ajax.generateRequest();
+      },
 
-			/**
-			 * Test Invoke
-			 *
-			 * @param {Object} record
-			 */
-			testInvoke: function(record) {
-				var ajax = this.$['data'];
-				ajax.resourceId = record.id;
-				ajax.generateRequest();
-			},
+      /**
+       * Invoke Ajax
+       *
+       * @param {String} ajaxId
+       * @param {String} title
+       * @param {Object} record
+       */
+      invokeAjax: function (ajaxId, title, record) {
+        var ajax = this.$[ajaxId];
 
-			/**
-			 * Invoke Ajax
-			 *
-			 * @param {String} ajaxId
-			 * @param {String} title
-			 * @param {Object} record
-			 */
-			invokeAjax: function(ajaxId, title, record) {
-				var ajax = this.$[ajaxId];
+        this.openConfirmMsg(
+          {
+            type: "info",
+            title: title,
+            text: Things.DataGlobal.t("text.Sure to X", { x: title }),
+            showCancelButton: true,
+          },
+          function () {
+            ajax.resourceId = record.id;
+            ajax.generateRequest();
+          }
+        );
+      },
 
- 				this.openConfirmMsg({
-					type : 'info',
-					title : title,
-					text : Things.DataGlobal.t('text.Sure to X', { x : title }),
-					showCancelButton : true
+      /**
+       * Data 결과 표시
+       ********
+       * @param {Object} event
+       */
+      showInitDataResult: function (event) {
+        var result = event.detail;
+        var view = document.createElement("things-text-viewer");
+        view.title = "Test Result";
+        view.content = result ? JSON.stringify(result, null, 4) : "";
+        var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
+        var event = new CustomEvent("things-open-popup-view", { detail: eventDetail });
+        document.dispatchEvent(event);
+      },
 
-				}, function() {
-					ajax.resourceId = record.id;
-					ajax.generateRequest();
-				});
-			},
+      /**
+       * 범례 표시
+       */
+      showLegend: function () {
+        window.open("http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html");
+      },
 
-			/**
-			 * Data 결과 표시
-			 ********
-			 * @param {Object} event
-			 */
-			showInitDataResult: function(event) {
-				var result = event.detail;
-				var view = document.createElement('things-text-viewer');
-				view.title = 'Test Result';
-				view.content = result ? JSON.stringify(result, null, 4) : '';
-				var eventDetail = { view: view, modal: true, openCallback: null, closeCallback: null };
-				var event = new CustomEvent('things-open-popup-view', { 'detail': eventDetail });
-				document.dispatchEvent(event);
-			},
+      /**
+       * Publisher 강제 종료
+       */
+      forceStop: function () {
+        var gridObject = this.$["grid"].getGridObject();
+        var checkedRows = gridObject.getCheckedRows();
 
-			/**
-			 * 범례 표시
-			 */
-			showLegend: function() {
-				window.open("http://www.quartz-scheduler.org/documentation/quartz-2.1.x/tutorials/crontrigger.html");
-			},
+        if (checkedRows.length != 1) {
+          this.openConfirmMsg({
+            type: "info",
+            title: Things.DataGlobal.t("button.force-stop"),
+            text: Things.DataGlobal.t("text.x_count_selectable", {
+              x: "1",
+            }),
+          });
 
-			/**
-			 * Publisher 강제 종료
-			 */
-			forceStop: function() {
-				var gridObject = this.$['grid'].getGridObject();
-				var checkedRows = gridObject.getCheckedRows();
+          return;
+        }
 
-				if(checkedRows.length != 1) {
-					this.openConfirmMsg({
-						type: 'info',
-						title: Things.DataGlobal.t('button.force-stop'),
-						text: Things.DataGlobal.t('text.x_count_selectable', {
-							x: '1'
-						})
-					})
+        var forceStopAjax = this.$["force-stop-job"];
+        forceStopAjax.resourceId = checkedRows[0].getRowObject().id;
+        forceStopAjax.generateRequest();
+      },
 
-					return;
-				}
-
-				var forceStopAjax = this.$['force-stop-job'];
-				forceStopAjax.resourceId = checkedRows[0].getRowObject().id;
-				forceStopAjax.generateRequest();
-			},
-
-			/**
-			 * force stop ajax response listener
-			 * search form submit to refresh list data
-			 */
-			forceStopResponsed: function() {
-				this.$['search-form'].submitMyForm();
-			}
-		});
-	</script>
+      /**
+       * force stop ajax response listener
+       * search form submit to refresh list data
+       */
+      forceStopResponsed: function () {
+        this.$["search-form"].submitMyForm();
+      },
+    });
+  </script>
 </dom-module>

@@ -1,107 +1,105 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html">
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-card-image/things-card-image-list.html">
-<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html" />
+<link rel="import" href="../../paper-tooltip/paper-tooltip.html" />
+<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html" />
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-card-image/things-card-image-list.html" />
+<link rel="import" href="../../things-view-open-behavior/things-view-open-behavior.html" />
 
-<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
-<link rel="import" href="../common/things-common-video-player.html">
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html" />
+<link rel="import" href="../common/things-common-video-player.html" />
 
 <dom-module id="things-base-video-card">
   <template>
     <style>
       :host {
         display: block;
-        background-color:var(--things-whitegrey-background-color);
+        background-color: var(--things-whitegrey-background-color);
       }
       .container {
         height: 90vh;
         overflow: auto;
       }
       #card-list::shadow paper-card {
-        padding:6px 4px;
-        min-height:85px
+        padding: 6px 4px;
+        min-height: 85px;
       }
-      #card-list::shadow .title-text,#card-list::shadow .card-info {
-        display:none;
+      #card-list::shadow .title-text,
+      #card-list::shadow .card-info {
+        display: none;
       }
       #card-list::shadow .header {
-        float:left;
-        margin-right:7px;
+        float: left;
+        margin-right: 7px;
       }
       #card-list::shadow #card-detail span {
-        display:block;
-        overflow-x:hidden;
-        font-size:12px;
-        color:var(--things-primary-text-color);
-        white-space:nowrap;
+        display: block;
+        overflow-x: hidden;
+        font-size: 12px;
+        color: var(--things-primary-text-color);
+        white-space: nowrap;
       }
       #card-list::shadow #card-detail span.name {
-        padding:2px 0;
-        font-size:13px;
-        font-weight:bold;
-        color:var(--things-focus-background-color);
+        padding: 2px 0;
+        font-size: 13px;
+        font-weight: bold;
+        color: var(--things-focus-background-color);
       }
       #card-list::shadow #card-detail span.homepage {
-        margin-top:4px;
-        padding:1px 0 0 2px;
-        border-top:1px dotted #ddd;
+        margin-top: 4px;
+        padding: 1px 0 0 2px;
+        border-top: 1px dotted #ddd;
       }
       #card-list::shadow #card-detail span:before {
-        content:"";
-        display:inline-block;
-        position:relative;
-        top:2px;
-        width:12px;height:13px;
-        margin-right:3px;
-        background-image:url(/images/icon-tiny.png);
+        content: "";
+        display: inline-block;
+        position: relative;
+        top: 2px;
+        width: 12px;
+        height: 13px;
+        margin-right: 3px;
+        background-image: url(/images/icon-tiny.png);
       }
       #card-list::shadow #card-detail span.name:before {
-        display:none;
+        display: none;
       }
       #card-list::shadow #card-detail span.phone:before {
-        background-position:50% 0;
+        background-position: 50% 0;
       }
       #card-list::shadow #card-detail span.email:before {
-        background-position:50% -47px;
+        background-position: 50% -47px;
       }
       #card-list::shadow #card-detail span.homepage:before {
-        background-position:50% -99px;
+        background-position: 50% -99px;
       }
       .topinfo {
-        float:right;
+        float: right;
       }
       paper-dialog paper-toolbar:last-child {
-        background-color:transparent;
-        margin-bottom:5px;
+        background-color: transparent;
+        margin-bottom: 5px;
       }
     </style>
 
-    <things-ajax 
-      auto
-      id="resource-meta"
-      method="GET"
-      resource-url="[[menuMetaUrl]]"
-      last-response="{{metaData}}">
+    <things-ajax auto id="resource-meta" method="GET" resource-url="[[menuMetaUrl]]" last-response="{{metaData}}">
     </things-ajax>
 
-    <things-search-form 
+    <things-search-form
       id="search-form"
       title="[[menuInfo.title]]"
-      form-fields="[[searchFormFields]]" 
+      form-fields="[[searchFormFields]]"
       select-fields="[[selectFields]]"
       sort-fields="[[sortFields]]"
-      action-url="[[menuInfo.resource_url]]" 
+      action-url="[[menuInfo.resource_url]]"
       page="{{page}}"
       limit="{{limit}}"
-      last-response="{{lastResponse}}">
+      last-response="{{lastResponse}}"
+    >
     </things-search-form>
 
     <div id="card-list" class="container">
@@ -110,7 +108,8 @@ Copyright © HatioLab Inc. All rights reserved.
         is-video-selector
         image-field="path"
         detail-fields="name,description,file_size,mimetype"
-        is-selector>
+        is-selector
+      >
       </things-card-image-list>
 
       <!--things-card-image-list
@@ -121,40 +120,34 @@ Copyright © HatioLab Inc. All rights reserved.
       </things-card-image-list-->
     </div>
 
-    <iron-scroll-threshold
-      id="scroller"
-      scroll-target="card-list"
-      on-lower-threshold="goNextPage">
+    <iron-scroll-threshold id="scroller" scroll-target="card-list" on-lower-threshold="goNextPage">
     </iron-scroll-threshold>
-	</template>
+  </template>
 
   <script>
     Polymer({
-      is: 'things-base-video-card',
+      is: "things-base-video-card",
 
-      behaviors: [
-        Things.ResourceMenuContentBehavior,
-        Things.ViewOpenBehavior
-      ],
+      behaviors: [Things.ResourceMenuContentBehavior, Things.ViewOpenBehavior],
 
       properties: {
         /**
          * 데이터의 total count
          */
         totalCount: {
-          type: Number
-        }
+          type: Number,
+        },
       },
 
       listeners: {
-        'things-card-image-selected' : '_onImageSelected',
-        'scroller.lower-threshold':'goNextPage'
+        "things-card-image-selected": "_onImageSelected",
+        "scroller.lower-threshold": "goNextPage",
       },
 
       /**
        * Life Cycle - Ready
        */
-      ready: function() {
+      ready: function () {
         this.page = 1;
         this.limit = 50;
       },
@@ -164,11 +157,12 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} lastResponse
        */
-      _responseChanged: function(lastResponse) {
-        var items = (this.itemsProp && lastResponse[this.itemsProp]) ? lastResponse[this.itemsProp] : lastResponse;
-        this.totalCount = (this.totalProp && lastResponse[this.totalProp]) ? lastResponse[this.totalProp] : lastResponse.length;
+      _responseChanged: function (lastResponse) {
+        var items = this.itemsProp && lastResponse[this.itemsProp] ? lastResponse[this.itemsProp] : lastResponse;
+        this.totalCount =
+          this.totalProp && lastResponse[this.totalProp] ? lastResponse[this.totalProp] : lastResponse.length;
 
-        if(this.page <= 1 || !this.items) {
+        if (this.page <= 1 || !this.items) {
           this.items = items;
         } else {
           this.items = this.items.concat(items);
@@ -179,20 +173,18 @@ Copyright © HatioLab Inc. All rights reserved.
        * item 클릭시 발생하는 이벤트
        * 클릭한 아이템의 meta 정보를 초기화 하고 dialog를 오픈 합니다.
        */
-      _onImageSelected: function(e) {
+      _onImageSelected: function (e) {
         var videoId = e.detail.id;
         var videoTitle = e.detail.name;
         var videoUrl = e.detail.path;
         // var useFileServiceUrl = this.globals.user.domain.file_service_base_url ? true : false;
         var useFileServiceUrl = false;
 
-        var baseUrl = useFileServiceUrl ? 
-                      this.globals.user.domain.file_service_base_url : 
-                      this.get('globals.baseUrl');
+        var baseUrl = useFileServiceUrl ? this.globals.user.domain.file_service_base_url : this.get("globals.baseUrl");
 
-        if(baseUrl && videoUrl) {
-          videoUrl = baseUrl +'/'+ (useFileServiceUrl ? videoUrl : ('/stream/' + videoId));
-          var videoView = document.createElement('things-common-video-player');
+        if (baseUrl && videoUrl) {
+          videoUrl = baseUrl + "/" + (useFileServiceUrl ? videoUrl : "/stream/" + videoId);
+          var videoView = document.createElement("things-common-video-player");
           videoView.title = videoTitle;
           videoView.videoUrl = videoUrl;
           this.openPopupView(videoView, true);
@@ -202,18 +194,18 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * 다음 페이지 이동
        */
-      goNextPage: function() {
-        if(this.totalCount == 0) {
+      goNextPage: function () {
+        if (this.totalCount == 0) {
           this.$.scroller.clearTriggers();
           return;
         }
 
-        if((this.page * this.limit) < this.totalCount) {
+        if (this.page * this.limit < this.totalCount) {
           this.page = this.page + 1;
         }
 
         this.$.scroller.clearTriggers();
-      } 
+      },
     });
   </script>
 </dom-module>

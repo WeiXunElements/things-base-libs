@@ -1,131 +1,131 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 <!-- things-base-libs admin -->
-<link rel="import" href="./admin/admin-app-control.html">
-<link rel="import" href="./admin/admin-app-controller.html">
-<link rel="import" href="./admin/admin-app-detail-info.html">
-<link rel="import" href="./admin/admin-app-detail.html">
-<link rel="import" href="./admin/admin-app-environment.html">
-<link rel="import" href="./admin/admin-app-error.html">
-<link rel="import" href="./admin/admin-app-jmx.html">
-<link rel="import" href="./admin/admin-app-jvm.html">
-<link rel="import" href="./admin/admin-app-log-files.html">
-<link rel="import" href="./admin/admin-app-logging.html">
-<link rel="import" href="./admin/admin-app-metrics.html">
-<link rel="import" href="./admin/admin-app-thread.html">
-<link rel="import" href="./admin/admin-app-trace.html">
-<link rel="import" href="./admin/admin-app-trx.html">
-<link rel="import" href="./admin/admin-apps-main.html">
-<link rel="import" href="./admin/admin-apps-monitor.html">
-<link rel="import" href="./admin/admin-apps.html">
-<link rel="import" href="./admin/admin-editor-section.html">
-<link rel="import" href="./admin/admin-section.html">
-<link rel="import" href="./admin/asset-apps-main.html">
-<link rel="import" href="./admin/asset-seed-main.html">
-<link rel="import" href="./admin/control-agent-apps.html">
-<link rel="import" href="./admin/control-agent-log-files.html">
-<link rel="import" href="./admin/control-agents.html">
-<link rel="import" href="./admin/material-toggle-button.html">
-<link rel="import" href="./admin/setup-template-detail.html">
-<link rel="import" href="./admin/things-admin-elements.html">
+<link rel="import" href="./admin/admin-app-control.html" />
+<link rel="import" href="./admin/admin-app-controller.html" />
+<link rel="import" href="./admin/admin-app-detail-info.html" />
+<link rel="import" href="./admin/admin-app-detail.html" />
+<link rel="import" href="./admin/admin-app-environment.html" />
+<link rel="import" href="./admin/admin-app-error.html" />
+<link rel="import" href="./admin/admin-app-jmx.html" />
+<link rel="import" href="./admin/admin-app-jvm.html" />
+<link rel="import" href="./admin/admin-app-log-files.html" />
+<link rel="import" href="./admin/admin-app-logging.html" />
+<link rel="import" href="./admin/admin-app-metrics.html" />
+<link rel="import" href="./admin/admin-app-thread.html" />
+<link rel="import" href="./admin/admin-app-trace.html" />
+<link rel="import" href="./admin/admin-app-trx.html" />
+<link rel="import" href="./admin/admin-apps-main.html" />
+<link rel="import" href="./admin/admin-apps-monitor.html" />
+<link rel="import" href="./admin/admin-apps.html" />
+<link rel="import" href="./admin/admin-editor-section.html" />
+<link rel="import" href="./admin/admin-section.html" />
+<link rel="import" href="./admin/asset-apps-main.html" />
+<link rel="import" href="./admin/asset-seed-main.html" />
+<link rel="import" href="./admin/control-agent-apps.html" />
+<link rel="import" href="./admin/control-agent-log-files.html" />
+<link rel="import" href="./admin/control-agents.html" />
+<link rel="import" href="./admin/material-toggle-button.html" />
+<link rel="import" href="./admin/setup-template-detail.html" />
+<link rel="import" href="./admin/things-admin-elements.html" />
 
 <!-- things-base-libs base -->
-<link rel="import" href="./base/things-base-elements.html">
-<link rel="import" href="./base/things-base-entity-detail-columns.html">
-<link rel="import" href="./base/things-base-entity-detail-form.html">
-<link rel="import" href="./base/things-base-entity-detail-grid.html">
-<link rel="import" href="./base/things-base-entity-detail-search.html">
-<link rel="import" href="./base/things-base-entity-detail.html">
-<link rel="import" href="./base/things-base-menu-detail-buttons.html">
-<link rel="import" href="./base/things-base-menu-detail-columns.html">
-<link rel="import" href="./base/things-base-menu-detail-main.html">
-<link rel="import" href="./base/things-base-menu-detail.html">
-<link rel="import" href="./base/things-base-menu-setup-buttons.html">
-<link rel="import" href="./base/things-base-menu-setup-columns.html">
-<link rel="import" href="./base/things-base-menu-setup-form.html">
-<link rel="import" href="./base/things-base-menu-setup-grid.html">
-<link rel="import" href="./base/things-base-menu-setup-params.html">
-<link rel="import" href="./base/things-base-menu-setup-search.html">
-<link rel="import" href="./base/things-base-menu-setup.html">
-<link rel="import" href="./base/things-base-menu.html">
-<link rel="import" href="./base/things-oi-entrance.html">
+<link rel="import" href="./base/things-base-elements.html" />
+<link rel="import" href="./base/things-base-entity-detail-columns.html" />
+<link rel="import" href="./base/things-base-entity-detail-form.html" />
+<link rel="import" href="./base/things-base-entity-detail-grid.html" />
+<link rel="import" href="./base/things-base-entity-detail-search.html" />
+<link rel="import" href="./base/things-base-entity-detail.html" />
+<link rel="import" href="./base/things-base-menu-detail-buttons.html" />
+<link rel="import" href="./base/things-base-menu-detail-columns.html" />
+<link rel="import" href="./base/things-base-menu-detail-main.html" />
+<link rel="import" href="./base/things-base-menu-detail.html" />
+<link rel="import" href="./base/things-base-menu-setup-buttons.html" />
+<link rel="import" href="./base/things-base-menu-setup-columns.html" />
+<link rel="import" href="./base/things-base-menu-setup-form.html" />
+<link rel="import" href="./base/things-base-menu-setup-grid.html" />
+<link rel="import" href="./base/things-base-menu-setup-params.html" />
+<link rel="import" href="./base/things-base-menu-setup-search.html" />
+<link rel="import" href="./base/things-base-menu-setup.html" />
+<link rel="import" href="./base/things-base-menu.html" />
+<link rel="import" href="./base/things-oi-entrance.html" />
 
 <!-- things-base-libs common -->
-<link rel="import" href="./common/things-common-elements.html">
-<link rel="import" href="./common/things-common-object-viewer.html">
-<link rel="import" href="./common/things-common-video-player.html">
-<link rel="import" href="./common/things-home.html">
+<link rel="import" href="./common/things-common-elements.html" />
+<link rel="import" href="./common/things-common-object-viewer.html" />
+<link rel="import" href="./common/things-common-video-player.html" />
+<link rel="import" href="./common/things-home.html" />
 
 <!-- things-base-libs core -->
-<link rel="import" href="./core/things-base-attachment.html">
-<link rel="import" href="./core/things-base-code-detail.html">
-<link rel="import" href="./core/things-base-common-code.html">
-<link rel="import" href="./core/things-base-image-card.html">
-<link rel="import" href="./core/things-base-storage-detail.html">
-<link rel="import" href="./core/things-base-video-card.html">
-<link rel="import" href="./core/things-core-elements.html">
+<link rel="import" href="./core/things-base-attachment.html" />
+<link rel="import" href="./core/things-base-code-detail.html" />
+<link rel="import" href="./core/things-base-common-code.html" />
+<link rel="import" href="./core/things-base-image-card.html" />
+<link rel="import" href="./core/things-base-storage-detail.html" />
+<link rel="import" href="./core/things-base-video-card.html" />
+<link rel="import" href="./core/things-core-elements.html" />
 
 <!-- things-base-libs dev -->
-<link rel="import" href="./dev/things-base-alarm-detail.html">
-<link rel="import" href="./dev/things-base-channel.html">
-<link rel="import" href="./dev/things-base-diy-forms-detail.html">
-<link rel="import" href="./dev/things-base-diy-grid-detail.html">
-<link rel="import" href="./dev/things-base-diy-service-detail-inout.html">
-<link rel="import" href="./dev/things-base-diy-service-detail-test.html">
-<link rel="import" href="./dev/things-base-diy-service-detail.html">
-<link rel="import" href="./dev/things-base-diy-template-detail.html">
-<link rel="import" href="./dev/things-base-id-rule-detail.html">
-<link rel="import" href="./dev/things-base-job-detail.html">
-<link rel="import" href="./dev/things-base-job.html">
-<link rel="import" href="./dev/things-base-layout-template.html">
-<link rel="import" href="./dev/things-base-modbus-detail.html">
-<link rel="import" href="./dev/things-base-publisher-detail.html">
-<link rel="import" href="./dev/things-base-publisher.html">
-<link rel="import" href="./dev/things-base-receive-channel-detail.html">
-<link rel="import" href="./dev/things-base-receive-channel.html">
-<link rel="import" href="./dev/things-base-send-channel-detail-test.html">
-<link rel="import" href="./dev/things-base-send-channel-detail.html">
-<link rel="import" href="./dev/things-base-view-columns-grid.html">
-<link rel="import" href="./dev/things-dev-elements.html">
+<link rel="import" href="./dev/things-base-alarm-detail.html" />
+<link rel="import" href="./dev/things-base-channel.html" />
+<link rel="import" href="./dev/things-base-diy-forms-detail.html" />
+<link rel="import" href="./dev/things-base-diy-grid-detail.html" />
+<link rel="import" href="./dev/things-base-diy-service-detail-inout.html" />
+<link rel="import" href="./dev/things-base-diy-service-detail-test.html" />
+<link rel="import" href="./dev/things-base-diy-service-detail.html" />
+<link rel="import" href="./dev/things-base-diy-template-detail.html" />
+<link rel="import" href="./dev/things-base-id-rule-detail.html" />
+<link rel="import" href="./dev/things-base-job-detail.html" />
+<link rel="import" href="./dev/things-base-job.html" />
+<link rel="import" href="./dev/things-base-layout-template.html" />
+<link rel="import" href="./dev/things-base-modbus-detail.html" />
+<link rel="import" href="./dev/things-base-publisher-detail.html" />
+<link rel="import" href="./dev/things-base-publisher.html" />
+<link rel="import" href="./dev/things-base-receive-channel-detail.html" />
+<link rel="import" href="./dev/things-base-receive-channel.html" />
+<link rel="import" href="./dev/things-base-send-channel-detail-test.html" />
+<link rel="import" href="./dev/things-base-send-channel-detail.html" />
+<link rel="import" href="./dev/things-base-view-columns-grid.html" />
+<link rel="import" href="./dev/things-dev-elements.html" />
 
 <!-- things-base-libs label -->
-<link rel="import" href="./label/things-base-agent-manager.html">
-<link rel="import" href="./label/things-base-label-card.html">
-<link rel="import" href="./label/things-base-label-interface.html">
+<link rel="import" href="./label/things-base-agent-manager.html" />
+<link rel="import" href="./label/things-base-label-card.html" />
+<link rel="import" href="./label/things-base-label-interface.html" />
 
 <!-- things-base-libs msg -->
-<link rel="import" href="./msg/things-base-message.html">
-<link rel="import" href="./msg/things-base-terminology.html">
-<link rel="import" href="./msg/things-msg-elements.html">
+<link rel="import" href="./msg/things-base-message.html" />
+<link rel="import" href="./msg/things-base-terminology.html" />
+<link rel="import" href="./msg/things-msg-elements.html" />
 
 <!-- things-base-libs scene -->
-<link rel="import" href="./scene/things-base-scene-card.html">
-<link rel="import" href="./scene/things-base-scene-group-detail.html">
-<link rel="import" href="./scene/things-scene-elements.html">
+<link rel="import" href="./scene/things-base-scene-card.html" />
+<link rel="import" href="./scene/things-base-scene-group-detail.html" />
+<link rel="import" href="./scene/things-scene-elements.html" />
 
 <!-- things-base-libs sec -->
-<link rel="import" href="./sec/things-base-role-detail-auth.html">
-<link rel="import" href="./sec/things-base-role-detail-user.html">
-<link rel="import" href="./sec/things-base-role-detail.html">
-<link rel="import" href="./sec/things-sec-elements.html">
+<link rel="import" href="./sec/things-base-role-detail-auth.html" />
+<link rel="import" href="./sec/things-base-role-detail-user.html" />
+<link rel="import" href="./sec/things-base-role-detail.html" />
+<link rel="import" href="./sec/things-sec-elements.html" />
 
 <!-- things-base-libs system -->
-<link rel="import" href="./system/things-base-db-mgr-column.html">
-<link rel="import" href="./system/things-base-db-mgr-data.html">
-<link rel="import" href="./system/things-base-db-mgr-index.html">
-<link rel="import" href="./system/things-base-db-mgr-sql.html">
-<link rel="import" href="./system/things-base-db-mgr.html">
-<link rel="import" href="./system/things-base-random-query-grid.html">
-<link rel="import" href="./system/things-base-rest-detail-api-inout.html">
-<link rel="import" href="./system/things-base-rest-detail-api-test.html">
-<link rel="import" href="./system/things-base-rest-detail-api.html">
-<link rel="import" href="./system/things-base-rest.html">
-<link rel="import" href="./system/things-base-table-mgr-index.html">
-<link rel="import" href="./system/things-base-table-mgr-table.html">
-<link rel="import" href="./system/things-base-table-mgr.html">
-<link rel="import" href="./system/things-system-calendar.html">
-<link rel="import" href="./system/things-system-elements.html">
-<link rel="import" href="./system/things-system-new-user.html">
-<link rel="import" href="./system/things-system-new-user-with-role.html">
+<link rel="import" href="./system/things-base-db-mgr-column.html" />
+<link rel="import" href="./system/things-base-db-mgr-data.html" />
+<link rel="import" href="./system/things-base-db-mgr-index.html" />
+<link rel="import" href="./system/things-base-db-mgr-sql.html" />
+<link rel="import" href="./system/things-base-db-mgr.html" />
+<link rel="import" href="./system/things-base-random-query-grid.html" />
+<link rel="import" href="./system/things-base-rest-detail-api-inout.html" />
+<link rel="import" href="./system/things-base-rest-detail-api-test.html" />
+<link rel="import" href="./system/things-base-rest-detail-api.html" />
+<link rel="import" href="./system/things-base-rest.html" />
+<link rel="import" href="./system/things-base-table-mgr-index.html" />
+<link rel="import" href="./system/things-base-table-mgr-table.html" />
+<link rel="import" href="./system/things-base-table-mgr.html" />
+<link rel="import" href="./system/things-system-calendar.html" />
+<link rel="import" href="./system/things-system-elements.html" />
+<link rel="import" href="./system/things-system-new-user.html" />
+<link rel="import" href="./system/things-system-new-user-with-role.html" />

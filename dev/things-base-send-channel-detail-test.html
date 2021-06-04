@@ -1,16 +1,16 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../iron-input/iron-input.html">
-<link rel="import" href="../../iron-form/iron-form.html">
-<link rel="import" href="../../paper-input/paper-input.html">
-<link rel="import" href="../../paper-button/paper-button.html">
-<link rel="import" href="../../paper-material/paper-material.html">
+<link rel="import" href="../../iron-input/iron-input.html" />
+<link rel="import" href="../../iron-form/iron-form.html" />
+<link rel="import" href="../../paper-input/paper-input.html" />
+<link rel="import" href="../../paper-button/paper-button.html" />
+<link rel="import" href="../../paper-material/paper-material.html" />
 
-<link rel="import" href="../../things-input-field/things-textarea.html">
+<link rel="import" href="../../things-input-field/things-textarea.html" />
 
 <!--
 	SendChannel의 테스트 화면 
@@ -18,164 +18,165 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <dom-module id="things-base-send-channel-detail-test">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-			}
-			#form {
-				@apply(--layout-flex);
-			}
-			paper-toolbar {
-				background-color:var(--things-white-background-color);
-				height: 50px;
-				@apply(--things-tight-padding);
-			}
-			paper-toolbar::shadow #bottomBar {
-				height: 50px;
-				@apply(--layout-horizontal);
-				@apply(--layout-end-justified);
-				padding: 10 10px;
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+      }
+      #form {
+        @apply (--layout-flex);
+      }
+      paper-toolbar {
+        background-color: var(--things-white-background-color);
+        height: 50px;
+        @apply (--things-tight-padding);
+      }
+      paper-toolbar::shadow #bottomBar {
+        height: 50px;
+        @apply (--layout-horizontal);
+        @apply (--layout-end-justified);
+        padding: 10 10px;
+      }
+    </style>
 
-		<paper-toolbar>
-			<div class="bottom">
-				<things-button-bar buttons="[[buttons]]"></things-button-bar>
-			</div>
-		</paper-toolbar>
+    <paper-toolbar>
+      <div class="bottom">
+        <things-button-bar buttons="[[buttons]]"></things-button-bar>
+      </div>
+    </paper-toolbar>
 
-		<form is="iron-form" 
-			id="form" 
-			action="[[action]]"
-			headers="[[headers]]"
-			with-credentials
-			content-type="application/json"
-			method="POST"
-			last-response="{{lastResponse}}">
+    <form
+      is="iron-form"
+      id="form"
+      action="[[action]]"
+      headers="[[headers]]"
+      with-credentials
+      content-type="application/json"
+      method="POST"
+      last-response="{{lastResponse}}"
+    >
+      <things-textarea id="invoke-url" name="invokeUrl" label="Invoke URL" readonly></things-textarea>
 
-			<things-textarea id="invoke-url" name ="invokeUrl" label="Invoke URL" readonly></things-textarea>
+      <things-textarea id="params" label="Parameters" rows="4"></things-textarea>
 
-			<things-textarea id="params" label="Parameters" rows=4></things-textarea>
+      <things-textarea id="result" label="Result" rows="16"></things-textarea>
+    </form>
+  </template>
 
-			<things-textarea id="result" label="Result" rows=16></things-textarea>
-		</form>		
-	</template>
+  <script>
+    Polymer({
+      is: "things-base-send-channel-detail-test",
 
-	<script>
-		Polymer({
+      properties: {
+        /**
+         * Resource
+         */
+        resource: {
+          type: Object,
+          observer: "_onResourceChanged",
+        },
 
-			is: 'things-base-send-channel-detail-test',
+        /**
+         * 버튼
+         */
+        buttons: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                id: "invoke-btn",
+                text: "invoke",
+              },
+              {
+                id: "reset-btn",
+                text: "reset",
+              },
+            ];
+          },
+        },
+      },
 
-			properties: {
-				/**
-				 * Resource
-				 */
-				resource: {
-					type: Object,
-					observer: '_onResourceChanged'
-				},
+      behaviors: [Things.FormBehavior],
 
-				/**
-				 * 버튼 
-				 */
-				buttons: {
-					type: Array,
-					value: function() {
-						return [ {
-							id: 'invoke-btn',
-							text: 'invoke'
-						}, {
-							id: 'reset-btn',
-							text: 'reset'
-						} ];
-					}
-				}
-			},
-			
-			behaviors: [
-				Things.FormBehavior
-			],
+      listeners: {
+        "invoke-btn-tap": "invokeService",
+        "reset-btn-tap": "resetForm",
+        "iron-form-presubmit": "_preSubmitHandler",
+        "iron-form-response": "_successResponseHandler",
+        "iron-form-error": "_errorResponseHandler",
+      },
 
-			listeners : {
-				'invoke-btn-tap' : 'invokeService',
-				'reset-btn-tap' : 'resetForm',
-				'iron-form-presubmit' :'_preSubmitHandler',
-				'iron-form-response' :'_successResponseHandler',
-				'iron-form-error' : '_errorResponseHandler'
-			},
+      ready: function () {
+        this.$["params"].value = "{}";
+      },
 
-			ready: function() {
-				this.$['params'].value = '{}';
-			},
+      /**
+       * 서비스 호출
+       * ******
+       * @param {Event} event
+       */
+      invokeService: function (event) {
+        this.getMyForm().submit();
+      },
 
-			/**
-			 * 서비스 호출
-			 * ******
-			 * @param {Event} event
-			 */
-			invokeService: function(event) {
-				this.getMyForm().submit();
-			},
+      /**
+       * Reset Form
+       * ******
+       * @param {Event} event
+       */
+      resetForm: function (event) {
+        this.$["params"].value = "{}";
+        this.$["result"].value = "";
+      },
 
-			/**
-			 * Reset Form
-			 * ******
-			 * @param {Event} event
-			 */
-			resetForm: function (event) {
-				this.$['params'].value = '{}';
-				this.$['result'].value = '';
-			},
+      /**
+       * Submit 전에 전처리
+       * ******
+       * @param {Event} event
+       */
+      _preSubmitHandler: function (event) {
+        var form = this.getMyForm();
+        if (form.request.body && Object.keys(form.request.body).length > 0) {
+          form.request.body = { input: form.request.body };
+        }
+      },
 
-			/**
-			 * Submit 전에 전처리
-			 * ******
-			 * @param {Event} event
-			 */
-			_preSubmitHandler: function(event) {
-				var form = this.getMyForm();
-				if(form.request.body && Object.keys(form.request.body).length > 0) {
-					form.request.body = { input : form.request.body };
-				}
-			},
+      /**
+       * Resource가 변경되었을 경우
+       * ******
+       * @param {Object} resource
+       */
+      _onResourceChanged: function (resource) {
+        this.actionUrl = "send_channels/" + resource.name + "/send";
+        this.$["invoke-url"].value = this.actionUrl;
+      },
 
-			/**
-			 * Resource가 변경되었을 경우
-			 * ******
-			 * @param {Object} resource
-			 */
-			_onResourceChanged: function(resource) {
-				this.actionUrl = 'send_channels/' + resource.name + '/send';
-				this.$['invoke-url'].value = this.actionUrl;
-			},
+      /**
+       * Invoke 후 성공시 핸들러
+       * ******
+       * @param {Event} event
+       */
+      _successResponseHandler: function (event) {
+        if (event.detail.xhr.response) {
+          this.$.result.value = JSON.stringify(event.detail.xhr.response, null, 4);
+        } else {
+          this.$.result.value = "OK";
+        }
+      },
 
-			/**
-			 * Invoke 후 성공시 핸들러
-			 * ******
-			 * @param {Event} event
-			 */
-			_successResponseHandler: function (event) {
-				if(event.detail.xhr.response) {
-					this.$.result.value = JSON.stringify(event.detail.xhr.response, null, 4);
-				} else {
-					this.$.result.value = 'OK';
-				}
-			},
-
-			/**
-			 * Invoke 후 실패시 핸들러
-			 * ******
-			 * @param {Event} event
-			 */
-			_errorResponseHandler: function (event) {
-				if(event.detail.request.xhr.response) {
-					this.$.result.value = JSON.stringify(event.detail.request.xhr.response, null, 4);
-				} else {
-					this.$.result.value = 'Unknown Error';
-				}
-			}
-		});
-	</script>
+      /**
+       * Invoke 후 실패시 핸들러
+       * ******
+       * @param {Event} event
+       */
+      _errorResponseHandler: function (event) {
+        if (event.detail.request.xhr.response) {
+          this.$.result.value = JSON.stringify(event.detail.request.xhr.response, null, 4);
+        } else {
+          this.$.result.value = "Unknown Error";
+        }
+      },
+    });
+  </script>
 </dom-module>

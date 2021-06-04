@@ -1,244 +1,224 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-ajax/things-ajax.html">
-<link rel="import" href="../../things-form/things-search-form.html">
-<link rel="import" href="../../things-form/things-form.html">
-<link rel="import" href="../../things-grid/things-resource-grid.html">
-<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html">
+<link rel="import" href="../../things-ajax/things-ajax.html" />
+<link rel="import" href="../../things-form/things-search-form.html" />
+<link rel="import" href="../../things-form/things-form.html" />
+<link rel="import" href="../../things-grid/things-resource-grid.html" />
+<link rel="import" href="../../things-content/things-resource-menu-content-behavior.html" />
 
-<link rel="import" href="./admin-app-controller.html">
-<link rel="import" href="./admin-app-detail.html">
-<link rel="import" href="./admin-app-log-files.html">
-
-<!--link rel="import" href="./admin-app-jvm.html">
-<link rel="import" href="./admin-app-trx.html">
-<link rel="import" href="./admin-app-error.html">
-<link rel="import" href="./admin-app-metrics.html">
-<link rel="import" href="./admin-app-environment.html">
-<link rel="import" href="./admin-app-control.html">
-<link rel="import" href="./admin-app-jmx.html">
-<link rel="import" href="./admin-app-thread.html">
-<link rel="import" href="./admin-app-trace.html"-->
+<link rel="import" href="./admin-app-controller.html" />
+<link rel="import" href="./admin-app-detail.html" />
+<link rel="import" href="./admin-app-log-files.html" />
 
 <!--
 	모니터링 상세 화면
 -->
 
 <dom-module id="admin-apps-monitor">
-	<template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			things-layout-hades {
-				@apply(--layout-flex);
-			}
-			.container {
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
-			.subtitle:before {
-				content: '';
-				@apply(--things-subtitle-icon);
-			}
-			.subtitle {
-				@apply(--things-default-padding);
-				padding-bottom:7px;
-				@apply(--things-subtitle);
-			}
-		</style>
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      things-layout-hades {
+        @apply (--layout-flex);
+      }
+      .container {
+        @apply (--layout-vertical);
+        @apply (--layout-flex);
+      }
+      .subtitle:before {
+        content: "";
+        @apply (--things-subtitle-icon);
+      }
+      .subtitle {
+        @apply (--things-default-padding);
+        padding-bottom: 7px;
+        @apply (--things-subtitle);
+      }
+    </style>
 
-		<things-ajax
-			id="app-info-url"
-			method="GET"
-			resource-url="[[appInfoUrl]]"
-			last-response="{{appInfo}}">
-		</things-ajax>
+    <things-ajax id="app-info-url" method="GET" resource-url="[[appInfoUrl]]" last-response="{{appInfo}}">
+    </things-ajax>
 
-		<things-layout-hades
-			id="right-tab-layout"
-			sections="[[sections]]">
+    <things-layout-hades id="right-tab-layout" sections="[[sections]]">
+      <!-- 1. Control -->
+      <div tab-content-1 class="container">
+        <admin-app-controller
+          id="detail-controller"
+          resource="{{resource}}"
+          resource-id="{{myCtlAgentId}}"
+          admin-base-url="{{adminBaseUrl}}"
+          ctl-agent-port="{{ctlAgentPort}}"
+        >
+        </admin-app-controller>
+      </div>
 
-			<!-- 1. Control -->
-			<div tab-content-1 class="container">
-				<admin-app-controller
-					id="detail-controller"
-					resource="{{resource}}"
-					resource-id="{{myCtlAgentId}}"
-					admin-base-url="{{adminBaseUrl}}"
-					ctl-agent-port="{{ctlAgentPort}}">
-				</admin-app-controller>
-			</div>
+      <!-- 2. Details -->
+      <div tab-content-2>
+        <admin-app-detail
+          id="detail-detail"
+          resource="{{resource}}"
+          admin-base-url="{{adminBaseUrl}}"
+          app-agent-port="{{appAgentPort}}"
+          ctl-agent-port="{{ctlAgentPort}}"
+          my-ctl-agent-id="{{myCtlAgentId}}"
+        >
+        </admin-app-detail>
+      </div>
 
-			<!-- 2. Details -->
-			<div tab-content-2>
-				<admin-app-detail
-					id="detail-detail"
-					resource="{{resource}}"
-					admin-base-url="{{adminBaseUrl}}"
-					app-agent-port="{{appAgentPort}}"
-					ctl-agent-port="{{ctlAgentPort}}"
-					my-ctl-agent-id="{{myCtlAgentId}}">
-				</admin-app-detail>
-			</div>
+      <!-- 3. Log Files -->
+      <div tab-content-3 class="container">
+        <admin-app-log-files id="detail-logfiles" resource="{{resource}}"> </admin-app-log-files>
+      </div>
+    </things-layout-hades>
+  </template>
 
-			<!-- 3. Log Files -->
-			<div tab-content-3 class="container">
-				<admin-app-log-files
-					id="detail-logfiles"
-					resource="{{resource}}">
-				</admin-app-log-files>
-			</div>
-		</things-layout-hades>
-	</template>
+  <script>
+    Polymer({
+      is: "admin-apps-monitor",
 
-	<script>
-		Polymer({
-			is: 'admin-apps-monitor',
+      behaviors: [Things.GlobalBehavior, Things.MsgBoxBehavior, Things.ViewOpenBehavior],
 
-			behaviors: [
-				Things.GlobalBehavior,
-				Things.MsgBoxBehavior,
-				Things.ViewOpenBehavior
-			],
+      properties: {
+        /**
+         * 애플리케이션 명
+         */
+        title: {
+          type: String,
+          value: "Applications",
+        },
 
-			properties: {
-				/**
-				 * 애플리케이션 명
-				 */
-				title: {
-					type: String,
-					value: 'Applications'
-				},
-
-				/**
-				 * Tab sections
-				 */
-				sections: {
-					type: Array,
-					value: function() {
-						return [ {
-							title: '컨트롤',
-							tabId: 'controller',
-							isTab: true
-						}, {
-							title: '상세 정보',
-							tabId: 'detail',
-							isTab: true
-						}, {
-							title: '로그 파일',
-							tabId: 'logfiles',
-							isTab: true
-						}/*, {
+        /**
+         * Tab sections
+         */
+        sections: {
+          type: Array,
+          value: function () {
+            return [
+              {
+                title: "컨트롤",
+                tabId: "controller",
+                isTab: true,
+              },
+              {
+                title: "상세 정보",
+                tabId: "detail",
+                isTab: true,
+              },
+              {
+                title: "로그 파일",
+                tabId: "logfiles",
+                isTab: true,
+              } /*, {
 							title: '로그 레벨',
 							tabId: 'logging',
 							isTab: true
-						}*/];
-					}
-				},
+						}*/,
+            ];
+          },
+        },
 
-				/**
-				 * 선택된 Application
-				 */
-				resource: {
-					type: Object,
-					notify: true
-				},
+        /**
+         * 선택된 Application
+         */
+        resource: {
+          type: Object,
+          notify: true,
+        },
 
-				/**
-				 * 선택된 Application ID
-				 */
-				resourceId: {
-					type: String
-				},
+        /**
+         * 선택된 Application ID
+         */
+        resourceId: {
+          type: String,
+        },
 
-				/**
-				 * Admin Management URL
-				 */
-				adminBaseUrl: {
-					type: String,
-					notify: true
-				},
+        /**
+         * Admin Management URL
+         */
+        adminBaseUrl: {
+          type: String,
+          notify: true,
+        },
 
-				/**
-				 * APM Agent Port
-				 */
-				appAgentPort: {
-					type: String
-				},
+        /**
+         * APM Agent Port
+         */
+        appAgentPort: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent Port
-				 */
-				ctlAgentPort: {
-					type: String
-				},
+        /**
+         * Control Agent Port
+         */
+        ctlAgentPort: {
+          type: String,
+        },
 
-				/**
-				 * Control Agent가 관리하는 Application ID 정보
-				 **/
-				myCtlAgentId: {
-					type: String
-				}
-			},
+        /**
+         * Control Agent가 관리하는 Application ID 정보
+         **/
+        myCtlAgentId: {
+          type: String,
+        },
+      },
 
-			listeners: {
-				'right-tab-layout.things-layout-tab-changed': 'detailTabChanged'
-			},
+      listeners: {
+        "right-tab-layout.things-layout-tab-changed": "detailTabChanged",
+      },
 
-			observers: [
-				'appSelectionChanged(resource)'
-			],
+      observers: ["appSelectionChanged(resource)"],
 
-			/**
-			 * 상세 탭 선택 변경시 : 각 탭에 Refresh 명령을 내린다.
-			 *******
-			 * @param {Object} event
-			 */
-			detailTabChanged: function(event) {
-				var tabId = event.detail.srcElement.parentElement.id;
-				if(tabId) {
-					var tabConent = this.$['detail-' + tabId];
-					if(tabConent && tabConent.refresh) {
-						tabConent.refresh();
-					}
-				}
-			},
+      /**
+       * 상세 탭 선택 변경시 : 각 탭에 Refresh 명령을 내린다.
+       *******
+       * @param {Object} event
+       */
+      detailTabChanged: function (event) {
+        var tabId = event.detail.srcElement.parentElement.id;
+        if (tabId) {
+          var tabConent = this.$["detail-" + tabId];
+          if (tabConent && tabConent.refresh) {
+            tabConent.refresh();
+          }
+        }
+      },
 
-			/**
-			 * 애플리케이션 선택 변경시 ...
-			 *******
-			 * @param {Object} resource
-			 */
-			appSelectionChanged: function(resource) {
-				this.title = resource.name;
-				this.resource = resource;
-				this.resourceId = resource.id;
+      /**
+       * 애플리케이션 선택 변경시 ...
+       *******
+       * @param {Object} resource
+       */
+      appSelectionChanged: function (resource) {
+        this.title = resource.name;
+        this.resource = resource;
+        this.resourceId = resource.id;
 
-				var ctrlTab = this.$['detail-controller'];
-				if(ctrlTab && ctrlTab.refresh) {
-					ctrlTab.refresh();
-				}
-			},
+        var ctrlTab = this.$["detail-controller"];
+        if (ctrlTab && ctrlTab.refresh) {
+          ctrlTab.refresh();
+        }
+      },
 
-			/**
-			 * Detail 화면을 오픈한다
-			 *******
-			 * @param {String} resourceId
-			 * @param {Object} resource
-			 */
-			showDetailView: function(resourceId, resource) {
-				this.title = resource.name;
-				this.resource = resource;
-				this.resourceId = resource.id;
-				this.openPopupView(this, true);
-			},
-		})
-	</script>
+      /**
+       * Detail 화면을 오픈한다
+       *******
+       * @param {String} resourceId
+       * @param {Object} resource
+       */
+      showDetailView: function (resourceId, resource) {
+        this.title = resource.name;
+        this.resource = resource;
+        this.resourceId = resource.id;
+        this.openPopupView(this, true);
+      },
+    });
+  </script>
 </dom-module>

@@ -1,13 +1,13 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../polymer/polymer.html" />
 
-<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html">
-<link rel="import" href="../../things-section/things-diy-based-form.html">
-<link rel="import" href="../../things-section/things-diy-based-grid.html">
-<link rel="import" href="../../things-meta/things-menu-meta-behavior.html">
+<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html" />
+<link rel="import" href="../../things-section/things-diy-based-form.html" />
+<link rel="import" href="../../things-section/things-diy-based-grid.html" />
+<link rel="import" href="../../things-meta/things-menu-meta-behavior.html" />
 
 <!--
   라벨 인터페이스 정의 화면
@@ -18,56 +18,47 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        @apply(--layout-horizontal);
-        @apply(--layout-flex);
-        background-color:rgba(0,0,0,.05);
-        overflow-y:hidden
+        @apply (--layout-horizontal);
+        @apply (--layout-flex);
+        background-color: rgba(0, 0, 0, 0.05);
+        overflow-y: hidden;
       }
 
       .search-field {
-        @apply(--layout-horizontal);
-        @apply(--things-brand);
+        @apply (--layout-horizontal);
+        @apply (--things-brand);
       }
 
       ::shadow things-search-form div.things-search-form {
-        display:block !important
+        display: block !important;
       }
 
       .left-side {
         min-width: 450px;
-        @apply(--layout-flex-1);
+        @apply (--layout-flex-1);
       }
 
       .right-side {
-        @apply(--layout-flex-2);
-        @apply(--layout-vertical);
+        @apply (--layout-flex-2);
+        @apply (--layout-vertical);
       }
 
       .subtitle:before {
-        content: '';
-        @apply(--things-subtitle-icon);
+        content: "";
+        @apply (--things-subtitle-icon);
       }
 
       .subtitle {
-        @apply(--things-default-padding);
-        @apply(--things-subtitle);
-        padding-left: 16px
+        @apply (--things-default-padding);
+        @apply (--things-subtitle);
+        padding-left: 16px;
       }
     </style>
 
-    <things-ajax
-      auto
-      id="resource-meta"
-      method="GET"
-      resource-url="[[menuMetaUrl]]"
-      last-response="{{metaData}}">
+    <things-ajax auto id="resource-meta" method="GET" resource-url="[[menuMetaUrl]]" last-response="{{metaData}}">
     </things-ajax>
 
-    <things-ajax
-      id="label-master"
-      method="GET"
-      resource-url="label_interfaces/master"
-      last-response="{{masterData}}">
+    <things-ajax id="label-master" method="GET" resource-url="label_interfaces/master" last-response="{{masterData}}">
     </things-ajax>
 
     <div class="left-side">
@@ -77,7 +68,8 @@ Copyright © HatioLab Inc. All rights reserved.
         id="form"
         resource-url="[[resourceUrl]]"
         form-fields="[[resourceFormFields]]"
-        column-count="1">
+        column-count="1"
+      >
       </things-resource-form>
     </div>
 
@@ -93,18 +85,17 @@ Copyright © HatioLab Inc. All rights reserved.
         data="[[items]]"
         grid-save-action="[[menuInfo.grid_save_url]]"
         fixed-column-count="0"
-        buttons="[[buttons]]">
+        buttons="[[buttons]]"
+      >
       </things-resource-grid>
     </div>
   </template>
 
   <script>
     Polymer({
-      is: 'things-base-label-interface',
+      is: "things-base-label-interface",
 
-      behaviors: [
-        Things.MenuMetaBehavior
-      ],
+      behaviors: [Things.MenuMetaBehavior],
 
       properties: {
         /**
@@ -112,7 +103,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         menuInfo: {
           type: Object,
-          observer: '_menuInfoChanged'
+          observer: "_menuInfoChanged",
         },
 
         /**
@@ -120,9 +111,9 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         formTitle: {
           type: String,
-          value: function() {
-            return Things.DataGlobal.t('menu.DataSrc');
-          }
+          value: function () {
+            return Things.DataGlobal.t("menu.DataSrc");
+          },
         },
 
         /**
@@ -130,7 +121,7 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         gridTitle: {
           type: String,
-          value: 'Table Mapping'
+          value: "Table Mapping",
         },
 
         /**
@@ -138,11 +129,13 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         formButtons: {
           type: Array,
-          value: [ {
-            id: 'save-btn',
-            text: 'save',
-            icon: 'icons:save'
-          } ]
+          value: [
+            {
+              id: "save-btn",
+              text: "save",
+              icon: "icons:save",
+            },
+          ],
         },
 
         /**
@@ -150,12 +143,12 @@ Copyright © HatioLab Inc. All rights reserved.
          */
         masterData: {
           type: Object,
-          observer: '_masterDataChanged'
-        }
+          observer: "_masterDataChanged",
+        },
       },
 
       listeners: {
-        'grid.things-grid-configured': '_gridConfigured'
+        "grid.things-grid-configured": "_gridConfigured",
       },
 
       /**
@@ -163,8 +156,8 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} menuInfo
        */
-      _menuInfoChanged: function(menuInfo) {
-        if(menuInfo) {
+      _menuInfoChanged: function (menuInfo) {
+        if (menuInfo) {
           this.menuId = menuInfo.id;
           this.routingChanged(menuInfo.routing);
         }
@@ -175,14 +168,14 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _gridConfigured: function(event) {
+      _gridConfigured: function (event) {
         this.refreshData();
       },
 
       /**
        * 마스터 데이터가 변경된 이후 ...
        */
-      _masterDataChanged: function(masterData) {
+      _masterDataChanged: function (masterData) {
         console.log(masterData);
 
         this.$.form.setFormData(masterData);
@@ -191,10 +184,13 @@ Copyright © HatioLab Inc. All rights reserved.
       /**
        * Route Changed
        */
-      routingChanged: function(routing) {
-        document.addEventListener('things-routing-changed-' + routing, function(event) {
-          this._handlerRouteChange(event);
-        }.bind(this));
+      routingChanged: function (routing) {
+        document.addEventListener(
+          "things-routing-changed-" + routing,
+          function (event) {
+            this._handlerRouteChange(event);
+          }.bind(this)
+        );
       },
 
       /**
@@ -202,16 +198,16 @@ Copyright © HatioLab Inc. All rights reserved.
        *
        * @param {Object} event
        */
-      _handlerRouteChange: function(event) {
+      _handlerRouteChange: function (event) {
         this.refreshData();
       },
 
       /**
        * Refresh Data
        */
-      refreshData: function() {
-        this.$['label-master'].generateRequest();
-      }
+      refreshData: function () {
+        this.$["label-master"].generateRequest();
+      },
     });
   </script>
 </dom-module>
