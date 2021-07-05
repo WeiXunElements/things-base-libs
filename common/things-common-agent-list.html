@@ -1,0 +1,104 @@
+<dom-module id="things-common-agent-list">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <things-ajax 
+            auto 
+            id="ajax-agent" 
+            resource-url="agent_infos" 
+            method="GET" 
+            content-type="application/json"
+            last-response="{{agentList}}">
+        </things-ajax>
+
+        <things-ajax 
+            id="ajax-printers" 
+            resource-url="[[globals.agentUrl]]/rest/agent/agent_infos"
+            method="GET" 
+            content-type="application/json" 
+            last-response="{{agentInfos}}">
+        </things-ajax>
+
+        <!-- agent list -->
+        <paper-input-container>
+            <label>
+                <things-i18n-msg msgid="label.agent-url" auto>Agent URL</things-i18n-msg>
+            </label>
+            <input 
+                is="iron-input" 
+                value="[[globals.agentUrl]]"
+                bind-value="{{globals.agentUrl::change}}" 
+                list="agents"
+                on-change="_onAgentChange" >
+            </input>
+            <datalist id="agents">
+                <template is="dom-repeat" items="[[agentList]]">
+                    <option value="[[item.agent_http_url]]" agent="[[item]]">[[item.agent_http_url]]</option>
+                </template>
+            </datalist>
+        </paper-input-container>
+        <iron-localstorage name="setting.agentUrl" value="{{globals.agentUrl}}"></iron-localstorage>
+
+        <!-- printer list -->
+        <paper-input-container>
+            <label>
+                <things-i18n-msg msgid="label.printer-list" auto>Print List</things-i18n-msg>
+            </label>
+            <input is="iron-input" bind-value="{{globals.labelPrinterName::change}}" list="printers">
+            </input>
+            <datalist id="printers">
+                <template is="dom-repeat" items="[[printer_infos]]">
+                    <option printer="[[item]]">[[item.name]]</option>
+                </template>
+            </datalist>
+        </paper-input-container>
+        <iron-localstorage name="setting.labelPrinterName" value="{{globals.labelPrinterName}}"></iron-localstorage>
+    </template>
+    <script>
+        Polymer({
+            is: 'things-common-agent-list',
+            behaviors: [
+                Things.GlobalBehavior
+            ],
+            observers: [
+                '_onAgentChange(globals.agentUrl)',
+                '_onAgentListChange(agentList)',
+                '_onAgentInfosChange(agentInfos)'
+            ],
+            _onAgentChange: function (agentUrl) {
+                if (agentUrl && agentUrl.length > 0) {
+                    this.$['ajax-printers'].generateRequest();
+                }
+            },
+            _onAgentInfosChange: function (agentInfos) {
+                if (agentInfos && agentInfos.printer_infos) {
+                    this.printer_infos = agentInfos.printer_infos;
+                }
+            },
+            _onAgentListChange: function (agentList) {
+                if (agentList && agentList.length > 0) {
+                    agentList.forEach(object => {
+                        if (object.agent_url) {
+                            object.agent_http_url = object.agent_url.replace('ws:', 'http:');
+                        }
+                    });
+                    this.set('agentList', agentList);
+                    this._setupPrinterList(this.globals.agentUrl, agentList);
+                }
+            },
+            _setupPrinterList: function (agentUrl, agentList) {
+                if (agentList && agentList.length > 0) {
+                    for (let i = 0; i < agentList.length; i++) {
+                        if (agentList[i].agent_http_url === agentUrl) {
+                            this.printer_infos = agentList[i].printer_infos;
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,59 @@
+<script src="../assets/template-web.js"></script>
+<script src="../assets/jquery.PrintArea.js"></script>
+
+<dom-module id="things-common-web-print">
+  <template>
+    <style>
+      :host {
+        display: block;
+        text-align: center;
+        @apply (--layout-vertical);
+      }
+      #div-print-area {
+        @apply (--layout-flex);
+      }
+    </style>
+
+    <things-ajax
+      id="ajx-template"
+      resource-action="find"
+      resource-url="labels/:id"
+      resource-id="[[templateName]]"
+      on-things-ajax-response="onTemplateAjaxResponse"
+    >
+    </things-ajax>
+
+    <div id="div-print-area" hidden></div>
+  </template>
+  <script>
+    Polymer({
+      is: 'things-common-web-print',
+
+      properties: {
+        template: {
+          type: Object,
+          notify: true,
+        },
+        templateData: {
+          type: Object,
+          notify: true,
+        },
+        templateName: String,
+      },
+
+      onTemplateAjaxResponse(event) {
+        this.template = event.detail.command;
+
+        const html = template.compile(this.template)(this.templateData);
+
+        const printArea = this.$['div-print-area'];
+        printArea.innerHTML = html;
+        this.async(() => printArea.printArea(), 800);
+      },
+
+      print: function () {
+        this.$['ajx-template'].generateRequest();
+      },
+    });
+  </script>
+</dom-module>

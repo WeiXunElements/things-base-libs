@@ -1,0 +1,152 @@
+<dom-module id="things-common-print-agent">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <things-ajax
+      id="ajax-print"
+      resource-url="{{_computeAgentUrl(globals.agentUrl)}}"
+      method="POST"
+      content-type="application/json"
+      body="{{message}}"
+      on-things-ajax-response="onPrintAjaxResponse"
+    >
+    </things-ajax>
+
+    <things-ajax
+      id="history"
+      resource-url="label_histories"
+      method="POST"
+      content-type="application/json"
+      body="{{request}}"
+    >
+    </things-ajax>
+
+    <things-ajax
+      id="ajax-label"
+      sync
+      resource-url="[[labelUrl]]"
+      resource-action="create"
+      resource-id="[[labelId]]"
+      last-response="{{label}}"
+    >
+    </things-ajax>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'things-common-print-agent',
+
+      properties: {
+        agentUrl: {
+          type: String,
+          notify: true,
+        },
+
+        message: {
+          type: String,
+          observer: 'onMessageChanged',
+        },
+
+        label: Object,
+        labelId: {
+          type: String,
+          notify: true,
+        },
+        labelUrl: {
+          type: String,
+          notify: true,
+          value: 'labels/:id/print',
+        },
+        convertData: Object,
+      },
+
+      behaviors: [Things.GlobalBehavior],
+
+      _computeAgentUrl: function (agentUrl) {
+        return agentUrl + '/rest/agent/agent_infos/print';
+      },
+
+      onMessageChanged: function (data) {
+        this.$['ajax-print'].generateRequest();
+
+        console.log(`printer name: ${data.name}`);
+        console.log(`command: ${data.command}`);
+      },
+
+      makeHistory: function () {
+        if (this.label) {
+          this.label.label_id = this.label.id;
+          this.label.id = '';
+          this.request = this.label;
+        }
+
+        this.$.history.generateRequest();
+      },
+
+      printLabel: function () {
+        // 1. Component 추출
+        if (this.labelId) {
+          let ajaxLabel = this.$['ajax-label'];
+          ajaxLabel.params = { printer: this.globals.labelPrinterName };
+          ajaxLabel.body = this.convertData;
+
+          let request = ajaxLabel.generateRequest();
+          if (!request || !request.response) {
+            return;
+          }
+          if (!request.succeeded) {
+            console.log(request.response);
+            return;
+          }
+
+          let labelInfo = JSON.parse(request.response);
+          if (!labelInfo) {
+            return;
+          }
+
+          this.label = labelInfo;
+        }
+
+        let command = this.label.command;
+        let variables = this.convertData;
+        let self = this;
+        let labelKey = '';
+
+        if (variables) {
+          // 2. convertData --> variables 데이터 변환
+          Object.keys(variables).forEach((key, index) => {
+            command = command.split(key).join(variables[key]);
+            labelKey = labelKey + ',' + variables[key];
+          });
+          this.set('label.command', command);
+          this.set('label.keys', labelKey);
+        }
+
+        // 3. Request Command creation
+        this.message = {
+          name: this.globals.labelPrinterName,
+          command: command,
+        };
+      },
+
+      /**
+       * Command로 Label을 프린트한다.
+       */
+      printLabelByCommand: function (command) {
+        this.message = {
+          name: this.globals.labelPrinterName,
+          command: command,
+        };
+      },
+
+      onPrintAjaxResponse: function (event) {
+        console.log('success');
+        console.log(event);
+      },
+    });
+  </script>
+</dom-module>
