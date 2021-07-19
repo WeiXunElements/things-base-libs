@@ -51,7 +51,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 
   <script>
     Polymer({
-      is: "things-base-menu-detail-buttons",
+      is: 'things-base-menu-detail-buttons',
 
       properties: {
         /**
@@ -59,7 +59,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
          */
         resourceId: {
           type: String,
-          observer: "_menuDetailChanged",
+          observer: '_menuDetailChanged',
         },
 
         /**
@@ -67,7 +67,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
          */
         gridSaveUrl: {
           type: String,
-          computed: "_computeButtonSaveUrl(resourceId)",
+          computed: '_computeButtonSaveUrl(resourceId)',
         },
 
         /**
@@ -92,27 +92,27 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
           type: Array,
           value: [
             {
-              fieldName: "id",
+              fieldName: 'id',
             },
             {
-              fieldName: "menu_detail_id",
+              fieldName: 'menu_detail_id',
             },
             {
-              fieldName: "rank",
+              fieldName: 'rank',
               rank: true,
               increment: 10,
             },
             {
-              fieldName: "text",
+              fieldName: 'text',
             },
             {
-              fieldName: "term",
+              fieldName: 'term',
             },
             {
-              fieldName: "icon",
+              fieldName: 'icon',
             },
             {
-              fieldName: "style",
+              fieldName: 'style',
             },
           ],
         },
@@ -125,74 +125,74 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
           value: function () {
             return [
               {
-                fieldName: "id",
-                name: "id",
+                fieldName: 'id',
+                name: 'id',
                 width: 0,
               },
               {
-                fieldName: "menu_detail_id",
-                name: "menu_detail_id",
+                fieldName: 'menu_detail_id',
+                name: 'menu_detail_id',
                 width: 0,
               },
               {
-                name: "rank",
-                fieldName: "rank",
+                name: 'rank',
+                fieldName: 'rank',
                 width: 65,
                 nullable: false,
                 header: {
-                  text: Things.DataGlobal.t("label.rank"),
+                  text: Things.DataGlobal.t('label.rank'),
                 },
                 styles: {
-                  textAlignment: "center",
-                  numberFormat: "#,##0",
+                  textAlignment: 'center',
+                  numberFormat: '#,##0',
                 },
                 editor: {
-                  type: "number",
+                  type: 'number',
                 },
               },
               {
-                fieldName: "text",
-                name: "text",
+                fieldName: 'text',
+                name: 'text',
                 width: 135,
                 nullable: false,
                 header: {
-                  text: Things.DataGlobal.t("label.name"),
+                  text: Things.DataGlobal.t('label.name'),
                 },
                 editor: {
                   maxLength: 32,
                 },
               },
               {
-                fieldName: "term",
-                name: "term",
+                fieldName: 'term',
+                name: 'term',
                 width: 135,
                 header: {
-                  text: Things.DataGlobal.t("label.term"),
+                  text: Things.DataGlobal.t('label.term'),
                 },
-                valueType: "text",
-                type: "calced",
+                valueType: 'text',
+                type: 'calced',
                 valueCallback: function (column, row) {
-                  var text = row.getValue("text");
-                  return text ? Things.DataGlobal.t("button." + text) : "";
+                  var text = row.getValue('text');
+                  return text ? Things.DataGlobal.t('button.' + text) : '';
                 },
               },
               {
-                fieldName: "icon",
-                name: "icon",
+                fieldName: 'icon',
+                name: 'icon',
                 width: 135,
                 header: {
-                  text: Things.DataGlobal.t("label.icon"),
+                  text: Things.DataGlobal.t('label.icon'),
                 },
                 editor: {
                   maxLength: 32,
                 },
               },
               {
-                fieldName: "style",
-                name: "style",
+                fieldName: 'style',
+                name: 'style',
                 width: 135,
                 header: {
-                  text: Things.DataGlobal.t("label.style"),
+                  text: Things.DataGlobal.t('label.style'),
                 },
                 editor: {
                   maxLength: 64,
@@ -209,25 +209,26 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
           type: Array,
           value: [
             {
-              id: "add-btn",
-              text: "add",
+              id: 'add-btn',
+              text: 'add',
             },
             {
-              id: "delete-btn",
-              text: "delete",
+              id: 'delete-btn',
+              text: 'delete',
             },
             {
-              id: "save-btn",
-              text: "save",
+              id: 'save-btn',
+              text: 'save',
             },
           ],
         },
       },
 
       listeners: {
-        "things-detail-view-selected": "_detailTabSelected",
-        "grid.things-grid-handle-save": "_beforeButtonSave",
-        "grid.things-grid-save-success": "_onButtonsSaveSuccess",
+        'things-detail-view-selected': '_detailTabSelected',
+        'grid.things-grid-handle-addrow': '_addRow',
+        'grid.things-grid-handle-save': '_beforeButtonSave',
+        'grid.things-grid-save-success': '_onButtonsSaveSuccess',
       },
 
       /**
@@ -240,13 +241,27 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
       },
 
       /**
+       * Add Grid Row
+       *
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      _addRow: function (e) {
+        e.preventDefault();
+        var grid = this.$.grid;
+        var count = grid.dataSet.rowCount();
+        var data = grid.newRowData();
+        data.menu_detail_id = this.resourceId;
+        grid.dataSet.insertRow(count, data);
+      },
+
+      /**
        * Menu Detail Id Changed
        *
        * @param {String} menuDetailId
        */
       _menuDetailChanged: function (menuDetailId) {
-        this.$["button-ajax"].resourceId = menuDetailId;
-        this.$["button-ajax"].generateRequest();
+        this.$['button-ajax'].resourceId = menuDetailId;
+        this.$['button-ajax'].generateRequest();
       },
 
       /**
@@ -256,7 +271,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
        * @return {String} Button Search URL
        */
       _computeButtonSaveUrl: function (resourceId) {
-        return "menu_details/" + resourceId + "/menu_detail_buttons/update_multiple";
+        return 'menu_details/' + resourceId + '/menu_detail_buttons/update_multiple';
       },
 
       /**
@@ -270,7 +285,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
         if (grid.writeData && grid.writeData.length > 0) {
           var menuDetailId = this.resourceId;
           grid.writeData.forEach(function (changedData) {
-            delete changedData["term"];
+            delete changedData['term'];
             changedData.menu_detail_id = menuDetailId;
           });
         }

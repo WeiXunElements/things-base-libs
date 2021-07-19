@@ -20,7 +20,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
       :host {
         display: inline-block;
         @apply (--things-base-menu-detail);
-        @apply (--layout-horizontal);
+        @apply (--layout-horizontal-reverse);
       }
 
       paper-card {
@@ -77,7 +77,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
       }
 
       .subtitle:before {
-        content: "";
+        content: '';
         @apply (--things-subtitle-icon);
       }
       .subtitle {
@@ -129,7 +129,7 @@ Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 
   <script>
     Polymer({
-      is: "things-base-menu-detail",
+      is: 'things-base-menu-detail',
 
       behaviors: [Things.ViewOpenBehavior],
 
